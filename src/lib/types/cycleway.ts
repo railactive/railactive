@@ -33,6 +33,7 @@ export interface FilterState {
   section: string;
   searchTerm: string;
   colorBy: 'category' | 'classification' | 'developer' | 'kml';
+  hiddenLegendItems: string[];
 }
 
 export interface CyclewayStats {

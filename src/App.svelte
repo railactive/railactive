@@ -30,23 +30,9 @@
     classification: '',
     section: '',
     searchTerm: '',
-    colorBy: 'classification'
+    colorBy: 'classification',
+    hiddenLegendItems: []
   });
-
-  function normalizeData(data: CyclewayFeatureCollection): CyclewayFeatureCollection {
-    return {
-      ...data,
-      features: data.features.map((feature) => ({
-        ...feature,
-        properties: {
-          ...feature.properties,
-          classification: feature.properties.classification === 'Canel Towpath Upgrade'
-            ? 'Canal Towpath Upgrade'
-            : feature.properties.classification
-        }
-      }))
-    };
-  }
 
   // Load dataset with graceful fallback to example.geojson
   onMount(async () => {
@@ -58,14 +44,14 @@
         console.info('Loading open example dataset (public/data/example.geojson)...');
         const resp = await fetch('./data/example.geojson');
         if (!resp.ok) throw new Error(`Example dataset error (${resp.status})`);
-        rawData = normalizeData(await resp.json());
+        rawData = await resp.json();
         isExampleData = true;
       } else {
         // Try production dataset first
         try {
           const resp = await fetch('./data/north_south_cycleway.json');
           if (resp.ok) {
-            rawData = normalizeData(await resp.json());
+            rawData = await resp.json();
             isExampleData = false;
           } else {
             throw new Error(`Production data not found (${resp.status})`);
@@ -74,7 +60,7 @@
           console.warn('Production dataset not found, falling back to open example dataset...');
           const fallbackResp = await fetch('./data/example.geojson');
           if (!fallbackResp.ok) throw new Error(`Example dataset fallback failed (${fallbackResp.status})`);
-          rawData = normalizeData(await fallbackResp.json());
+          rawData = await fallbackResp.json();
           isExampleData = true;
         }
       }
@@ -108,7 +94,10 @@
     if (!rawData) return [];
     const cls = new Set<string>();
     for (const f of rawData.features) {
-      if (f.properties.classification) cls.add(f.properties.classification);
+      const c = f.properties.classification;
+      if (c) {
+        cls.add(c === 'HS2 Delivery' ? 'HS2 Haulage' : c);
+      }
     }
     return Array.from(cls).sort();
   });
@@ -127,14 +116,17 @@
     });
   });
 
-  // Filtered dataset for statistics
+  // Filtered dataset for statistics and map display
   let filteredFeatures = $derived.by(() => {
     if (!rawData) return [];
     return rawData.features.filter(f => {
       const p = f.properties;
       if (filters.developer && p.developer !== filters.developer) return false;
       if (filters.category && p.category !== filters.category) return false;
-      if (filters.classification && p.classification !== filters.classification) return false;
+      if (filters.classification) {
+        const pCls = p.classification === 'HS2 Delivery' ? 'HS2 Haulage' : p.classification;
+        if (pCls !== filters.classification) return false;
+      }
       if (filters.section && p.section !== filters.section) return false;
       if (filters.searchTerm) {
         const term = filters.searchTerm.toLowerCase();
@@ -161,12 +153,10 @@
       const km = p.length_km || 0;
       totalKm += km;
 
-      const isHs2 = p.classification === 'HS2 Delivery' || p.developer === 'HS2';
-      const isGreenway = p.classification === 'New Greenway' || p.category === 'Traffic-free path away from highway';
-
-      if (isHs2) {
+      if (p.classification === 'HS2 Delivery' || p.classification === 'HS2 Haulage' || p.developer === 'HS2' || p.category === 'Cycleway beside HS2') {
         hs2Km += km;
-      } else if (isGreenway) {
+      }
+      if (p.classification === 'New Greenway' || p.category === 'Traffic-free path away from highway') {
         greenwayKm += km;
       }
 
@@ -180,7 +170,8 @@
       developerCounts[dev].count += 1;
       developerCounts[dev].km += km;
 
-      const cls = p.classification || 'Unclassified';
+      let cls = p.classification || 'Existing & Connecting Routes';
+      if (cls === 'HS2 Delivery') cls = 'HS2 Haulage';
       if (!classificationCounts[cls]) classificationCounts[cls] = { count: 0, km: 0 };
       classificationCounts[cls].count += 1;
       classificationCounts[cls].km += km;
@@ -197,16 +188,16 @@
     };
   });
 
-  // Legend items based on active colorBy
+  // Legend items based on active colorBy with updated palette
   let legendItems = $derived.by(() => {
     const items: { label: string; color: string; km?: number }[] = [];
 
     if (filters.colorBy === 'category') {
       const colors: Record<string, string> = {
-        'Cycleway beside HS2': '#00e5ff',
-        'Traffic-free path away from highway': '#00e676',
-        '20mph and traffic calmed or protected cycle lane': '#ffab00',
-        'Canal tow path or new path close by canal': '#1de9b6'
+        'Cycleway beside HS2': '#f97316', // HS2 Haulage - Orange
+        'Traffic-free path away from highway': '#10b981', // Greenway - Emerald
+        '20mph and traffic calmed or protected cycle lane': '#3b82f6', // Quietways - Royal Blue
+        'Canal tow path or new path close by canal': '#06b6d4' // Canal - Teal Blue
       };
       for (const [cat, color] of Object.entries(colors)) {
         items.push({
@@ -217,12 +208,12 @@
       }
     } else if (filters.colorBy === 'developer') {
       const colors: Record<string, string> = {
-        'HS2': '#00e5ff',
-        'DfT': '#2979ff',
-        'Local Authority': '#00e676',
-        'Canals & River Trust': '#1de9b6',
-        'Sustrans': '#ff4081',
-        'Developer': '#ffab00'
+        'HS2': '#f97316',
+        'DfT': '#1d4ed8',
+        'Local Authority': '#10b981',
+        'Canals & River Trust': '#06b6d4',
+        'Sustrans': '#818cf8',
+        'Developer': '#38bdf8'
       };
       for (const [dev, color] of Object.entries(colors)) {
         items.push({
@@ -231,25 +222,18 @@
           km: stats.developerCounts[dev]?.km || 0
         });
       }
-    } else if (filters.colorBy === 'kml') {
-      items.push(
-        { label: 'HS2 Construction Alignment', color: '#00e5ff' },
-        { label: 'New Greenway Corridor', color: '#00e676' },
-        { label: 'PROW Upgrade', color: '#d500f9' },
-        { label: 'Quiet Lane / Traffic Calmed', color: '#ffab00' }
-      );
     } else {
-      // Default: Classification (High-contrast neon palette)
+      // Default: Classification (HS2 Haulage = Orange, Greenways = Green, Existing/Upgrades = Shades of Blue)
       const colors: Record<string, string> = {
-        'HS2 Delivery': '#171717',
-        'New Greenway': '#00e676',
-        'Upgrade PROW': '#d500f9',
-        'Quiet Lane': '#ffab00',
-        'Local Road Quietway': '#2979ff',
-        'Existing routes': '#60a5fa',
-        'Town or village centre': '#ff4081',
-        'Main Road-Cycle tracks': '#ff1744',
-        'Canal Towpath Upgrade': '#1de9b6'
+        'HS2 Haulage': '#f97316',
+        'New Greenway': '#10b981',
+        'Upgrade PROW': '#38bdf8',
+        'Local Road Quietway': '#3b82f6',
+        'Quiet Lane': '#1d4ed8',
+        'Existing routes': '#64748b',
+        'Town or village centre': '#818cf8',
+        'Main Road-Cycle tracks': '#4338ca',
+        'Canal Towpath Upgrade': '#06b6d4'
       };
       for (const [cls, color] of Object.entries(colors)) {
         items.push({
@@ -262,22 +246,28 @@
     return items;
   });
 
-  // Current active value for interactive legend highlight
-  let activeLegendFilterValue = $derived.by(() => {
-    if (filters.colorBy === 'category') return filters.category;
-    if (filters.colorBy === 'developer') return filters.developer;
-    if (filters.colorBy === 'classification') return filters.classification;
-    return '';
-  });
-
+  // Toggle individual legend item visibility (Add / Remove layer)
   function handleToggleLegendItem(label: string) {
-    if (filters.colorBy === 'category') {
-      filters.category = filters.category === label ? '' : label;
-    } else if (filters.colorBy === 'developer') {
-      filters.developer = filters.developer === label ? '' : label;
-    } else if (filters.colorBy === 'classification') {
-      filters.classification = filters.classification === label ? '' : label;
+    if (filters.hiddenLegendItems.includes(label)) {
+      filters.hiddenLegendItems = filters.hiddenLegendItems.filter(l => l !== label);
+    } else {
+      filters.hiddenLegendItems = [...filters.hiddenLegendItems, label];
     }
+  }
+
+  // Isolate a single legend item layer
+  function handleIsolateLegendItem(label: string) {
+    const allLabels = legendItems.map(i => i.label);
+    if (filters.hiddenLegendItems.length === allLabels.length - 1 && !filters.hiddenLegendItems.includes(label)) {
+      // Already isolated, restore all
+      filters.hiddenLegendItems = [];
+    } else {
+      filters.hiddenLegendItems = allLabels.filter(l => l !== label);
+    }
+  }
+
+  function handleShowAllLegendItems() {
+    filters.hiddenLegendItems = [];
   }
 
   function handleResetFilters() {
@@ -287,7 +277,8 @@
       classification: '',
       section: '',
       searchTerm: '',
-      colorBy: 'classification'
+      colorBy: 'classification',
+      hiddenLegendItems: []
     };
   }
 
@@ -349,9 +340,10 @@
     <Legend 
       title={filters.colorBy}
       items={legendItems}
-      activeFilterValue={activeLegendFilterValue}
-      {sidebarOpen}
+      hiddenItems={filters.hiddenLegendItems}
       onToggleItem={handleToggleLegendItem}
+      onIsolateItem={handleIsolateLegendItem}
+      onShowAll={handleShowAllLegendItems}
     />
   {/if}
 

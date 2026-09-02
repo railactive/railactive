@@ -36,7 +36,7 @@
         </div>
         <div class="attr-item full">
           <span class="attr-label">Classification</span>
-          <span class="attr-value">{segment.classification || 'Unclassified'}</span>
+          <span class="attr-value">{segment.classification === 'HS2 Delivery' ? 'HS2 Haulage' : (segment.classification || 'Unclassified')}</span>
         </div>
         <div class="attr-item">
           <span class="attr-label">Lead Developer</span>

@@ -10,6 +10,7 @@
   let hs2Pct = $derived(stats.totalKm > 0 ? (stats.hs2Km / stats.totalKm) * 100 : 0);
   let greenwayPct = $derived(stats.totalKm > 0 ? (stats.greenwayKm / stats.totalKm) * 100 : 0);
   let otherPct = $derived(Math.max(0, 100 - hs2Pct - greenwayPct));
+  let otherKm = $derived(Math.max(0, stats.totalKm - stats.hs2Km - stats.greenwayKm));
 </script>
 
 <div class="kpi-wrapper">
@@ -21,7 +22,7 @@
     </div>
 
     <div class="kpi-card highlight-hs2">
-      <div class="kpi-label">HS2 Delivery</div>
+      <div class="kpi-label">HS2 Haulage</div>
       <div class="kpi-value">{stats.hs2Km.toFixed(1)} <span class="unit">km</span></div>
       <div class="kpi-sub">{hs2Pct.toFixed(0)}% of total</div>
     </div>
@@ -41,19 +42,19 @@
     </div>
     <div class="dist-bar">
       {#if hs2Pct > 0}
-        <div class="bar-segment hs2-bar" style="width: {hs2Pct}%;" title="HS2 Delivery: {stats.hs2Km.toFixed(1)} km ({hs2Pct.toFixed(0)}%)"></div>
+        <div class="bar-segment hs2-bar" style="width: {hs2Pct}%;" title="HS2 Haulage: {stats.hs2Km.toFixed(1)} km ({hs2Pct.toFixed(0)}%)"></div>
       {/if}
       {#if greenwayPct > 0}
         <div class="bar-segment greenway-bar" style="width: {greenwayPct}%;" title="New Greenways: {stats.greenwayKm.toFixed(1)} km ({greenwayPct.toFixed(0)}%)"></div>
       {/if}
       {#if otherPct > 0}
-        <div class="bar-segment other-bar" style="width: {otherPct}%;" title="Quietways & Other: {(stats.totalKm - stats.hs2Km - stats.greenwayKm).toFixed(1)} km ({otherPct.toFixed(0)}%)"></div>
+        <div class="bar-segment other-bar" style="width: {otherPct}%;" title="Existing Routes & Quietways: {otherKm.toFixed(1)} km ({otherPct.toFixed(0)}%)"></div>
       {/if}
     </div>
     <div class="dist-legend">
-      <span class="legend-chip"><span class="dot hs2"></span> HS2 ({hs2Pct.toFixed(0)}%)</span>
+      <span class="legend-chip"><span class="dot hs2"></span> HS2 Haulage ({hs2Pct.toFixed(0)}%)</span>
       <span class="legend-chip"><span class="dot greenway"></span> Greenway ({greenwayPct.toFixed(0)}%)</span>
-      <span class="legend-chip"><span class="dot other"></span> Other ({otherPct.toFixed(0)}%)</span>
+      <span class="legend-chip"><span class="dot other"></span> Existing/Other ({otherPct.toFixed(0)}%)</span>
     </div>
   </div>
 </div>
@@ -81,13 +82,13 @@
   }
 
   .kpi-card.highlight-hs2 {
-    border-color: rgba(6, 182, 212, 0.4);
-    background: rgba(6, 182, 212, 0.08);
+    border-color: rgba(249, 115, 22, 0.45);
+    background: rgba(249, 115, 22, 0.1);
   }
 
   .kpi-card.highlight-greenway {
-    border-color: rgba(16, 185, 129, 0.4);
-    background: rgba(16, 185, 129, 0.08);
+    border-color: rgba(16, 185, 129, 0.45);
+    background: rgba(16, 185, 129, 0.1);
   }
 
   .kpi-label {
@@ -97,6 +98,14 @@
     letter-spacing: 0.04em;
     color: var(--text-secondary);
     margin-bottom: 2px;
+  }
+
+  .kpi-card.highlight-hs2 .kpi-label {
+    color: #fb923c;
+  }
+
+  .kpi-card.highlight-greenway .kpi-label {
+    color: #34d399;
   }
 
   .kpi-value {
@@ -165,7 +174,7 @@
   }
 
   .hs2-bar {
-    background: #06b6d4;
+    background: #f97316;
   }
 
   .greenway-bar {
@@ -173,7 +182,7 @@
   }
 
   .other-bar {
-    background: #8b5cf6;
+    background: #3b82f6;
   }
 
   .dist-legend {
@@ -181,12 +190,14 @@
     justify-content: space-between;
     font-size: 9px;
     color: var(--text-muted);
+    gap: 4px;
   }
 
   .legend-chip {
     display: flex;
     align-items: center;
     gap: 4px;
+    white-space: nowrap;
   }
 
   .dot {
@@ -195,7 +206,7 @@
     border-radius: 50%;
   }
 
-  .dot.hs2 { background: #06b6d4; }
+  .dot.hs2 { background: #f97316; }
   .dot.greenway { background: #10b981; }
-  .dot.other { background: #8b5cf6; }
+  .dot.other { background: #3b82f6; }
 </style>

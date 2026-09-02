@@ -29,8 +29,6 @@
   let map: maplibregl.Map | null = null;
   let hoveredId: number | null = null;
   let hoverPopup: maplibregl.Popup | null = null;
-  let popupPinned = false;
-  const interactiveLayerIds = ['hs2-corridor-lines', 'cycleway-lines', 'cycleway-points'];
 
   // High-performance raster basemap styles (clean, keyless, zero watermarks)
   const basemapStyles: Record<string, any> = {
@@ -153,61 +151,54 @@
   };
 
   function getColorExpression(colorBy: string): any {
-    let colorExpression: any;
-
     if (colorBy === 'kml') {
-      colorExpression = ['coalesce', ['get', 'color'], '#00e5ff'];
-    } else if (colorBy === 'category') {
-      colorExpression = [
+      return ['coalesce', ['get', 'color'], '#3b82f6'];
+    }
+    
+    if (colorBy === 'category') {
+      return [
         'match',
         ['coalesce', ['get', 'category'], ''],
-        'Cycleway beside HS2', '#00e5ff',
-        'Traffic-free path away from highway', '#00e676',
-        '20mph and traffic calmed or protected cycle lane', '#ffab00',
-        'Canal tow path or new path close by canal', '#1de9b6',
-        '#00e5ff'
-      ];
-    } else if (colorBy === 'developer') {
-      colorExpression = [
-        'match',
-        ['coalesce', ['get', 'developer'], ''],
-        'HS2', '#00e5ff',
-        'DfT', '#2979ff',
-        'Local Authority', '#00e676',
-        'Canals & River Trust', '#1de9b6',
-        'Sustrans', '#ff4081',
-        'Developer', '#ffab00',
-        '#00e5ff'
-      ];
-    } else {
-      // Default: Classification (High-contrast, vibrant neon cartographic palette)
-      colorExpression = [
-      'match',
-      ['coalesce', ['get', 'classification'], ''],
-      'HS2 Delivery', '#00e5ff',
-      'New Greenway', '#00e676',
-      'Upgrade PROW', '#d500f9',
-      'Quiet Lane', '#ffab00',
-      'Local Road Quietway', '#2979ff',
-      'Existing routes', '#60a5fa',
-      'Town or village centre', '#ff4081',
-      'Main Road-Cycle tracks', '#ff1744',
-      'Canal Towpath Upgrade', '#1de9b6',
-      'Existing Footway Level Cycle Track', '#7c4dff',
-      'Proposed Footway Level Cycle Track', '#b388ff',
-      'HS2 Legacy', '#00b0ff',
-      '#00e5ff' // Default fallback for unclassified lines: Ultra Vibrant Cyan
+        'Cycleway beside HS2', '#f97316', // HS2 Haulage - Coral Orange
+        'Traffic-free path away from highway', '#10b981', // Greenways - Emerald
+        '20mph and traffic calmed or protected cycle lane', '#3b82f6', // Quietways - Royal Blue
+        'Canal tow path or new path close by canal', '#06b6d4', // Canal - Teal Blue
+        '#2563eb' // Corridor Blue
       ];
     }
 
+    if (colorBy === 'developer') {
+      return [
+        'match',
+        ['coalesce', ['get', 'developer'], ''],
+        'HS2', '#f97316', // HS2 Haulage - Coral Orange
+        'DfT', '#1d4ed8', // DfT - Deep Blue
+        'Local Authority', '#10b981', // LA Greenways - Emerald
+        'Canals & River Trust', '#06b6d4', // CRT - Teal Blue
+        'Sustrans', '#818cf8', // Sustrans - Indigo
+        'Developer', '#38bdf8', // Developer - Sky Blue
+        '#3b82f6'
+      ];
+    }
+
+    // Default: Classification (HS2 Haulage = Orange, Greenways = Green, Existing/Upgrades = Shades of Blue)
     return [
-      'case',
-      [
-        'any',
-        ['==', ['coalesce', ['get', 'classification'], ''], 'HS2 Delivery'],
-        ['==', ['coalesce', ['get', 'classification'], ''], '']
-      ], '#171717',
-      colorExpression
+      'match',
+      ['coalesce', ['get', 'classification'], ''],
+      'HS2 Haulage', '#f97316', // Vibrant Coral Orange
+      'HS2 Delivery', '#f97316', // Legacy label mapped to Orange
+      'New Greenway', '#10b981', // Vibrant Emerald Green
+      'Upgrade PROW', '#38bdf8', // Light Sky Blue
+      'Local Road Quietway', '#3b82f6', // Bright Royal Blue
+      'Quiet Lane', '#1d4ed8', // Deep Cobalt Blue
+      'Existing routes', '#64748b', // Muted Slate Blue
+      'Town or village centre', '#818cf8', // Soft Indigo Blue
+      'Main Road-Cycle tracks', '#4338ca', // Dark Royal Blue
+      'Canal Towpath Upgrade', '#06b6d4', // Teal Cyan Blue
+      'Existing Footway Level Cycle Track', '#6366f1', // Indigo Blue
+      'Proposed Footway Level Cycle Track', '#a855f7', // Violet Blue
+      'HS2 Legacy', '#ea580c', // Darker Orange
+      '#2563eb' // Default connecting corridor: Classic Active Blue
     ];
   }
 
@@ -221,29 +212,28 @@
       expressions.push(['==', ['coalesce', ['get', 'category'], ''], f.category]);
     }
     if (f.classification) {
-      expressions.push(['==', ['coalesce', ['get', 'classification'], ''], f.classification]);
+      const cls = f.classification === 'HS2 Haulage' ? ['HS2 Haulage', 'HS2 Delivery'] : [f.classification];
+      expressions.push(['in', ['coalesce', ['get', 'classification'], ''], ['literal', cls]]);
     }
     if (f.section) {
       expressions.push(['==', ['coalesce', ['get', 'section'], ''], f.section]);
     }
 
-    return expressions.length > 1 ? expressions : null;
-  }
+    // Interactive Legend Layer Visibility Toggle (Add / Remove Layers)
+    if (f.hiddenLegendItems && f.hiddenLegendItems.length > 0) {
+      if (f.colorBy === 'category') {
+        expressions.push(['!', ['in', ['coalesce', ['get', 'category'], 'Uncategorized'], ['literal', f.hiddenLegendItems]]]);
+      } else if (f.colorBy === 'developer') {
+        expressions.push(['!', ['in', ['coalesce', ['get', 'developer'], 'Unassigned'], ['literal', f.hiddenLegendItems]]]);
+      } else {
+        // classification
+        const hiddenList = [...f.hiddenLegendItems];
+        if (hiddenList.includes('HS2 Haulage')) hiddenList.push('HS2 Delivery');
+        expressions.push(['!', ['in', ['coalesce', ['get', 'classification'], 'Existing & Connecting Routes'], ['literal', hiddenList]]]);
+      }
+    }
 
-  function showFeaturePopup(feature: maplibregl.MapGeoJSONFeature, lngLat: maplibregl.LngLat) {
-    const properties = feature.properties as CyclewaySegmentProperties;
-    const length = properties.length_km ? `${Number(properties.length_km).toFixed(2)} km` : '';
-    const html = `
-      <div class="tooltip-content">
-        <div class="tooltip-title">${properties.name || `Link ${properties.link_id || properties.id}`}</div>
-        <div class="tooltip-meta">
-          <span class="badge-sec">Sec ${properties.section || 'N/A'}</span>
-          <span class="tooltip-len">${length}</span>
-        </div>
-        <div class="tooltip-cat">${properties.classification || properties.category || ''}</div>
-      </div>
-    `;
-    hoverPopup?.setLngLat(lngLat).setHTML(html).addTo(map!);
+    return expressions.length > 1 ? expressions : null;
   }
 
   function ensureLayers() {
@@ -261,6 +251,7 @@
     const existingSource = map.getSource('cycleway-data') as maplibregl.GeoJSONSource;
     if (existingSource) {
       existingSource.setData(data as any);
+      fitCorridorBounds();
       return;
     }
 
@@ -295,45 +286,11 @@
         }
       });
 
-      // The HS2 base corridor is a neutral reference route below the active-travel network.
-      map.addLayer({
-        id: 'hs2-corridor-lines',
-        type: 'line',
-        source: 'cycleway-data',
-        filter: [
-          'any',
-          ['==', ['coalesce', ['get', 'classification'], ''], 'HS2 Delivery'],
-          ['==', ['coalesce', ['get', 'classification'], ''], '']
-        ],
-        layout: {
-          'line-cap': 'round',
-          'line-join': 'round'
-        },
-        paint: {
-          'line-color': '#171717',
-          'line-width': [
-            'interpolate',
-            ['linear'],
-            ['zoom'],
-            5, 10,
-            8, 12,
-            12, 16,
-            16, 22
-          ],
-          'line-opacity': 0.85
-        }
-      });
-
       // 2. High-Contrast Main Route Line Layer
       map.addLayer({
         id: 'cycleway-lines',
         type: 'line',
         source: 'cycleway-data',
-        filter: [
-          'all',
-          ['!=', ['coalesce', ['get', 'classification'], ''], 'HS2 Delivery'],
-          ['!=', ['coalesce', ['get', 'classification'], ''], '']
-        ],
         layout: {
           'line-cap': 'round',
           'line-join': 'round'
@@ -362,7 +319,7 @@
         paint: {
           'circle-radius': ['interpolate', ['linear'], ['zoom'], 6, 5, 12, 8, 16, 12],
           'circle-color': getColorExpression(filters.colorBy),
-          'circle-stroke-width': 1,
+          'circle-stroke-width': 2,
           'circle-stroke-color': '#ffffff'
         }
       });
@@ -378,10 +335,9 @@
       }
 
       // Interaction Events
-      const layerMap = map as any;
-      const handleMouseMove = (e: maplibregl.MapLayerMouseEvent) => {
+      map.off('mousemove', 'cycleway-lines');
+      map.on('mousemove', 'cycleway-lines', (e) => {
         if (!map || !e.features || e.features.length === 0) return;
-        if (popupPinned) return;
         map.getCanvas().style.cursor = 'pointer';
 
         const feat = e.features[0];
@@ -392,46 +348,38 @@
         }
         hoveredId = feat.id as number;
         map.setFeatureState({ source: 'cycleway-data', id: hoveredId }, { hover: true });
-        showFeaturePopup(feat, e.lngLat);
-      };
 
-      const handleMouseLeave = () => {
+        // Show Hover Tooltip
+        const lenStr = p.length_km ? `${Number(p.length_km).toFixed(2)} km` : '';
+        const displayCls = p.classification === 'HS2 Delivery' ? 'HS2 Haulage' : (p.classification || p.category || 'Active Route');
+        const html = `
+          <div class="tooltip-content">
+            <div class="tooltip-title">${p.name || `Link ${p.link_id || p.id}`}</div>
+            <div class="tooltip-meta">
+              <span class="badge-sec">Sec ${p.section || 'N/A'}</span>
+              <span class="tooltip-len">${lenStr}</span>
+            </div>
+            <div class="tooltip-cat">${displayCls}</div>
+          </div>
+        `;
+        hoverPopup?.setLngLat(e.lngLat).setHTML(html).addTo(map);
+      });
+
+      map.off('mouseleave', 'cycleway-lines');
+      map.on('mouseleave', 'cycleway-lines', () => {
         if (!map) return;
         map.getCanvas().style.cursor = '';
         if (hoveredId !== null) {
           map.setFeatureState({ source: 'cycleway-data', id: hoveredId }, { hover: false });
           hoveredId = null;
         }
-        if (!popupPinned) hoverPopup?.remove();
-      };
+        hoverPopup?.remove();
+      });
 
-      const handleFeatureClick = (e: maplibregl.MapLayerMouseEvent) => {
+      map.off('click', 'cycleway-lines', (e) => {
         if (e.features && e.features.length > 0) {
-          popupPinned = true;
-          const feature = e.features[0];
-          showFeaturePopup(feature, e.lngLat);
-          const props = feature.properties as CyclewaySegmentProperties;
+          const props = e.features[0].properties as CyclewaySegmentProperties;
           onSelectSegment(props);
-        }
-      };
-
-      for (const layerId of interactiveLayerIds) {
-        layerMap.off('mousemove', layerId, handleMouseMove);
-        layerMap.on('mousemove', layerId, handleMouseMove);
-        layerMap.off('mouseleave', layerId, handleMouseLeave);
-        layerMap.on('mouseleave', layerId, handleMouseLeave);
-        layerMap.off('click', layerId, handleFeatureClick);
-        layerMap.on('click', layerId, handleFeatureClick);
-      }
-
-      map.on('click', (e) => {
-        if (!map) return;
-        const features = map.queryRenderedFeatures(e.point, { layers: interactiveLayerIds });
-        if (features.length > 0) {
-          popupPinned = true;
-        } else {
-          popupPinned = false;
-          hoverPopup?.remove();
         }
       });
 
@@ -444,10 +392,6 @@
   export function fitCorridorBounds() {
     if (!map || !data || !data.features || data.features.length === 0) return;
     map.resize();
-    const rightPadding = 40;
-    const leftPadding = sidebarOpen
-      ? Math.min(360, Math.max(40, map.getCanvas().clientWidth - rightPadding - 40))
-      : 40;
     const bounds = new maplibregl.LngLatBounds();
     
     for (const f of data.features) {
@@ -466,8 +410,8 @@
     if (!bounds.isEmpty()) {
       map.fitBounds(bounds, {
         padding: {
-          left: leftPadding,
-          right: rightPadding,
+          left: sidebarOpen ? 360 : 40,
+          right: 40,
           top: 40,
           bottom: 40
         },
@@ -482,11 +426,6 @@
     map.resize();
     const feature = data.features.find(f => f.properties.id === id);
     if (!feature) return;
-
-    const rightPadding = 80;
-    const leftPadding = sidebarOpen
-      ? Math.min(380, Math.max(80, map.getCanvas().clientWidth - rightPadding - 80))
-      : 80;
 
     const bounds = new maplibregl.LngLatBounds();
     const geom = feature.geometry;
@@ -503,8 +442,8 @@
     if (!bounds.isEmpty()) {
       map.fitBounds(bounds, {
         padding: {
-          left: leftPadding,
-          right: rightPadding,
+          left: sidebarOpen ? 380 : 80,
+          right: 80,
           top: 80,
           bottom: 80
         },
@@ -554,34 +493,11 @@
     if (map && map.isStyleLoaded() && map.getLayer('cycleway-lines')) {
       const filterExpr = getFilterExpression(filters);
       if (filterExpr) {
-        map.setFilter('cycleway-lines', [
-          'all',
-          filterExpr,
-          ['!=', ['coalesce', ['get', 'classification'], ''], 'HS2 Delivery'],
-          ['!=', ['coalesce', ['get', 'classification'], ''], '']
-        ]);
+        map.setFilter('cycleway-lines', filterExpr);
         map.setFilter('cycleway-casing', filterExpr);
-        map.setFilter('hs2-corridor-lines', [
-          'all',
-          filterExpr,
-          [
-            'any',
-            ['==', ['coalesce', ['get', 'classification'], ''], 'HS2 Delivery'],
-            ['==', ['coalesce', ['get', 'classification'], ''], '']
-          ]
-        ]);
       } else {
-        map.setFilter('cycleway-lines', [
-          'all',
-          ['!=', ['coalesce', ['get', 'classification'], ''], 'HS2 Delivery'],
-          ['!=', ['coalesce', ['get', 'classification'], ''], '']
-        ]);
+        map.setFilter('cycleway-lines', null);
         map.setFilter('cycleway-casing', null);
-        map.setFilter('hs2-corridor-lines', [
-          'any',
-          ['==', ['coalesce', ['get', 'classification'], ''], 'HS2 Delivery'],
-          ['==', ['coalesce', ['get', 'classification'], ''], '']
-        ]);
       }
       if (map.getLayer('cycleway-points')) {
         map.setFilter('cycleway-points', filterExpr || null);
