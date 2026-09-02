@@ -71,29 +71,32 @@
     }
   });
 
+  // Separate active travel routes from the underlying railway line
+  let activeNetworkFeatures = $derived.by(() => {
+    if (!rawData) return [];
+    return rawData.features.filter(f => f.properties.layer_type !== 'hs2_railway' && f.properties.layer_type !== 'intervention');
+  });
+
   // Extract unique filter lists
   let availableDevelopers = $derived.by(() => {
-    if (!rawData) return [];
     const devs = new Set<string>();
-    for (const f of rawData.features) {
+    for (const f of activeNetworkFeatures) {
       if (f.properties.developer) devs.add(f.properties.developer);
     }
     return Array.from(devs).sort();
   });
 
   let availableCategories = $derived.by(() => {
-    if (!rawData) return [];
     const cats = new Set<string>();
-    for (const f of rawData.features) {
+    for (const f of activeNetworkFeatures) {
       if (f.properties.category) cats.add(f.properties.category);
     }
     return Array.from(cats).sort();
   });
 
   let availableClassifications = $derived.by(() => {
-    if (!rawData) return [];
     const cls = new Set<string>();
-    for (const f of rawData.features) {
+    for (const f of activeNetworkFeatures) {
       const c = f.properties.classification;
       if (c) {
         cls.add(c === 'HS2 Delivery' ? 'HS2 Haulage' : c);
@@ -103,9 +106,8 @@
   });
 
   let availableSections = $derived.by(() => {
-    if (!rawData) return [];
     const secs = new Set<string>();
-    for (const f of rawData.features) {
+    for (const f of activeNetworkFeatures) {
       if (f.properties.section) secs.add(f.properties.section);
     }
     return Array.from(secs).sort((a, b) => {
@@ -116,10 +118,9 @@
     });
   });
 
-  // Filtered dataset for statistics and map display
+  // Filtered dataset for active travel statistics
   let filteredFeatures = $derived.by(() => {
-    if (!rawData) return [];
-    return rawData.features.filter(f => {
+    return activeNetworkFeatures.filter(f => {
       const p = f.properties;
       if (filters.developer && p.developer !== filters.developer) return false;
       if (filters.category && p.category !== filters.category) return false;
@@ -139,7 +140,7 @@
     });
   });
 
-  // Calculate live statistics
+  // Calculate live statistics for active travel routes
   let stats: CyclewayStats = $derived.by(() => {
     let totalKm = 0;
     let hs2Km = 0;
@@ -153,7 +154,7 @@
       const km = p.length_km || 0;
       totalKm += km;
 
-      if (p.classification === 'HS2 Delivery' || p.classification === 'HS2 Haulage' || p.developer === 'HS2' || p.category === 'Cycleway beside HS2') {
+      if (p.classification === 'HS2 Delivery' || p.classification === 'HS2 Haulage' || p.classification === 'HS2 Legacy' || p.developer === 'HS2' || p.category === 'Cycleway beside HS2') {
         hs2Km += km;
       }
       if (p.classification === 'New Greenway' || p.category === 'Traffic-free path away from highway') {
@@ -165,12 +166,12 @@
       categoryCounts[cat].count += 1;
       categoryCounts[cat].km += km;
 
-      const dev = p.developer || 'Unassigned';
+      const dev = p.developer || 'Local Authority';
       if (!developerCounts[dev]) developerCounts[dev] = { count: 0, km: 0 };
       developerCounts[dev].count += 1;
       developerCounts[dev].km += km;
 
-      let cls = p.classification || 'Existing & Connecting Routes';
+      let cls = p.classification || 'Existing routes';
       if (cls === 'HS2 Delivery') cls = 'HS2 Haulage';
       if (!classificationCounts[cls]) classificationCounts[cls] = { count: 0, km: 0 };
       classificationCounts[cls].count += 1;
@@ -188,7 +189,7 @@
     };
   });
 
-  // Legend items based on active colorBy with updated palette
+  // Legend items based on active colorBy with full classification set
   let legendItems = $derived.by(() => {
     const items: { label: string; color: string; km?: number }[] = [];
 
@@ -233,14 +234,17 @@
         'Existing routes': '#64748b',
         'Town or village centre': '#818cf8',
         'Main Road-Cycle tracks': '#4338ca',
-        'Canal Towpath Upgrade': '#06b6d4'
+        'Canal Towpath Upgrade': '#06b6d4',
+        'HS2 Legacy': '#ea580c'
       };
       for (const [cls, color] of Object.entries(colors)) {
-        items.push({
-          label: cls,
-          color,
-          km: stats.classificationCounts[cls]?.km || 0
-        });
+        if (stats.classificationCounts[cls]?.count || stats.classificationCounts[cls]?.km) {
+          items.push({
+            label: cls,
+            color,
+            km: stats.classificationCounts[cls]?.km || 0
+          });
+        }
       }
     }
     return items;
@@ -259,7 +263,6 @@
   function handleIsolateLegendItem(label: string) {
     const allLabels = legendItems.map(i => i.label);
     if (filters.hiddenLegendItems.length === allLabels.length - 1 && !filters.hiddenLegendItems.includes(label)) {
-      // Already isolated, restore all
       filters.hiddenLegendItems = [];
     } else {
       filters.hiddenLegendItems = allLabels.filter(l => l !== label);

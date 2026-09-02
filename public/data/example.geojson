@@ -6,6 +6,30 @@
     {
       "type": "Feature",
       "properties": {
+        "id": 100,
+        "name": "HS2 Phase 1 Main Railway Alignment",
+        "layer_type": "hs2_railway",
+        "structure": "Track Alignment",
+        "phase": "Phase 1",
+        "length_km": 140.0
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-0.133, 51.528],
+          [-0.250, 51.560],
+          [-0.490, 51.590],
+          [-0.720, 51.750],
+          [-1.010, 51.930],
+          [-1.380, 52.180],
+          [-1.710, 52.440],
+          [-1.880, 52.480]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
         "id": 1,
         "name": "Colne Valley Viaduct Trail",
         "link_id": "HS2-CV-01",
@@ -15,7 +39,8 @@
         "developer": "HS2",
         "setting": "Rural",
         "length_km": 3.45,
-        "color": "#f97316",
+        "folder": "HS2 Alignment",
+        "layer_type": "active_route",
         "remarks": "Repurposed construction haul route parallel to Colne Valley viaduct."
       },
       "geometry": {
@@ -40,7 +65,8 @@
         "developer": "Local Authority",
         "setting": "Rural AONB",
         "length_km": 5.20,
-        "color": "#10b981",
+        "folder": "HS2 Alignment",
+        "layer_type": "active_route",
         "remarks": "Dedicated 3.5m asphalt/bound surface for walkers, wheelers, and cyclists."
       },
       "geometry": {
@@ -65,7 +91,8 @@
         "developer": "Sustrans",
         "setting": "Woodland",
         "length_km": 2.10,
-        "color": "#38bdf8",
+        "folder": "HS2 Alignment",
+        "layer_type": "active_route",
         "remarks": "Upgraded public right of way with all-weather bound aggregate."
       },
       "geometry": {
@@ -89,7 +116,8 @@
         "developer": "Local Authority",
         "setting": "Semi-rural",
         "length_km": 3.60,
-        "color": "#1d4ed8",
+        "folder": "HS2 Alignment",
+        "layer_type": "active_route",
         "remarks": "Modal filters and 20mph speed reduction connecting to Aylesbury Greenway."
       },
       "geometry": {
@@ -105,23 +133,26 @@
       "type": "Feature",
       "properties": {
         "id": 5,
-        "name": "Calvert Infrastructure Alignment",
-        "link_id": "HS2-CA-03",
-        "section": "5",
-        "category": "Cycleway beside HS2",
-        "classification": "HS2 Haulage",
-        "developer": "HS2",
-        "setting": "Industrial/Rail Corridor",
-        "length_km": 4.15,
-        "color": "#f97316",
-        "remarks": "Active travel path alongside rail cutting connecting East West Rail crossing."
+        "name": "South London Avenue Verte Greenway",
+        "link_id": "AV-SL-01",
+        "section": "South of London",
+        "category": "Traffic-free path away from highway",
+        "classification": "Existing routes",
+        "developer": "Southwark Council",
+        "setting": "South of London",
+        "length_km": 6.80,
+        "folder": "Averte Verte",
+        "layer_type": "active_route",
+        "remarks": "Continuous greenway corridor connecting London southwards to Surrey & Sussex."
       },
       "geometry": {
         "type": "LineString",
         "coordinates": [
-          [-0.990, 51.910],
-          [-1.010, 51.930],
-          [-1.030, 51.955]
+          [-0.080, 51.490],
+          [-0.090, 51.450],
+          [-0.100, 51.400],
+          [-0.115, 51.350],
+          [-0.130, 51.300]
         ]
       }
     },
@@ -137,7 +168,8 @@
         "developer": "Canals & River Trust",
         "setting": "Canal Corridor",
         "length_km": 2.80,
-        "color": "#06b6d4",
+        "folder": "HS2 Alignment",
+        "layer_type": "active_route",
         "remarks": "Widened towpath with bound crushed limestone surface."
       },
       "geometry": {
@@ -161,7 +193,8 @@
         "developer": "Local Authority",
         "setting": "Parkland/Greenway",
         "length_km": 4.50,
-        "color": "#10b981",
+        "folder": "HS2 Alignment",
+        "layer_type": "active_route",
         "remarks": "Flagship 4m wide multi-user greenway on former railway alignment."
       },
       "geometry": {
@@ -185,7 +218,8 @@
         "developer": "DfT",
         "setting": "Urban Fringe",
         "length_km": 1.90,
-        "color": "#3b82f6",
+        "folder": "HS2 Alignment",
+        "layer_type": "active_route",
         "remarks": "Protected cycleway connecting Solihull HS2 Interchange to residential hub."
       },
       "geometry": {
@@ -209,7 +243,8 @@
         "developer": "Local Authority",
         "setting": "Urban Core",
         "length_km": 1.40,
-        "color": "#4338ca",
+        "folder": "HS2 Alignment",
+        "layer_type": "active_route",
         "remarks": "Stepped cycle tracks and wide pedestrian footways approaching terminal."
       },
       "geometry": {
@@ -225,23 +260,25 @@
       "type": "Feature",
       "properties": {
         "id": 10,
-        "name": "Lichfield Trent Valley Connection",
-        "link_id": "LF-TV-02",
-        "section": "20",
+        "name": "Sussex Cuckoo Trail Link",
+        "link_id": "AV-SX-03",
+        "section": "South of London",
         "category": "Traffic-free path away from highway",
         "classification": "New Greenway",
-        "developer": "Local Authority",
-        "setting": "Rural",
-        "length_km": 4.25,
-        "color": "#10b981",
-        "remarks": "New bridleway and cycleway connecting Lichfield to Phase 1/Phase 2 junction."
+        "developer": "East Sussex County Council",
+        "setting": "South of London",
+        "length_km": 5.40,
+        "folder": "Averte Verte",
+        "layer_type": "active_route",
+        "remarks": "Traffic-free former railway path connecting Heathfield to Polegate."
       },
       "geometry": {
         "type": "LineString",
         "coordinates": [
-          [-1.810, 52.680],
-          [-1.820, 52.705],
-          [-1.830, 52.730]
+          [0.250, 50.960],
+          [0.260, 50.920],
+          [0.270, 50.880],
+          [0.250, 50.820]
         ]
       }
     }

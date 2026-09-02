@@ -160,10 +160,10 @@
         'match',
         ['coalesce', ['get', 'category'], ''],
         'Cycleway beside HS2', '#f97316', // HS2 Haulage - Coral Orange
-        'Traffic-free path away from highway', '#10b981', // Greenways - Emerald
+        'Traffic-free path away from highway', '#10b981', // Greenways - Emerald Green
         '20mph and traffic calmed or protected cycle lane', '#3b82f6', // Quietways - Royal Blue
         'Canal tow path or new path close by canal', '#06b6d4', // Canal - Teal Blue
-        '#2563eb' // Corridor Blue
+        '#3b82f6' // Corridor Blue
       ];
     }
 
@@ -187,6 +187,7 @@
       ['coalesce', ['get', 'classification'], ''],
       'HS2 Haulage', '#f97316', // Vibrant Coral Orange
       'HS2 Delivery', '#f97316', // Legacy label mapped to Orange
+      'HS2 Legacy', '#ea580c', // Darker Orange
       'New Greenway', '#10b981', // Vibrant Emerald Green
       'Upgrade PROW', '#38bdf8', // Light Sky Blue
       'Local Road Quietway', '#3b82f6', // Bright Royal Blue
@@ -197,13 +198,16 @@
       'Canal Towpath Upgrade', '#06b6d4', // Teal Cyan Blue
       'Existing Footway Level Cycle Track', '#6366f1', // Indigo Blue
       'Proposed Footway Level Cycle Track', '#a855f7', // Violet Blue
-      'HS2 Legacy', '#ea580c', // Darker Orange
-      '#2563eb' // Default connecting corridor: Classic Active Blue
+      '#3b82f6' // Default active route: Blue
     ];
   }
 
-  function getFilterExpression(f: FilterState): any {
-    const expressions: any[] = ['all'];
+  function getActiveFilterExpression(f: FilterState): any {
+    const expressions: any[] = [
+      'all',
+      ['!=', ['coalesce', ['get', 'layer_type'], ''], 'hs2_railway'],
+      ['!=', ['coalesce', ['get', 'layer_type'], ''], 'intervention']
+    ];
 
     if (f.developer) {
       expressions.push(['==', ['coalesce', ['get', 'developer'], ''], f.developer]);
@@ -219,21 +223,20 @@
       expressions.push(['==', ['coalesce', ['get', 'section'], ''], f.section]);
     }
 
-    // Interactive Legend Layer Visibility Toggle (Add / Remove Layers)
+    // Interactive Legend Layer Visibility Toggle
     if (f.hiddenLegendItems && f.hiddenLegendItems.length > 0) {
       if (f.colorBy === 'category') {
         expressions.push(['!', ['in', ['coalesce', ['get', 'category'], 'Uncategorized'], ['literal', f.hiddenLegendItems]]]);
       } else if (f.colorBy === 'developer') {
         expressions.push(['!', ['in', ['coalesce', ['get', 'developer'], 'Unassigned'], ['literal', f.hiddenLegendItems]]]);
       } else {
-        // classification
         const hiddenList = [...f.hiddenLegendItems];
         if (hiddenList.includes('HS2 Haulage')) hiddenList.push('HS2 Delivery');
-        expressions.push(['!', ['in', ['coalesce', ['get', 'classification'], 'Existing & Connecting Routes'], ['literal', hiddenList]]]);
+        expressions.push(['!', ['in', ['coalesce', ['get', 'classification'], 'Existing routes'], ['literal', hiddenList]]]);
       }
     }
 
-    return expressions.length > 1 ? expressions : null;
+    return expressions;
   }
 
   function ensureLayers() {
@@ -262,11 +265,67 @@
         generateId: true
       });
 
+      // ==========================================
+      // A. MAIN HS2 RAILWAY TRACK LINE (Solid / Dashed Black Track)
+      // ==========================================
+      map.addLayer({
+        id: 'hs2-rail-casing',
+        type: 'line',
+        source: 'cycleway-data',
+        filter: ['==', ['coalesce', ['get', 'layer_type'], ''], 'hs2_railway'],
+        layout: {
+          'line-cap': 'butt',
+          'line-join': 'miter'
+        },
+        paint: {
+          'line-color': '#000000',
+          'line-width': [
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            5, 3.0,
+            8, 4.5,
+            12, 6.0,
+            16, 9.0
+          ],
+          'line-opacity': 0.95
+        }
+      });
+
+      map.addLayer({
+        id: 'hs2-rail-ties',
+        type: 'line',
+        source: 'cycleway-data',
+        filter: ['==', ['coalesce', ['get', 'layer_type'], ''], 'hs2_railway'],
+        layout: {
+          'line-cap': 'butt',
+          'line-join': 'miter'
+        },
+        paint: {
+          'line-color': '#ffffff',
+          'line-width': [
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            5, 1.5,
+            8, 2.2,
+            12, 3.5,
+            16, 5.5
+          ],
+          'line-dasharray': [2, 2],
+          'line-opacity': 0.9
+        }
+      });
+
+      // ==========================================
+      // B. ACTIVE TRAVEL NETWORK (Walking, Wheeling, Cycling)
+      // ==========================================
       // 1. High-Contrast Outer Casing Layer
       map.addLayer({
         id: 'cycleway-casing',
         type: 'line',
         source: 'cycleway-data',
+        filter: getActiveFilterExpression(filters),
         layout: {
           'line-cap': 'round',
           'line-join': 'round'
@@ -277,20 +336,21 @@
             'interpolate',
             ['linear'],
             ['zoom'],
-            5, 6,
-            8, 8,
-            12, 11,
-            16, 16
+            5, 5.5,
+            8, 7.5,
+            12, 10.5,
+            16, 15.0
           ],
           'line-opacity': 0.95
         }
       });
 
-      // 2. High-Contrast Main Route Line Layer
+      // 2. High-Contrast Main Active Route Line Layer
       map.addLayer({
         id: 'cycleway-lines',
         type: 'line',
         source: 'cycleway-data',
+        filter: getActiveFilterExpression(filters),
         layout: {
           'line-cap': 'round',
           'line-join': 'round'
@@ -302,24 +362,24 @@
             ['linear'],
             ['zoom'],
             5, 3.5,
-            8, 5,
+            8, 5.0,
             12, 7.5,
-            16, 12
+            16, 12.0
           ],
           'line-opacity': 1.0
         }
       });
 
-      // 3. Points Layer
+      // 3. Points / Interventions Layer
       map.addLayer({
         id: 'cycleway-points',
         type: 'circle',
         source: 'cycleway-data',
         filter: ['==', '$type', 'Point'],
         paint: {
-          'circle-radius': ['interpolate', ['linear'], ['zoom'], 6, 5, 12, 8, 16, 12],
+          'circle-radius': ['interpolate', ['linear'], ['zoom'], 6, 4, 12, 7, 16, 11],
           'circle-color': getColorExpression(filters.colorBy),
-          'circle-stroke-width': 2,
+          'circle-stroke-width': 1.5,
           'circle-stroke-color': '#ffffff'
         }
       });
@@ -334,7 +394,7 @@
         });
       }
 
-      // Interaction Events
+      // Interaction Events on Active Routes
       map.off('mousemove', 'cycleway-lines');
       map.on('mousemove', 'cycleway-lines', (e) => {
         if (!map || !e.features || e.features.length === 0) return;
@@ -356,7 +416,7 @@
           <div class="tooltip-content">
             <div class="tooltip-title">${p.name || `Link ${p.link_id || p.id}`}</div>
             <div class="tooltip-meta">
-              <span class="badge-sec">Sec ${p.section || 'N/A'}</span>
+              <span class="badge-sec">${p.section || 'Corridor'}</span>
               <span class="tooltip-len">${lenStr}</span>
             </div>
             <div class="tooltip-cat">${displayCls}</div>
@@ -381,6 +441,33 @@
           const props = e.features[0].properties as CyclewaySegmentProperties;
           onSelectSegment(props);
         }
+      });
+
+      // Hover on Railway Track
+      map.off('mousemove', 'hs2-rail-casing');
+      map.on('mousemove', 'hs2-rail-casing', (e) => {
+        if (!map || !e.features || e.features.length === 0) return;
+        map.getCanvas().style.cursor = 'pointer';
+        const feat = e.features[0];
+        const p = feat.properties as any;
+        const html = `
+          <div class="tooltip-content">
+            <div class="tooltip-title">HS2 High Speed Rail Line</div>
+            <div class="tooltip-meta">
+              <span class="badge-sec">Railway Track</span>
+              <span class="tooltip-len">${p.structure || 'Alignment'}</span>
+            </div>
+            <div class="tooltip-cat">${p.phase || 'Phase 1'}</div>
+          </div>
+        `;
+        hoverPopup?.setLngLat(e.lngLat).setHTML(html).addTo(map);
+      });
+
+      map.off('mouseleave', 'hs2-rail-casing');
+      map.on('mouseleave', 'hs2-rail-casing', () => {
+        if (!map) return;
+        map.getCanvas().style.cursor = '';
+        hoverPopup?.remove();
       });
 
       fitCorridorBounds();
@@ -491,16 +578,12 @@
   // Reactive updates for filters and style
   $effect(() => {
     if (map && map.isStyleLoaded() && map.getLayer('cycleway-lines')) {
-      const filterExpr = getFilterExpression(filters);
-      if (filterExpr) {
-        map.setFilter('cycleway-lines', filterExpr);
-        map.setFilter('cycleway-casing', filterExpr);
-      } else {
-        map.setFilter('cycleway-lines', null);
-        map.setFilter('cycleway-casing', null);
-      }
+      const filterExpr = getActiveFilterExpression(filters);
+      map.setFilter('cycleway-lines', filterExpr);
+      map.setFilter('cycleway-casing', filterExpr);
+      
       if (map.getLayer('cycleway-points')) {
-        map.setFilter('cycleway-points', filterExpr || null);
+        map.setFilter('cycleway-points', ['all', ['==', '$type', 'Point'], filterExpr]);
       }
       
       const colorExpr = getColorExpression(filters.colorBy);
