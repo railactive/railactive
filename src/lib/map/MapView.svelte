@@ -223,16 +223,20 @@
       expressions.push(['==', ['coalesce', ['get', 'section'], ''], f.section]);
     }
 
-    // Interactive Legend Layer Visibility Toggle
+    // Interactive Legend Layer Visibility Toggle (Exclude unchecked layers)
     if (f.hiddenLegendItems && f.hiddenLegendItems.length > 0) {
-      if (f.colorBy === 'category') {
-        expressions.push(['!', ['in', ['coalesce', ['get', 'category'], 'Uncategorized'], ['literal', f.hiddenLegendItems]]]);
-      } else if (f.colorBy === 'developer') {
-        expressions.push(['!', ['in', ['coalesce', ['get', 'developer'], 'Unassigned'], ['literal', f.hiddenLegendItems]]]);
-      } else {
-        const hiddenList = [...f.hiddenLegendItems];
-        if (hiddenList.includes('HS2 Haulage')) hiddenList.push('HS2 Delivery');
-        expressions.push(['!', ['in', ['coalesce', ['get', 'classification'], 'Existing routes'], ['literal', hiddenList]]]);
+      for (const item of f.hiddenLegendItems) {
+        if (f.colorBy === 'category') {
+          expressions.push(['!=', ['coalesce', ['get', 'category'], ''], item]);
+        } else if (f.colorBy === 'developer') {
+          expressions.push(['!=', ['coalesce', ['get', 'developer'], ''], item]);
+        } else {
+          // classification
+          expressions.push(['!=', ['coalesce', ['get', 'classification'], ''], item]);
+          if (item === 'HS2 Haulage') {
+            expressions.push(['!=', ['coalesce', ['get', 'classification'], ''], 'HS2 Delivery']);
+          }
+        }
       }
     }
 
@@ -577,6 +581,14 @@
 
   // Reactive updates for filters and style
   $effect(() => {
+    // Explicitly track filter dependencies so Svelte 5 runs the effect on any filter change
+    const _hidden = filters.hiddenLegendItems ? filters.hiddenLegendItems.join(',') : '';
+    const _dev = filters.developer;
+    const _cat = filters.category;
+    const _cls = filters.classification;
+    const _sec = filters.section;
+    const _colorBy = filters.colorBy;
+
     if (map && map.isStyleLoaded() && map.getLayer('cycleway-lines')) {
       const filterExpr = getActiveFilterExpression(filters);
       map.setFilter('cycleway-lines', filterExpr);

@@ -136,6 +136,16 @@
         const matchRemarks = p.remarks && p.remarks.toLowerCase().includes(term);
         if (!matchName && !matchId && !matchRemarks) return false;
       }
+      if (filters.hiddenLegendItems && filters.hiddenLegendItems.length > 0) {
+        if (filters.colorBy === 'category') {
+          if (filters.hiddenLegendItems.includes(p.category || 'Uncategorized')) return false;
+        } else if (filters.colorBy === 'developer') {
+          if (filters.hiddenLegendItems.includes(p.developer || 'Local Authority')) return false;
+        } else {
+          const pCls = p.classification === 'HS2 Delivery' ? 'HS2 Haulage' : (p.classification || 'Existing routes');
+          if (filters.hiddenLegendItems.includes(pCls)) return false;
+        }
+      }
       return true;
     });
   });
@@ -201,11 +211,13 @@
         'Canal tow path or new path close by canal': '#06b6d4' // Canal - Teal Blue
       };
       for (const [cat, color] of Object.entries(colors)) {
-        items.push({
-          label: cat,
-          color,
-          km: stats.categoryCounts[cat]?.km || 0
-        });
+        let catKm = 0;
+        for (const f of activeNetworkFeatures) {
+          if (f.properties.category === cat) catKm += f.properties.length_km || 0;
+        }
+        if (catKm > 0) {
+          items.push({ label: cat, color, km: catKm });
+        }
       }
     } else if (filters.colorBy === 'developer') {
       const colors: Record<string, string> = {
@@ -217,11 +229,13 @@
         'Developer': '#38bdf8'
       };
       for (const [dev, color] of Object.entries(colors)) {
-        items.push({
-          label: dev,
-          color,
-          km: stats.developerCounts[dev]?.km || 0
-        });
+        let devKm = 0;
+        for (const f of activeNetworkFeatures) {
+          if (f.properties.developer === dev) devKm += f.properties.length_km || 0;
+        }
+        if (devKm > 0) {
+          items.push({ label: dev, color, km: devKm });
+        }
       }
     } else {
       // Default: Classification (HS2 Haulage = Orange, Greenways = Green, Existing/Upgrades = Shades of Blue)
@@ -238,12 +252,13 @@
         'HS2 Legacy': '#ea580c'
       };
       for (const [cls, color] of Object.entries(colors)) {
-        if (stats.classificationCounts[cls]?.count || stats.classificationCounts[cls]?.km) {
-          items.push({
-            label: cls,
-            color,
-            km: stats.classificationCounts[cls]?.km || 0
-          });
+        let clsKm = 0;
+        for (const f of activeNetworkFeatures) {
+          const c = f.properties.classification === 'HS2 Delivery' ? 'HS2 Haulage' : (f.properties.classification || 'Existing routes');
+          if (c === cls) clsKm += f.properties.length_km || 0;
+        }
+        if (clsKm > 0) {
+          items.push({ label: cls, color, km: clsKm });
         }
       }
     }
@@ -252,25 +267,23 @@
 
   // Toggle individual legend item visibility (Add / Remove layer)
   function handleToggleLegendItem(label: string) {
-    if (filters.hiddenLegendItems.includes(label)) {
-      filters.hiddenLegendItems = filters.hiddenLegendItems.filter(l => l !== label);
-    } else {
-      filters.hiddenLegendItems = [...filters.hiddenLegendItems, label];
-    }
+    const isHidden = filters.hiddenLegendItems.includes(label);
+    const updated = isHidden
+      ? filters.hiddenLegendItems.filter(l => l !== label)
+      : [...filters.hiddenLegendItems, label];
+    filters = { ...filters, hiddenLegendItems: updated };
   }
 
   // Isolate a single legend item layer
   function handleIsolateLegendItem(label: string) {
     const allLabels = legendItems.map(i => i.label);
-    if (filters.hiddenLegendItems.length === allLabels.length - 1 && !filters.hiddenLegendItems.includes(label)) {
-      filters.hiddenLegendItems = [];
-    } else {
-      filters.hiddenLegendItems = allLabels.filter(l => l !== label);
-    }
+    const isAlreadyIsolated = filters.hiddenLegendItems.length === allLabels.length - 1 && !filters.hiddenLegendItems.includes(label);
+    const updated = isAlreadyIsolated ? [] : allLabels.filter(l => l !== label);
+    filters = { ...filters, hiddenLegendItems: updated };
   }
 
   function handleShowAllLegendItems() {
-    filters.hiddenLegendItems = [];
+    filters = { ...filters, hiddenLegendItems: [] };
   }
 
   function handleResetFilters() {
