@@ -2,16 +2,12 @@
   interface Props {
     sidebarOpen: boolean;
     onToggleSidebar: () => void;
-    basemap: string;
-    onChangeBasemap: (style: string) => void;
     isExampleData: boolean;
   }
 
   let { 
     sidebarOpen, 
     onToggleSidebar, 
-    basemap, 
-    onChangeBasemap,
     isExampleData = false
   }: Props = $props();
 </script>
@@ -47,24 +43,6 @@
   </div>
 
   <div class="right-section">
-    <div class="basemap-selector">
-      <button 
-        class="base-btn" 
-        class:active={basemap === 'dark'}
-        onclick={() => onChangeBasemap('dark')}
-      >Dark</button>
-      <button 
-        class="base-btn" 
-        class:active={basemap === 'light'}
-        onclick={() => onChangeBasemap('light')}
-      >Light</button>
-      <button 
-        class="base-btn" 
-        class:active={basemap === 'satellite'}
-        onclick={() => onChangeBasemap('satellite')}
-      >Satellite</button>
-    </div>
-    
     <a 
       href="https://github.com/railactive/railactive" 
       target="_blank" 
@@ -174,39 +152,17 @@
     gap: 12px;
   }
 
-  .basemap-selector {
-    display: flex;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-sm);
-    padding: 2px;
-  }
-
-  .base-btn {
-    background: transparent;
-    border: none;
-    color: var(--text-secondary);
-    font-size: 12px;
-    font-weight: 500;
-    padding: 4px 10px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.15s ease;
-  }
-
-  .base-btn.active {
-    background: var(--accent-blue);
-    color: #ffffff;
-  }
-
   .github-link {
     color: var(--text-secondary);
     display: flex;
     align-items: center;
-    transition: color 0.15s ease;
+    padding: 6px;
+    border-radius: var(--radius-sm);
+    transition: all 0.15s ease;
   }
 
   .github-link:hover {
     color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.08);
   }
 </style>

@@ -125,6 +125,28 @@
           maxzoom: 19
         }
       ]
+    },
+    osm: {
+      version: 8,
+      sources: {
+        'osm-base': {
+          type: 'raster',
+          tiles: [
+            'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
+          ],
+          tileSize: 256,
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }
+      },
+      layers: [
+        {
+          id: 'osm-base-layer',
+          type: 'raster',
+          source: 'osm-base',
+          minzoom: 0,
+          maxzoom: 19
+        }
+      ]
     }
   };
 

@@ -4,6 +4,7 @@
   import Sidebar from './lib/components/Sidebar.svelte';
   import DetailPanel from './lib/components/DetailPanel.svelte';
   import Legend from './lib/components/Legend.svelte';
+  import BasemapControl from './lib/components/BasemapControl.svelte';
   import MapView from './lib/map/MapView.svelte';
   import type { 
     CyclewayFeatureCollection, 
@@ -228,7 +229,7 @@
         'Upgrade PROW': '#d500f9',
         'Quiet Lane': '#ffab00',
         'Local Road Quietway': '#2979ff',
-        'Existing routes': '#94a3b8',
+        'Existing routes': '#60a5fa',
         'Town or village centre': '#ff4081',
         'Main Road-Cycle tracks': '#ff1744',
         'Canal Towpath Upgrade': '#1de9b6'
@@ -278,21 +279,6 @@
       mapViewRef.zoomToSegment(id);
     }
   }
-
-  function handleExportGeoJSON() {
-    if (!filteredFeatures || filteredFeatures.length === 0) return;
-    const exportCollection: CyclewayFeatureCollection = {
-      type: 'FeatureCollection',
-      features: filteredFeatures
-    };
-    const blob = new Blob([JSON.stringify(exportCollection, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `railactive_corridor_${filters.colorBy}_${Date.now()}.geojson`;
-    a.click();
-    URL.revokeObjectURL(url);
-  }
 </script>
 
 <Header 
@@ -305,8 +291,6 @@
       }
     }, 300);
   }}
-  {basemap}
-  onChangeBasemap={(style) => basemap = style}
   {isExampleData}
 />
 
@@ -359,20 +343,12 @@
     onZoomTo={handleZoomTo}
   />
 
-  <!-- Floating Export Control -->
-  <button 
-    class="floating-export-btn"
-    class:sidebar-open={sidebarOpen}
-    onclick={handleExportGeoJSON}
-    title="Export currently filtered route segments as GeoJSON"
-  >
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-      <polyline points="7 10 12 15 17 10"></polyline>
-      <line x1="12" y1="15" x2="12" y2="3"></line>
-    </svg>
-    Export GeoJSON ({filteredFeatures.length})
-  </button>
+  <!-- Bottom-Left Basemap Switcher mirroring Counterflow Dashboard -->
+  <BasemapControl 
+    {basemap}
+    {sidebarOpen}
+    onChangeBasemap={(style) => basemap = style}
+  />
 </main>
 
 <style>
@@ -412,35 +388,5 @@
 
   @keyframes spin {
     to { transform: rotate(360deg); }
-  }
-
-  .floating-export-btn {
-    position: absolute;
-    bottom: 24px;
-    left: 360px;
-    background: rgba(15, 23, 42, 0.88);
-    backdrop-filter: blur(8px);
-    border: 1px solid var(--border-color);
-    color: var(--text-primary);
-    font-size: 11px;
-    font-weight: 500;
-    padding: 7px 12px;
-    border-radius: var(--radius-sm);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    cursor: pointer;
-    z-index: 20;
-    box-shadow: var(--shadow-panel);
-    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  .floating-export-btn:not(.sidebar-open) {
-    left: 24px;
-  }
-
-  .floating-export-btn:hover {
-    background: rgba(30, 41, 59, 0.95);
-    border-color: var(--accent-blue);
   }
 </style>
