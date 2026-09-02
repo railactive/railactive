@@ -14,12 +14,19 @@
 
 <header class="app-header">
   <div class="left-section">
-    <button class="toggle-btn" onclick={onToggleSidebar} title="Toggle Sidebar">
+    <button
+      class="toggle-btn"
+      onclick={onToggleSidebar}
+      title={sidebarOpen ? 'Close side panel' : 'Open side panel'}
+      aria-label={sidebarOpen ? 'Close side panel' : 'Open side panel'}
+      aria-expanded={sidebarOpen}
+    >
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <line x1="3" y1="12" x2="21" y2="12"></line>
         <line x1="3" y1="6" x2="21" y2="6"></line>
         <line x1="3" y1="18" x2="21" y2="18"></line>
       </svg>
+      <span class="toggle-label">{sidebarOpen ? 'Close panel' : 'Open panel'}</span>
     </button>
     <div class="brand">
       <div class="logo-icon">
@@ -80,8 +87,10 @@
     background: rgba(255, 255, 255, 0.06);
     border: 1px solid var(--border-color);
     color: var(--text-primary);
-    width: 36px;
+    min-width: 36px;
     height: 36px;
+    padding: 0 9px;
+    gap: 6px;
     border-radius: var(--radius-sm);
     display: flex;
     align-items: center;
@@ -92,6 +101,12 @@
 
   .toggle-btn:hover {
     background: rgba(255, 255, 255, 0.12);
+  }
+
+  .toggle-label {
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
   }
 
   .brand {
@@ -164,5 +179,19 @@
   .github-link:hover {
     color: var(--text-primary);
     background: rgba(255, 255, 255, 0.08);
+  }
+
+  @media (max-width: 520px) {
+    .app-header {
+      padding: 0 12px;
+    }
+
+    .left-section {
+      gap: 8px;
+    }
+
+    .subtitle {
+      display: none;
+    }
   }
 </style>

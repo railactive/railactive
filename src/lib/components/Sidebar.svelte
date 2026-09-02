@@ -46,7 +46,7 @@
 <style>
   .sidebar {
     position: absolute;
-    top: 56px;
+    top: 0;
     left: 0;
     bottom: 0;
     width: 340px;

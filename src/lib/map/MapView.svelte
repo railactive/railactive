@@ -29,6 +29,8 @@
   let map: maplibregl.Map | null = null;
   let hoveredId: number | null = null;
   let hoverPopup: maplibregl.Popup | null = null;
+  let popupPinned = false;
+  const interactiveLayerIds = ['hs2-corridor-lines', 'cycleway-lines', 'cycleway-points'];
 
   // High-performance raster basemap styles (clean, keyless, zero watermarks)
   const basemapStyles: Record<string, any> = {
@@ -151,12 +153,12 @@
   };
 
   function getColorExpression(colorBy: string): any {
+    let colorExpression: any;
+
     if (colorBy === 'kml') {
-      return ['coalesce', ['get', 'color'], '#00e5ff'];
-    }
-    
-    if (colorBy === 'category') {
-      return [
+      colorExpression = ['coalesce', ['get', 'color'], '#00e5ff'];
+    } else if (colorBy === 'category') {
+      colorExpression = [
         'match',
         ['coalesce', ['get', 'category'], ''],
         'Cycleway beside HS2', '#00e5ff',
@@ -165,10 +167,8 @@
         'Canal tow path or new path close by canal', '#1de9b6',
         '#00e5ff'
       ];
-    }
-
-    if (colorBy === 'developer') {
-      return [
+    } else if (colorBy === 'developer') {
+      colorExpression = [
         'match',
         ['coalesce', ['get', 'developer'], ''],
         'HS2', '#00e5ff',
@@ -179,10 +179,9 @@
         'Developer', '#ffab00',
         '#00e5ff'
       ];
-    }
-
-    // Default: Classification (High-contrast, vibrant neon cartographic palette)
-    return [
+    } else {
+      // Default: Classification (High-contrast, vibrant neon cartographic palette)
+      colorExpression = [
       'match',
       ['coalesce', ['get', 'classification'], ''],
       'HS2 Delivery', '#00e5ff',
@@ -198,6 +197,17 @@
       'Proposed Footway Level Cycle Track', '#b388ff',
       'HS2 Legacy', '#00b0ff',
       '#00e5ff' // Default fallback for unclassified lines: Ultra Vibrant Cyan
+      ];
+    }
+
+    return [
+      'case',
+      [
+        'any',
+        ['==', ['coalesce', ['get', 'classification'], ''], 'HS2 Delivery'],
+        ['==', ['coalesce', ['get', 'classification'], ''], '']
+      ], '#171717',
+      colorExpression
     ];
   }
 
@@ -220,6 +230,22 @@
     return expressions.length > 1 ? expressions : null;
   }
 
+  function showFeaturePopup(feature: maplibregl.MapGeoJSONFeature, lngLat: maplibregl.LngLat) {
+    const properties = feature.properties as CyclewaySegmentProperties;
+    const length = properties.length_km ? `${Number(properties.length_km).toFixed(2)} km` : '';
+    const html = `
+      <div class="tooltip-content">
+        <div class="tooltip-title">${properties.name || `Link ${properties.link_id || properties.id}`}</div>
+        <div class="tooltip-meta">
+          <span class="badge-sec">Sec ${properties.section || 'N/A'}</span>
+          <span class="tooltip-len">${length}</span>
+        </div>
+        <div class="tooltip-cat">${properties.classification || properties.category || ''}</div>
+      </div>
+    `;
+    hoverPopup?.setLngLat(lngLat).setHTML(html).addTo(map!);
+  }
+
   function ensureLayers() {
     if (!map || !data) return;
     if (!map.isStyleLoaded()) {
@@ -235,7 +261,6 @@
     const existingSource = map.getSource('cycleway-data') as maplibregl.GeoJSONSource;
     if (existingSource) {
       existingSource.setData(data as any);
-      fitCorridorBounds();
       return;
     }
 
@@ -270,11 +295,45 @@
         }
       });
 
+      // The HS2 base corridor is a neutral reference route below the active-travel network.
+      map.addLayer({
+        id: 'hs2-corridor-lines',
+        type: 'line',
+        source: 'cycleway-data',
+        filter: [
+          'any',
+          ['==', ['coalesce', ['get', 'classification'], ''], 'HS2 Delivery'],
+          ['==', ['coalesce', ['get', 'classification'], ''], '']
+        ],
+        layout: {
+          'line-cap': 'round',
+          'line-join': 'round'
+        },
+        paint: {
+          'line-color': '#171717',
+          'line-width': [
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            5, 10,
+            8, 12,
+            12, 16,
+            16, 22
+          ],
+          'line-opacity': 0.85
+        }
+      });
+
       // 2. High-Contrast Main Route Line Layer
       map.addLayer({
         id: 'cycleway-lines',
         type: 'line',
         source: 'cycleway-data',
+        filter: [
+          'all',
+          ['!=', ['coalesce', ['get', 'classification'], ''], 'HS2 Delivery'],
+          ['!=', ['coalesce', ['get', 'classification'], ''], '']
+        ],
         layout: {
           'line-cap': 'round',
           'line-join': 'round'
@@ -303,7 +362,7 @@
         paint: {
           'circle-radius': ['interpolate', ['linear'], ['zoom'], 6, 5, 12, 8, 16, 12],
           'circle-color': getColorExpression(filters.colorBy),
-          'circle-stroke-width': 2,
+          'circle-stroke-width': 1,
           'circle-stroke-color': '#ffffff'
         }
       });
@@ -319,9 +378,10 @@
       }
 
       // Interaction Events
-      map.off('mousemove', 'cycleway-lines');
-      map.on('mousemove', 'cycleway-lines', (e) => {
+      const layerMap = map as any;
+      const handleMouseMove = (e: maplibregl.MapLayerMouseEvent) => {
         if (!map || !e.features || e.features.length === 0) return;
+        if (popupPinned) return;
         map.getCanvas().style.cursor = 'pointer';
 
         const feat = e.features[0];
@@ -332,37 +392,46 @@
         }
         hoveredId = feat.id as number;
         map.setFeatureState({ source: 'cycleway-data', id: hoveredId }, { hover: true });
+        showFeaturePopup(feat, e.lngLat);
+      };
 
-        // Show Hover Tooltip
-        const lenStr = p.length_km ? `${Number(p.length_km).toFixed(2)} km` : '';
-        const html = `
-          <div class="tooltip-content">
-            <div class="tooltip-title">${p.name || `Link ${p.link_id || p.id}`}</div>
-            <div class="tooltip-meta">
-              <span class="badge-sec">Sec ${p.section || 'N/A'}</span>
-              <span class="tooltip-len">${lenStr}</span>
-            </div>
-            <div class="tooltip-cat">${p.classification || p.category || ''}</div>
-          </div>
-        `;
-        hoverPopup?.setLngLat(e.lngLat).setHTML(html).addTo(map);
-      });
-
-      map.off('mouseleave', 'cycleway-lines');
-      map.on('mouseleave', 'cycleway-lines', () => {
+      const handleMouseLeave = () => {
         if (!map) return;
         map.getCanvas().style.cursor = '';
         if (hoveredId !== null) {
           map.setFeatureState({ source: 'cycleway-data', id: hoveredId }, { hover: false });
           hoveredId = null;
         }
-        hoverPopup?.remove();
-      });
+        if (!popupPinned) hoverPopup?.remove();
+      };
 
-      map.off('click', 'cycleway-lines', (e) => {
+      const handleFeatureClick = (e: maplibregl.MapLayerMouseEvent) => {
         if (e.features && e.features.length > 0) {
-          const props = e.features[0].properties as CyclewaySegmentProperties;
+          popupPinned = true;
+          const feature = e.features[0];
+          showFeaturePopup(feature, e.lngLat);
+          const props = feature.properties as CyclewaySegmentProperties;
           onSelectSegment(props);
+        }
+      };
+
+      for (const layerId of interactiveLayerIds) {
+        layerMap.off('mousemove', layerId, handleMouseMove);
+        layerMap.on('mousemove', layerId, handleMouseMove);
+        layerMap.off('mouseleave', layerId, handleMouseLeave);
+        layerMap.on('mouseleave', layerId, handleMouseLeave);
+        layerMap.off('click', layerId, handleFeatureClick);
+        layerMap.on('click', layerId, handleFeatureClick);
+      }
+
+      map.on('click', (e) => {
+        if (!map) return;
+        const features = map.queryRenderedFeatures(e.point, { layers: interactiveLayerIds });
+        if (features.length > 0) {
+          popupPinned = true;
+        } else {
+          popupPinned = false;
+          hoverPopup?.remove();
         }
       });
 
@@ -375,6 +444,10 @@
   export function fitCorridorBounds() {
     if (!map || !data || !data.features || data.features.length === 0) return;
     map.resize();
+    const rightPadding = 40;
+    const leftPadding = sidebarOpen
+      ? Math.min(360, Math.max(40, map.getCanvas().clientWidth - rightPadding - 40))
+      : 40;
     const bounds = new maplibregl.LngLatBounds();
     
     for (const f of data.features) {
@@ -393,8 +466,8 @@
     if (!bounds.isEmpty()) {
       map.fitBounds(bounds, {
         padding: {
-          left: sidebarOpen ? 360 : 40,
-          right: 40,
+          left: leftPadding,
+          right: rightPadding,
           top: 40,
           bottom: 40
         },
@@ -409,6 +482,11 @@
     map.resize();
     const feature = data.features.find(f => f.properties.id === id);
     if (!feature) return;
+
+    const rightPadding = 80;
+    const leftPadding = sidebarOpen
+      ? Math.min(380, Math.max(80, map.getCanvas().clientWidth - rightPadding - 80))
+      : 80;
 
     const bounds = new maplibregl.LngLatBounds();
     const geom = feature.geometry;
@@ -425,8 +503,8 @@
     if (!bounds.isEmpty()) {
       map.fitBounds(bounds, {
         padding: {
-          left: sidebarOpen ? 380 : 80,
-          right: 80,
+          left: leftPadding,
+          right: rightPadding,
           top: 80,
           bottom: 80
         },
@@ -476,11 +554,34 @@
     if (map && map.isStyleLoaded() && map.getLayer('cycleway-lines')) {
       const filterExpr = getFilterExpression(filters);
       if (filterExpr) {
-        map.setFilter('cycleway-lines', filterExpr);
+        map.setFilter('cycleway-lines', [
+          'all',
+          filterExpr,
+          ['!=', ['coalesce', ['get', 'classification'], ''], 'HS2 Delivery'],
+          ['!=', ['coalesce', ['get', 'classification'], ''], '']
+        ]);
         map.setFilter('cycleway-casing', filterExpr);
+        map.setFilter('hs2-corridor-lines', [
+          'all',
+          filterExpr,
+          [
+            'any',
+            ['==', ['coalesce', ['get', 'classification'], ''], 'HS2 Delivery'],
+            ['==', ['coalesce', ['get', 'classification'], ''], '']
+          ]
+        ]);
       } else {
-        map.setFilter('cycleway-lines', null);
+        map.setFilter('cycleway-lines', [
+          'all',
+          ['!=', ['coalesce', ['get', 'classification'], ''], 'HS2 Delivery'],
+          ['!=', ['coalesce', ['get', 'classification'], ''], '']
+        ]);
         map.setFilter('cycleway-casing', null);
+        map.setFilter('hs2-corridor-lines', [
+          'any',
+          ['==', ['coalesce', ['get', 'classification'], ''], 'HS2 Delivery'],
+          ['==', ['coalesce', ['get', 'classification'], ''], '']
+        ]);
       }
       if (map.getLayer('cycleway-points')) {
         map.setFilter('cycleway-points', filterExpr || null);

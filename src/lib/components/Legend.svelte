@@ -10,6 +10,7 @@
     title: string;
     items: LegendItem[];
     activeFilterValue: string;
+    sidebarOpen: boolean;
     onToggleItem: (label: string) => void;
   }
 
@@ -17,13 +18,14 @@
     title, 
     items, 
     activeFilterValue, 
+    sidebarOpen,
     onToggleItem 
   }: Props = $props();
 
   let collapsed: boolean = $state(false);
 </script>
 
-<div class="floating-legend" class:collapsed>
+<div class="floating-legend" class:collapsed class:sidebar-open={sidebarOpen}>
   <div class="legend-header">
     <div class="title-wrap">
       <span class="legend-title">{title}</span>
@@ -60,7 +62,7 @@
 <style>
   .floating-legend {
     position: absolute;
-    bottom: 24px;
+    bottom: 48px;
     right: 24px;
     width: 280px;
     background: rgba(15, 23, 42, 0.9);
@@ -188,5 +190,31 @@
     color: var(--text-muted);
     text-align: center;
     font-style: italic;
+  }
+
+  @media (max-width: 600px) {
+    .floating-legend.sidebar-open {
+      display: none;
+    }
+
+    .floating-legend {
+      bottom: 80px;
+      left: 16px;
+      right: 16px;
+      width: auto;
+      max-height: calc(100% - 152px);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .floating-legend.collapsed {
+      width: auto;
+    }
+
+    .legend-items {
+      max-height: none;
+      min-height: 0;
+      flex: 1 1 auto;
+    }
   }
 </style>

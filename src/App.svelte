@@ -33,6 +33,21 @@
     colorBy: 'classification'
   });
 
+  function normalizeData(data: CyclewayFeatureCollection): CyclewayFeatureCollection {
+    return {
+      ...data,
+      features: data.features.map((feature) => ({
+        ...feature,
+        properties: {
+          ...feature.properties,
+          classification: feature.properties.classification === 'Canel Towpath Upgrade'
+            ? 'Canal Towpath Upgrade'
+            : feature.properties.classification
+        }
+      }))
+    };
+  }
+
   // Load dataset with graceful fallback to example.geojson
   onMount(async () => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -43,14 +58,14 @@
         console.info('Loading open example dataset (public/data/example.geojson)...');
         const resp = await fetch('./data/example.geojson');
         if (!resp.ok) throw new Error(`Example dataset error (${resp.status})`);
-        rawData = await resp.json();
+        rawData = normalizeData(await resp.json());
         isExampleData = true;
       } else {
         // Try production dataset first
         try {
           const resp = await fetch('./data/north_south_cycleway.json');
           if (resp.ok) {
-            rawData = await resp.json();
+            rawData = normalizeData(await resp.json());
             isExampleData = false;
           } else {
             throw new Error(`Production data not found (${resp.status})`);
@@ -59,7 +74,7 @@
           console.warn('Production dataset not found, falling back to open example dataset...');
           const fallbackResp = await fetch('./data/example.geojson');
           if (!fallbackResp.ok) throw new Error(`Example dataset fallback failed (${fallbackResp.status})`);
-          rawData = await fallbackResp.json();
+          rawData = normalizeData(await fallbackResp.json());
           isExampleData = true;
         }
       }
@@ -146,10 +161,12 @@
       const km = p.length_km || 0;
       totalKm += km;
 
-      if (p.classification === 'HS2 Delivery' || p.developer === 'HS2') {
+      const isHs2 = p.classification === 'HS2 Delivery' || p.developer === 'HS2';
+      const isGreenway = p.classification === 'New Greenway' || p.category === 'Traffic-free path away from highway';
+
+      if (isHs2) {
         hs2Km += km;
-      }
-      if (p.classification === 'New Greenway' || p.category === 'Traffic-free path away from highway') {
+      } else if (isGreenway) {
         greenwayKm += km;
       }
 
@@ -224,7 +241,7 @@
     } else {
       // Default: Classification (High-contrast neon palette)
       const colors: Record<string, string> = {
-        'HS2 Delivery': '#00e5ff',
+        'HS2 Delivery': '#171717',
         'New Greenway': '#00e676',
         'Upgrade PROW': '#d500f9',
         'Quiet Lane': '#ffab00',
@@ -333,6 +350,7 @@
       title={filters.colorBy}
       items={legendItems}
       activeFilterValue={activeLegendFilterValue}
+      {sidebarOpen}
       onToggleItem={handleToggleLegendItem}
     />
   {/if}
