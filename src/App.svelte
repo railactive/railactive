@@ -5,6 +5,7 @@
   import DetailPanel from './lib/components/DetailPanel.svelte';
   import Legend from './lib/components/Legend.svelte';
   import BasemapControl from './lib/components/BasemapControl.svelte';
+  import PasswordGate from './lib/components/PasswordGate.svelte';
   import MapView from './lib/map/MapView.svelte';
   import type { 
     CyclewayFeatureCollection, 
@@ -17,6 +18,7 @@
   let loading: boolean = $state(true);
   let error: string | null = $state(null);
   let isExampleData: boolean = $state(false);
+  let isAuthenticated: boolean = $state(true); // default true for seamless local dev, checks session on mount
 
   let sidebarOpen: boolean = $state(true);
   let basemap: string = $state('dark');
@@ -34,9 +36,21 @@
     hiddenLegendItems: []
   });
 
-  // Load dataset with graceful fallback to example.geojson
+  // Check password authentication on mount
   onMount(async () => {
     const urlParams = new URLSearchParams(window.location.search);
+    const pwdParam = urlParams.get('pwd');
+    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    
+    // Check authentication
+    const hasAuth = sessionStorage.getItem('railactive_auth') === 'granted' || pwdParam === 'railactive!' || (isLocalhost && !urlParams.has('protect'));
+    if (!hasAuth) {
+      isAuthenticated = false;
+    } else {
+      isAuthenticated = true;
+      sessionStorage.setItem('railactive_auth', 'granted');
+    }
+
     const forceExample = urlParams.get('example') === 'true' || import.meta.env.MODE === 'example';
 
     try {
@@ -304,6 +318,10 @@
     }
   }
 </script>
+
+{#if !isAuthenticated}
+  <PasswordGate onAuthenticated={() => isAuthenticated = true} />
+{/if}
 
 <Header 
   {sidebarOpen} 

@@ -1,0 +1,14 @@
+{
+  "navigationFallback": {
+    "rewrite": "/index.html",
+    "exclude": ["/assets/*", "/data/*", "/*.{png,jpg,jpeg,gif,svg,ico,json,geojson}"]
+  },
+  "globalHeaders": {
+    "X-Frame-Options": "DENY",
+    "X-Content-Type-Options": "nosniff"
+  },
+  "mimeTypes": {
+    ".json": "application/json",
+    ".geojson": "application/geo+json"
+  }
+}
