@@ -4,9 +4,16 @@
     onToggleSidebar: () => void;
     basemap: string;
     onChangeBasemap: (style: string) => void;
+    isExampleData: boolean;
   }
 
-  let { sidebarOpen, onToggleSidebar, basemap, onChangeBasemap }: Props = $props();
+  let { 
+    sidebarOpen, 
+    onToggleSidebar, 
+    basemap, 
+    onChangeBasemap,
+    isExampleData = false
+  }: Props = $props();
 </script>
 
 <header class="app-header">
@@ -28,7 +35,12 @@
         </svg>
       </div>
       <div class="title-group">
-        <h1>RailActive</h1>
+        <div class="title-row">
+          <h1>RailActive</h1>
+          {#if isExampleData}
+            <span class="example-badge" title="Running with minimal open example dataset">Example Data</span>
+          {/if}
+        </div>
         <span class="subtitle">North-South Active Travel Corridor</span>
       </div>
     </div>
@@ -121,6 +133,12 @@
     color: #ffffff;
   }
 
+  .title-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
   .title-group h1 {
     font-size: 16px;
     font-weight: 700;
@@ -129,6 +147,18 @@
     background: linear-gradient(90deg, #38bdf8, #818cf8);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+  }
+
+  .example-badge {
+    font-size: 9px;
+    font-weight: 600;
+    text-transform: uppercase;
+    background: rgba(245, 158, 11, 0.2);
+    color: #fbbf24;
+    border: 1px solid rgba(245, 158, 11, 0.4);
+    padding: 1px 6px;
+    border-radius: 4px;
+    letter-spacing: 0.04em;
   }
 
   .subtitle {

@@ -13,14 +13,14 @@ dist/
 dist-ssr/
 *.local
 
-# Data files (strictly excluded from git - use Azure / Netlify / release downloads)
+# Data files (strictly excluded from git - except minimal example dataset)
 public/data/*
 !public/data/.gitkeep
+!public/data/example.geojson
 *.gpkg
 *.parquet
 *.duckdb
 *.pmtiles
-*.geojson
 *.csv
 *.tsv
 *.xlsx

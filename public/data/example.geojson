@@ -1,0 +1,250 @@
+{
+  "type": "FeatureCollection",
+  "name": "railactive_example_corridor",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 1,
+        "name": "Colne Valley Viaduct Trail",
+        "link_id": "HS2-CV-01",
+        "section": "1",
+        "category": "Cycleway beside HS2",
+        "classification": "HS2 Delivery",
+        "developer": "HS2",
+        "setting": "Rural",
+        "length_km": 3.45,
+        "color": "#06b6d4",
+        "remarks": "Repurposed construction haul route parallel to Colne Valley viaduct."
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-0.498, 51.585],
+          [-0.505, 51.595],
+          [-0.512, 51.608],
+          [-0.520, 51.618]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 2,
+        "name": "Chiltern Tunnel North Portal Greenway",
+        "link_id": "GW-CH-04",
+        "section": "4",
+        "category": "Traffic-free path away from highway",
+        "classification": "New Greenway",
+        "developer": "DfT",
+        "setting": "Rural",
+        "length_km": 4.82,
+        "color": "#10b981",
+        "remarks": "New 3.5m wide traffic-free greenway connecting Great Missenden to Wendover."
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-0.685, 51.725],
+          [-0.702, 51.740],
+          [-0.720, 51.758],
+          [-0.738, 51.772]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 3,
+        "name": "Wendover Woods & Ridgeway Link",
+        "link_id": "PR-WW-02",
+        "section": "5",
+        "category": "Traffic-free path away from highway",
+        "classification": "Upgrade PROW",
+        "developer": "Local Authority",
+        "setting": "Rural",
+        "length_km": 2.15,
+        "color": "#8b5cf6",
+        "remarks": "Upgraded bridleway providing multi-user all-weather surface."
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-0.738, 51.772],
+          [-0.755, 51.785],
+          [-0.770, 51.795]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 4,
+        "name": "Aylesbury Vale Quietway",
+        "link_id": "QW-AY-08",
+        "section": "7",
+        "category": "20mph and traffic calmed or protected cycle lane",
+        "classification": "Quiet Lane",
+        "developer": "Local Authority",
+        "setting": "Rural",
+        "length_km": 3.60,
+        "color": "#f59e0b",
+        "remarks": "Designated Quiet Lane with filtered permeability and 20mph zone."
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-0.812, 51.815],
+          [-0.835, 51.832],
+          [-0.858, 51.850]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 5,
+        "name": "Calvert Infrastructure Depot Connector",
+        "link_id": "HS2-CA-03",
+        "section": "10",
+        "category": "Cycleway beside HS2",
+        "classification": "HS2 Delivery",
+        "developer": "HS2",
+        "setting": "Rural",
+        "length_km": 2.90,
+        "color": "#06b6d4",
+        "remarks": "Realigned access track connecting East West Rail and HS2 corridor."
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-0.985, 51.920],
+          [-1.002, 51.938],
+          [-1.025, 51.955]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 6,
+        "name": "Grand Union Canal Towpath Upgrade",
+        "link_id": "CT-GU-12",
+        "section": "14",
+        "category": "Canal tow path or new path close by canal",
+        "classification": "Canal Towpath Upgrade",
+        "developer": "Canals & River Trust",
+        "setting": "Rural",
+        "length_km": 5.40,
+        "color": "#14b8a6",
+        "remarks": "Resurfaced towpath with self-binding gravel and ramped bridge accesses."
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-1.120, 52.050],
+          [-1.145, 52.072],
+          [-1.170, 52.095],
+          [-1.195, 52.120]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 7,
+        "name": "Kenilworth Greenway HS2 Realignment",
+        "link_id": "GW-KW-01",
+        "section": "18",
+        "category": "Traffic-free path away from highway",
+        "classification": "New Greenway",
+        "developer": "Sustrans",
+        "setting": "Suburban",
+        "length_km": 4.10,
+        "color": "#10b981",
+        "remarks": "Permanent replacement and extension of Kenilworth Greenway with bridleway grade."
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-1.560, 52.330],
+          [-1.582, 52.352],
+          [-1.605, 52.375],
+          [-1.625, 52.395]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 8,
+        "name": "Solihull Interchange Active Travel Link",
+        "link_id": "ST-SI-02",
+        "section": "20",
+        "category": "20mph and traffic calmed or protected cycle lane",
+        "classification": "Main Road-Cycle tracks",
+        "developer": "Local Authority",
+        "setting": "Urban",
+        "length_km": 1.95,
+        "color": "#ef4444",
+        "remarks": "Segregated bi-directional cycle tracks feeding Solihull Interchange station."
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-1.710, 52.445],
+          [-1.730, 52.455],
+          [-1.750, 52.465]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 9,
+        "name": "Birmingham Curzon Street Station First-Mile Gateway",
+        "link_id": "ST-BC-01",
+        "section": "24",
+        "category": "Traffic-free path away from highway",
+        "classification": "HS2 Delivery",
+        "developer": "HS2",
+        "setting": "Urban",
+        "length_km": 1.25,
+        "color": "#06b6d4",
+        "remarks": "High-capacity pedestrian and wheeling promenade into Curzon Street concourse."
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-1.885, 52.478],
+          [-1.892, 52.482],
+          [-1.898, 52.485]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 10,
+        "name": "Lichfield Trent Valley Green Corridor",
+        "link_id": "HS2-LC-06",
+        "section": "28",
+        "category": "Cycleway beside HS2",
+        "classification": "New Greenway",
+        "developer": "DfT",
+        "setting": "Rural",
+        "length_km": 3.80,
+        "color": "#10b981",
+        "remarks": "Connecting Lichfield city centre, Trent Valley rail interchange, and North corridor."
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-1.805, 52.685],
+          [-1.820, 52.705],
+          [-1.840, 52.725]
+        ]
+      }
+    }
+  ]
+}

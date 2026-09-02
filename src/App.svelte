@@ -14,6 +14,7 @@
   let rawData: CyclewayFeatureCollection | null = $state(null);
   let loading: boolean = $state(true);
   let error: string | null = $state(null);
+  let isExampleData: boolean = $state(false);
 
   let sidebarOpen: boolean = $state(true);
   let basemap: string = $state('dark');
@@ -30,15 +31,36 @@
     colorBy: 'classification'
   });
 
-  // Load GeoJSON data on startup
+  // Load dataset with graceful fallback to example.geojson
   onMount(async () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const forceExample = urlParams.get('example') === 'true' || import.meta.env.MODE === 'example';
+
     try {
-      const response = await fetch('./data/north_south_cycleway.json');
-      if (!response.ok) {
-        throw new Error(`Failed to load dataset (${response.status})`);
+      if (forceExample) {
+        console.info('Loading open example dataset (public/data/example.geojson)...');
+        const resp = await fetch('./data/example.geojson');
+        if (!resp.ok) throw new Error(`Example dataset error (${resp.status})`);
+        rawData = await resp.json();
+        isExampleData = true;
+      } else {
+        // Try production dataset first
+        try {
+          const resp = await fetch('./data/north_south_cycleway.json');
+          if (resp.ok) {
+            rawData = await resp.json();
+            isExampleData = false;
+          } else {
+            throw new Error(`Production data not found (${resp.status})`);
+          }
+        } catch (prodErr) {
+          console.warn('Production dataset not found, falling back to open example dataset...');
+          const fallbackResp = await fetch('./data/example.geojson');
+          if (!fallbackResp.ok) throw new Error(`Example dataset fallback failed (${fallbackResp.status})`);
+          rawData = await fallbackResp.json();
+          isExampleData = true;
+        }
       }
-      const json: CyclewayFeatureCollection = await response.json();
-      rawData = json;
       loading = false;
     } catch (err: any) {
       error = err.message || 'Error loading cycleway dataset';
@@ -244,13 +266,14 @@
   onToggleSidebar={() => sidebarOpen = !sidebarOpen}
   {basemap}
   onChangeBasemap={(style) => basemap = style}
+  {isExampleData}
 />
 
 <main class="main-viewport">
   {#if loading}
     <div class="loading-overlay">
       <div class="spinner"></div>
-      <p>Loading North-South Cycleway Network...</p>
+      <p>Loading Active Travel Network...</p>
     </div>
   {:else if error}
     <div class="error-overlay">
