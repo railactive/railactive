@@ -3,6 +3,7 @@
   import Header from './lib/components/Header.svelte';
   import Sidebar from './lib/components/Sidebar.svelte';
   import DetailPanel from './lib/components/DetailPanel.svelte';
+  import Legend from './lib/components/Legend.svelte';
   import MapView from './lib/map/MapView.svelte';
   import type { 
     CyclewayFeatureCollection, 
@@ -184,10 +185,10 @@
 
     if (filters.colorBy === 'category') {
       const colors: Record<string, string> = {
-        'Cycleway beside HS2': '#06b6d4',
-        'Traffic-free path away from highway': '#10b981',
-        '20mph and traffic calmed or protected cycle lane': '#f59e0b',
-        'Canal tow path or new path close by canal': '#14b8a6'
+        'Cycleway beside HS2': '#00e5ff',
+        'Traffic-free path away from highway': '#00e676',
+        '20mph and traffic calmed or protected cycle lane': '#ffab00',
+        'Canal tow path or new path close by canal': '#1de9b6'
       };
       for (const [cat, color] of Object.entries(colors)) {
         items.push({
@@ -198,12 +199,12 @@
       }
     } else if (filters.colorBy === 'developer') {
       const colors: Record<string, string> = {
-        'HS2': '#06b6d4',
-        'DfT': '#3b82f6',
-        'Local Authority': '#10b981',
-        'Canals & River Trust': '#14b8a6',
-        'Sustrans': '#ec4899',
-        'Developer': '#f59e0b'
+        'HS2': '#00e5ff',
+        'DfT': '#2979ff',
+        'Local Authority': '#00e676',
+        'Canals & River Trust': '#1de9b6',
+        'Sustrans': '#ff4081',
+        'Developer': '#ffab00'
       };
       for (const [dev, color] of Object.entries(colors)) {
         items.push({
@@ -214,23 +215,23 @@
       }
     } else if (filters.colorBy === 'kml') {
       items.push(
-        { label: 'HS2 Construction Alignment', color: '#AFB42B' },
-        { label: 'New Greenway Corridor', color: '#0288D1' },
-        { label: 'PROW Upgrade', color: '#880E4F' },
-        { label: 'Quiet Lane / Traffic Calmed', color: '#097138' }
+        { label: 'HS2 Construction Alignment', color: '#00e5ff' },
+        { label: 'New Greenway Corridor', color: '#00e676' },
+        { label: 'PROW Upgrade', color: '#d500f9' },
+        { label: 'Quiet Lane / Traffic Calmed', color: '#ffab00' }
       );
     } else {
-      // Default: Classification
+      // Default: Classification (High-contrast neon palette)
       const colors: Record<string, string> = {
-        'HS2 Delivery': '#06b6d4',
-        'New Greenway': '#10b981',
-        'Upgrade PROW': '#8b5cf6',
-        'Quiet Lane': '#f59e0b',
-        'Local Road Quietway': '#3b82f6',
-        'Existing routes': '#64748b',
-        'Town or village centre': '#ec4899',
-        'Main Road-Cycle tracks': '#ef4444',
-        'Canal Towpath Upgrade': '#14b8a6'
+        'HS2 Delivery': '#00e5ff',
+        'New Greenway': '#00e676',
+        'Upgrade PROW': '#d500f9',
+        'Quiet Lane': '#ffab00',
+        'Local Road Quietway': '#2979ff',
+        'Existing routes': '#94a3b8',
+        'Town or village centre': '#ff4081',
+        'Main Road-Cycle tracks': '#ff1744',
+        'Canal Towpath Upgrade': '#1de9b6'
       };
       for (const [cls, color] of Object.entries(colors)) {
         items.push({
@@ -242,6 +243,24 @@
     }
     return items;
   });
+
+  // Current active value for interactive legend highlight
+  let activeLegendFilterValue = $derived.by(() => {
+    if (filters.colorBy === 'category') return filters.category;
+    if (filters.colorBy === 'developer') return filters.developer;
+    if (filters.colorBy === 'classification') return filters.classification;
+    return '';
+  });
+
+  function handleToggleLegendItem(label: string) {
+    if (filters.colorBy === 'category') {
+      filters.category = filters.category === label ? '' : label;
+    } else if (filters.colorBy === 'developer') {
+      filters.developer = filters.developer === label ? '' : label;
+    } else if (filters.colorBy === 'classification') {
+      filters.classification = filters.classification === label ? '' : label;
+    }
+  }
 
   function handleResetFilters() {
     filters = {
@@ -259,11 +278,33 @@
       mapViewRef.zoomToSegment(id);
     }
   }
+
+  function handleExportGeoJSON() {
+    if (!filteredFeatures || filteredFeatures.length === 0) return;
+    const exportCollection: CyclewayFeatureCollection = {
+      type: 'FeatureCollection',
+      features: filteredFeatures
+    };
+    const blob = new Blob([JSON.stringify(exportCollection, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `railactive_corridor_${filters.colorBy}_${Date.now()}.geojson`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
 </script>
 
 <Header 
   {sidebarOpen} 
-  onToggleSidebar={() => sidebarOpen = !sidebarOpen}
+  onToggleSidebar={() => {
+    sidebarOpen = !sidebarOpen;
+    setTimeout(() => {
+      if (mapViewRef && typeof mapViewRef.fitCorridorBounds === 'function') {
+        mapViewRef.fitCorridorBounds();
+      }
+    }, 300);
+  }}
   {basemap}
   onChangeBasemap={(style) => basemap = style}
   {isExampleData}
@@ -290,7 +331,6 @@
     {availableCategories}
     {availableClassifications}
     {availableSections}
-    {legendItems}
     onResetFilters={handleResetFilters}
   />
 
@@ -299,15 +339,40 @@
     data={rawData}
     {filters}
     {basemap}
+    {sidebarOpen}
     {selectedSegment}
     onSelectSegment={(seg) => selectedSegment = seg}
   />
+
+  {#if !selectedSegment}
+    <Legend 
+      title={filters.colorBy}
+      items={legendItems}
+      activeFilterValue={activeLegendFilterValue}
+      onToggleItem={handleToggleLegendItem}
+    />
+  {/if}
 
   <DetailPanel 
     segment={selectedSegment}
     onClose={() => selectedSegment = null}
     onZoomTo={handleZoomTo}
   />
+
+  <!-- Floating Export Control -->
+  <button 
+    class="floating-export-btn"
+    class:sidebar-open={sidebarOpen}
+    onclick={handleExportGeoJSON}
+    title="Export currently filtered route segments as GeoJSON"
+  >
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+      <polyline points="7 10 12 15 17 10"></polyline>
+      <line x1="12" y1="15" x2="12" y2="3"></line>
+    </svg>
+    Export GeoJSON ({filteredFeatures.length})
+  </button>
 </main>
 
 <style>
@@ -347,5 +412,35 @@
 
   @keyframes spin {
     to { transform: rotate(360deg); }
+  }
+
+  .floating-export-btn {
+    position: absolute;
+    bottom: 24px;
+    left: 360px;
+    background: rgba(15, 23, 42, 0.88);
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    font-size: 11px;
+    font-weight: 500;
+    padding: 7px 12px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    z-index: 20;
+    box-shadow: var(--shadow-panel);
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .floating-export-btn:not(.sidebar-open) {
+    left: 24px;
+  }
+
+  .floating-export-btn:hover {
+    background: rgba(30, 41, 59, 0.95);
+    border-color: var(--accent-blue);
   }
 </style>

@@ -1,7 +1,6 @@
 <script lang="ts">
   import KPICards from './KPICards.svelte';
   import FilterPanel from './FilterPanel.svelte';
-  import Legend from './Legend.svelte';
   import type { FilterState, CyclewayStats } from '../types/cycleway';
 
   interface Props {
@@ -12,7 +11,6 @@
     availableCategories: string[];
     availableClassifications: string[];
     availableSections: string[];
-    legendItems: { label: string; color: string; km?: number }[];
     onResetFilters: () => void;
   }
 
@@ -24,7 +22,6 @@
     availableCategories,
     availableClassifications,
     availableSections,
-    legendItems,
     onResetFilters
   }: Props = $props();
 </script>
@@ -42,12 +39,6 @@
       {availableClassifications}
       {availableSections}
       {onResetFilters}
-    />
-
-    <div class="section-title mt-4">Map Legend</div>
-    <Legend 
-      title={filters.colorBy}
-      items={legendItems}
     />
   </div>
 </aside>
@@ -88,9 +79,5 @@
     letter-spacing: 0.05em;
     color: var(--text-muted);
     margin-bottom: 8px;
-  }
-
-  .mt-4 {
-    margin-top: 16px;
   }
 </style>
