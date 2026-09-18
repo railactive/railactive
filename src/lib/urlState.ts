@@ -14,7 +14,8 @@ const MANAGED_PARAMS = [
   'color',
   'hide',
   'segment',
-  'sidebar'
+  'sidebar',
+  'ncn'
 ];
 
 export interface AppUrlState {
@@ -22,6 +23,7 @@ export interface AppUrlState {
   sidebarOpen: boolean;
   filters: FilterState;
   selectedSegmentKey: string | null;
+  showNcn: boolean;
 }
 
 function getLimitedParam(params: URLSearchParams, key: string, maxLength = 200): string {
@@ -51,7 +53,8 @@ export function readUrlState(url: URL): AppUrlState {
         params.getAll('hide').map(value => value.trim().slice(0, 200)).filter(Boolean)
       )]
     },
-    selectedSegmentKey: getLimitedParam(params, 'segment', 100) || null
+    selectedSegmentKey: getLimitedParam(params, 'segment', 100) || null,
+    showNcn: params.get('ncn') !== 'false' && params.get('ncn') !== '0'
   };
 }
 
@@ -75,6 +78,7 @@ export function writeUrlState(url: URL, state: AppUrlState): string {
   }
   if (state.selectedSegmentKey) nextUrl.searchParams.set('segment', state.selectedSegmentKey);
   if (!state.sidebarOpen) nextUrl.searchParams.set('sidebar', 'closed');
+  if (!state.showNcn) nextUrl.searchParams.set('ncn', 'false');
 
   return `${nextUrl.pathname}${nextUrl.search}${nextUrl.hash}`;
 }

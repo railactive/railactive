@@ -13,6 +13,8 @@
     onToggleItem: (label: string) => void;
     onIsolateItem: (label: string) => void;
     onShowAll: () => void;
+    showNcn: boolean;
+    onToggleNcn: () => void;
   }
 
   let { 
@@ -21,7 +23,9 @@
     hiddenItems = [], 
     onToggleItem,
     onIsolateItem,
-    onShowAll
+    onShowAll,
+    showNcn,
+    onToggleNcn
   }: Props = $props();
 
   let collapsed: boolean = $state(false);
@@ -53,8 +57,8 @@
         {@const visible = isVisible(item.label)}
         <div class="legend-row" class:hidden-layer={!visible}>
           <!-- Toggle checkbox / click row to toggle layer -->
-          <button 
-            class="legend-item-btn" 
+          <button
+            class="legend-item-btn"
             onclick={() => onToggleItem(item.label)}
             title={visible ? `Hide ${item.label} layer` : `Show ${item.label} layer`}
             aria-pressed={visible}
@@ -83,6 +87,38 @@
           </button>
         </div>
       {/each}
+
+      <div class="legend-divider"></div>
+      <div class="legend-row ncn-legend-row" class:hidden-layer={!showNcn}>
+        <button
+          class="legend-item-btn"
+          onclick={onToggleNcn}
+          title={showNcn ? 'Hide National Cycle Network' : 'Show National Cycle Network (Sustrans)'}
+          aria-pressed={showNcn}
+        >
+          <span class="toggle-box" class:checked={showNcn}>
+            {#if showNcn}
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            {/if}
+          </span>
+          <span class="color-bar ncn-color-bar"></span>
+          <span class="item-label font-medium">NCN Network (Sustrans)</span>
+        </button>
+      </div>
+      {#if showNcn}
+        <div class="ncn-sublegend">
+          <div class="sublegend-item">
+            <span class="ncn-sample-solid"></span>
+            <span>Traffic-Free</span>
+          </div>
+          <div class="sublegend-item">
+            <span class="ncn-sample-dashed"></span>
+            <span>On-Road</span>
+          </div>
+        </div>
+      {/if}
     </div>
     <div class="legend-footer">
       <span>Click item to toggle layer on/off &bull; Click "only" to isolate</span>
@@ -294,5 +330,42 @@
     color: var(--text-muted);
     text-align: center;
     font-style: italic;
+  }
+
+  .legend-divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.1);
+    margin: 4px 6px;
+  }
+
+  .ncn-color-bar {
+    background: linear-gradient(90deg, #e11d48, #fb7185) !important;
+  }
+
+  .ncn-sublegend {
+    display: flex;
+    gap: 12px;
+    padding: 2px 8px 6px 32px;
+    font-size: 10px;
+    color: var(--text-secondary);
+  }
+
+  .sublegend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .ncn-sample-solid {
+    width: 14px;
+    height: 3px;
+    background: #e11d48;
+    border-radius: 2px;
+  }
+
+  .ncn-sample-dashed {
+    width: 14px;
+    height: 3px;
+    background: repeating-linear-gradient(90deg, #fb7185, #fb7185 3px, transparent 3px, transparent 6px);
   }
 </style>
