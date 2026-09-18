@@ -842,9 +842,9 @@
   // Watch NCN visibility reactively
   $effect(() => {
     const ncnVisible = showNcn;
-    if (!map || !map.isStyleLoaded()) return;
+    if (!map) return;
     setNcnVisibility();
-    if (ncnVisible && !map.getSource(NCN_SOURCE_ID)) {
+    if (ncnVisible && map.isStyleLoaded() && !map.getSource(NCN_SOURCE_ID)) {
       loadNcnSourceAndLayers();
     }
   });
