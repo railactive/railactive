@@ -1,11 +1,16 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
   import maplibregl from 'maplibre-gl';
+  import * as pmtiles from 'pmtiles';
   import type { 
     CyclewayFeatureCollection, 
     FilterState, 
     CyclewaySegmentProperties 
   } from '../types/cycleway';
+
+  // Register PMTiles vector tile protocol handler
+  const pmtilesProtocol = new pmtiles.Protocol();
+  maplibregl.addProtocol('pmtiles', pmtilesProtocol.tile);
 
   interface Props {
     data: CyclewayFeatureCollection | null;
@@ -16,7 +21,7 @@
     selectedSegment: CyclewaySegmentProperties | null;
     onSelectSegment: (segment: CyclewaySegmentProperties | null) => void;
     showNcn?: boolean;
-    ncnGeojsonUrl?: string;
+    ncnPmtilesUrl?: string;
   }
 
   let {
@@ -28,7 +33,7 @@
     selectedSegment,
     onSelectSegment,
     showNcn = false,
-    ncnGeojsonUrl = './data/ncn.geojson'
+    ncnPmtilesUrl = './data/ncn.pmtiles'
   }: Props = $props();
 
   let mapContainer: HTMLDivElement;
@@ -421,10 +426,10 @@
     }
 
     try {
+      const resolvedUrl = new URL(ncnPmtilesUrl, window.location.href).href;
       map.addSource('ncn-data', {
-        type: 'geojson',
-        data: ncnGeojsonUrl,
-        generateId: true
+        type: 'vector',
+        url: `pmtiles://${resolvedUrl}`
       });
 
       const beforeId = map.getLayer('hs2-rail-casing') ? 'hs2-rail-casing' : (map.getLayer('cycleway-casing') ? 'cycleway-casing' : undefined);
@@ -433,6 +438,7 @@
         id: 'ncn-casing',
         type: 'line',
         source: 'ncn-data',
+        'source-layer': 'ncn',
         layout: {
           'line-cap': 'round',
           'line-join': 'round',
@@ -457,6 +463,7 @@
         id: 'ncn-lines',
         type: 'line',
         source: 'ncn-data',
+        'source-layer': 'ncn',
         layout: {
           'line-cap': 'round',
           'line-join': 'round',
