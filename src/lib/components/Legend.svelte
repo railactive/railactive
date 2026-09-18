@@ -15,8 +15,8 @@
     onShowAll: () => void;
     showNcn: boolean;
     onToggleNcn: () => void;
-    showOpenRoads?: boolean;
-    onToggleOpenRoads?: () => void;
+    showOpenRoads: boolean;
+    onToggleOpenRoads: () => void;
   }
 
   let { 
@@ -28,7 +28,7 @@
     onShowAll,
     showNcn,
     onToggleNcn,
-    showOpenRoads = false,
+    showOpenRoads,
     onToggleOpenRoads
   }: Props = $props();
 
