@@ -15,6 +15,8 @@
     hasInitialMapView: boolean;
     selectedSegment: CyclewaySegmentProperties | null;
     onSelectSegment: (segment: CyclewaySegmentProperties | null) => void;
+    showNcn?: boolean;
+    ncnGeojsonUrl?: string;
   }
 
   let {
@@ -24,13 +26,16 @@
     sidebarOpen,
     hasInitialMapView,
     selectedSegment,
-    onSelectSegment
+    onSelectSegment,
+    showNcn = false,
+    ncnGeojsonUrl = './data/ncn.geojson'
   }: Props = $props();
 
   let mapContainer: HTMLDivElement;
   let map: maplibregl.Map | null = null;
   let hoveredId: number | null = null;
   let hoverPopup: maplibregl.Popup | null = null;
+  let clickPopup: maplibregl.Popup | null = null;
   let shouldFitInitialBounds = true;
 
   // High-performance raster basemap styles (clean, keyless, zero watermarks)
@@ -324,6 +329,176 @@
     hoverPopup?.remove();
   }
 
+  function handleNcnMouseMove(e: maplibregl.MapLayerMouseEvent) {
+    if (!map || !e.features || e.features.length === 0) return;
+    map.getCanvas().style.cursor = 'pointer';
+    const props = e.features[0].properties as any;
+    const routeNum = props.RouteNo ? `Route ${props.RouteNo}` : '';
+    const routeType = props.RouteType || 'NCN';
+    const isTrafficFree = props.Desc_ === 'TrafficFree';
+    const desc = isTrafficFree ? 'Traffic-Free' : (props.Desc_ || 'Route');
+    const cat = props.RouteCat && props.RouteCat !== 'N/A' ? props.RouteCat : 'National Cycle Network';
+    const surface = props.Surface ? props.Surface : '';
+    const greenway = props.Greenway === 'Yes' ? ' • Greenway' : '';
+
+    const html = `
+      <div class="tooltip-content ncn-tooltip">
+        <div class="tooltip-title">${routeType} ${routeNum}</div>
+        <div class="tooltip-meta">
+          <span class="badge-sec ${isTrafficFree ? 'badge-trafficfree' : 'badge-onroad'}">${desc}</span>
+          <span class="tooltip-len">${cat}</span>
+        </div>
+        <div class="tooltip-cat">${surface}${greenway}</div>
+      </div>
+    `;
+    hoverPopup?.setLngLat(e.lngLat).setHTML(html).addTo(map);
+  }
+
+  function handleNcnMouseLeave() {
+    if (!map) return;
+    map.getCanvas().style.cursor = '';
+    hoverPopup?.remove();
+  }
+
+  function handleNcnClick(e: maplibregl.MapLayerMouseEvent) {
+    if (!map || !e.features || e.features.length === 0) return;
+    const props = e.features[0].properties as any;
+
+    if (clickPopup) {
+      clickPopup.remove();
+      clickPopup = null;
+    }
+
+    const routeNum = props.RouteNo ? `Route ${props.RouteNo}` : '';
+    const routeType = props.RouteType || 'NCN';
+    const isTrafficFree = props.Desc_ === 'TrafficFree';
+    const isGreenway = props.Greenway === 'Yes';
+    const desc = isTrafficFree ? 'Traffic-Free Path' : (props.Desc_ === 'OnRoad' ? 'On-Road Cycling' : (props.Desc_ || 'N/A'));
+    const estKm = props.Shape__Length ? (Number(props.Shape__Length) / 1665).toFixed(2) : 'N/A';
+
+    const html = `
+      <div class="ncn-popup-card">
+        <div class="ncn-popup-header">
+          <div class="ncn-badge-group">
+            <span class="ncn-badge ncn-type">${routeType} ${routeNum}</span>
+            <span class="ncn-badge ${isTrafficFree ? 'ncn-trafficfree' : 'ncn-onroad'}">${isTrafficFree ? 'Traffic-Free' : 'On-Road'}</span>
+            ${isGreenway ? '<span class="ncn-badge ncn-greenway">Greenway</span>' : ''}
+          </div>
+        </div>
+        <h4 class="ncn-popup-title">${props.RouteCat && props.RouteCat !== 'N/A' ? props.RouteCat : 'National Cycle Network'}</h4>
+        <div class="ncn-popup-table">
+          <div class="ncn-cell"><span class="k">Traffic:</span><span class="v">${desc}</span></div>
+          <div class="ncn-cell"><span class="k">Surface:</span><span class="v">${props.Surface || 'Unspecified'}</span></div>
+          <div class="ncn-cell"><span class="k">Quality:</span><span class="v">${props.Quality || 'Standard'}</span></div>
+          <div class="ncn-cell"><span class="k">Lighting:</span><span class="v">${props.Lighting || 'NotLit'}</span></div>
+          ${props.RoadClass ? `<div class="ncn-cell"><span class="k">Road Class:</span><span class="v">${props.RoadClass}</span></div>` : ''}
+          <div class="ncn-cell"><span class="k">Open Status:</span><span class="v">${props.OpenStatus || 'Open'}</span></div>
+          <div class="ncn-cell"><span class="k">Est. Length:</span><span class="v font-mono">${estKm} km</span></div>
+          <div class="ncn-cell"><span class="k">Segment ID:</span><span class="v font-mono">${props.SegmentID ?? 'N/A'}</span></div>
+          <div class="ncn-cell full"><span class="k">Global ID:</span><span class="v font-mono text-xs">${props.GlobalID ?? 'N/A'}</span></div>
+        </div>
+      </div>
+    `;
+
+    clickPopup = new maplibregl.Popup({
+      closeButton: true,
+      closeOnClick: true,
+      maxWidth: '320px',
+      className: 'ncn-click-popup'
+    })
+      .setLngLat(e.lngLat)
+      .setHTML(html)
+      .addTo(map);
+  }
+
+  function loadNcnSourceAndLayers() {
+    if (!map) return;
+    if (map.getSource('ncn-data')) {
+      const visibility = showNcn ? 'visible' : 'none';
+      if (map.getLayer('ncn-casing')) map.setLayoutProperty('ncn-casing', 'visibility', visibility);
+      if (map.getLayer('ncn-lines')) map.setLayoutProperty('ncn-lines', 'visibility', visibility);
+      return;
+    }
+
+    try {
+      map.addSource('ncn-data', {
+        type: 'geojson',
+        data: ncnGeojsonUrl,
+        generateId: true
+      });
+
+      const beforeId = map.getLayer('hs2-rail-casing') ? 'hs2-rail-casing' : (map.getLayer('cycleway-casing') ? 'cycleway-casing' : undefined);
+
+      map.addLayer({
+        id: 'ncn-casing',
+        type: 'line',
+        source: 'ncn-data',
+        layout: {
+          'line-cap': 'round',
+          'line-join': 'round',
+          'visibility': showNcn ? 'visible' : 'none'
+        },
+        paint: {
+          'line-color': '#4c0519',
+          'line-width': [
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            5, 2.0,
+            8, 3.5,
+            12, 5.5,
+            16, 8.5
+          ],
+          'line-opacity': 0.8
+        }
+      }, beforeId);
+
+      map.addLayer({
+        id: 'ncn-lines',
+        type: 'line',
+        source: 'ncn-data',
+        layout: {
+          'line-cap': 'round',
+          'line-join': 'round',
+          'visibility': showNcn ? 'visible' : 'none'
+        },
+        paint: {
+          'line-color': [
+            'case',
+            ['==', ['coalesce', ['get', 'Desc_'], ''], 'TrafficFree'],
+            '#e11d48',
+            '#fb7185'
+          ],
+          'line-width': [
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            5, 1.2,
+            8, 2.0,
+            12, 3.5,
+            16, 5.0
+          ],
+          'line-dasharray': [
+            'case',
+            ['==', ['coalesce', ['get', 'Desc_'], ''], 'OnRoad'],
+            ['literal', [3, 2]],
+            ['literal', [1, 0]]
+          ],
+          'line-opacity': 0.95
+        }
+      }, beforeId);
+
+      map.off('mousemove', 'ncn-lines', handleNcnMouseMove);
+      map.on('mousemove', 'ncn-lines', handleNcnMouseMove);
+      map.off('mouseleave', 'ncn-lines', handleNcnMouseLeave);
+      map.on('mouseleave', 'ncn-lines', handleNcnMouseLeave);
+      map.off('click', 'ncn-lines', handleNcnClick);
+      map.on('click', 'ncn-lines', handleNcnClick);
+    } catch (err) {
+      console.warn('Unable to load NCN layer:', err);
+    }
+  }
+
   function setupMapLayers() {
     if (!map || !data) return;
 
@@ -484,6 +659,10 @@
       map.off('mouseleave', 'hs2-rail-casing', handleRailwayMouseLeave);
       map.on('mouseleave', 'hs2-rail-casing', handleRailwayMouseLeave);
 
+      if (showNcn) {
+        loadNcnSourceAndLayers();
+      }
+
       fitInitialBounds();
     } catch (err) {
       console.error('Error in setupMapLayers:', err);
@@ -586,7 +765,23 @@
 
   onDestroy(() => {
     if (hoverPopup) hoverPopup.remove();
+    if (clickPopup) clickPopup.remove();
     if (map) map.remove();
+  });
+
+  // Watch NCN visibility reactively
+  $effect(() => {
+    if (!map || !map.isStyleLoaded()) return;
+    const visibility = showNcn ? 'visible' : 'none';
+    if (map.getLayer('ncn-lines')) {
+      map.setLayoutProperty('ncn-lines', 'visibility', visibility);
+    }
+    if (map.getLayer('ncn-casing')) {
+      map.setLayoutProperty('ncn-casing', 'visibility', visibility);
+    }
+    if (showNcn && !map.getSource('ncn-data')) {
+      loadNcnSourceAndLayers();
+    }
   });
 
   // Watch data updates reactively
@@ -705,5 +900,113 @@
   :global(.tooltip-cat) {
     font-size: 10px;
     color: #cbd5e1;
+  }
+
+  :global(.badge-trafficfree) {
+    background: rgba(225, 29, 72, 0.25) !important;
+    color: #fda4af !important;
+  }
+
+  :global(.badge-onroad) {
+    background: rgba(251, 113, 133, 0.2) !important;
+    color: #fecdd3 !important;
+  }
+
+  :global(.ncn-popup-card) {
+    font-family: 'Inter', sans-serif;
+    color: #f8fafc;
+    min-width: 220px;
+  }
+
+  :global(.ncn-popup-header) {
+    margin-bottom: 6px;
+  }
+
+  :global(.ncn-badge-group) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+
+  :global(.ncn-badge) {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+
+  :global(.ncn-type) {
+    background: #e11d48;
+    color: #ffffff;
+  }
+
+  :global(.ncn-trafficfree) {
+    background: rgba(16, 185, 129, 0.25);
+    color: #6ee7b7;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+  }
+
+  :global(.ncn-onroad) {
+    background: rgba(245, 158, 11, 0.25);
+    color: #fcd34d;
+    border: 1px solid rgba(245, 158, 11, 0.4);
+  }
+
+  :global(.ncn-greenway) {
+    background: rgba(59, 130, 246, 0.25);
+    color: #93c5fd;
+    border: 1px solid rgba(59, 130, 246, 0.4);
+  }
+
+  :global(.ncn-popup-title) {
+    margin: 4px 0 8px 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: #f1f5f9;
+  }
+
+  :global(.ncn-popup-table) {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 11px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 6px;
+  }
+
+  :global(.ncn-cell) {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  :global(.ncn-cell.full) {
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  :global(.ncn-cell .k) {
+    color: #94a3b8;
+  }
+
+  :global(.ncn-cell .v) {
+    color: #e2e8f0;
+    text-align: right;
+  }
+
+  :global(.ncn-cell.full .v) {
+    text-align: left;
+    word-break: break-all;
+  }
+
+  :global(.ncn-click-popup .maplibregl-popup-content) {
+    padding: 12px 14px !important;
+    background: rgba(15, 23, 42, 0.96) !important;
+    backdrop-filter: blur(16px) !important;
+    border: 1px solid rgba(225, 29, 72, 0.45) !important;
+    border-radius: 10px !important;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.6) !important;
   }
 </style>

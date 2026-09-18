@@ -46,3 +46,22 @@ export interface CyclewayStats {
   developerCounts: Record<string, { count: number; km: number }>;
   classificationCounts: Record<string, { count: number; km: number }>;
 }
+
+export interface NcnProperties {
+  FID?: number;
+  Desc_?: string;
+  Greenway?: string;
+  RouteType?: string;
+  RouteNo?: number | string;
+  LinkNo?: number;
+  RouteCat?: string;
+  OpenStatus?: string;
+  Surface?: string;
+  Quality?: string;
+  Lighting?: string;
+  RoadClass?: string;
+  Shape__Length?: number;
+  GlobalID?: string;
+  SegmentID?: number;
+}
+
