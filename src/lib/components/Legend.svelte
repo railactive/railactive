@@ -90,8 +90,8 @@
 
       <div class="legend-divider"></div>
       <div class="legend-row ncn-legend-row" class:hidden-layer={!showNcn}>
-        <button 
-          class="legend-item-btn" 
+        <button
+          class="legend-item-btn"
           onclick={onToggleNcn}
           title={showNcn ? 'Hide National Cycle Network' : 'Show National Cycle Network (Sustrans)'}
           aria-pressed={showNcn}
