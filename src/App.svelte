@@ -29,6 +29,7 @@
   let basemap: string = $state(initialUrlState.basemap);
   let selectedSegment: CyclewaySegmentProperties | null = $state(null);
   let showNcn: boolean = $state(initialUrlState.showNcn);
+  let showOpenRoads: boolean = $state(initialUrlState.showOpenRoads);
   let urlStateReady: boolean = $state(false);
 
   let mapViewRef: any = $state(null);
@@ -140,7 +141,8 @@
         hiddenLegendItems: [...filters.hiddenLegendItems]
       },
       selectedSegmentKey: selectedSegment?.link_id || (selectedSegment ? String(selectedSegment.id) : null),
-      showNcn
+      showNcn,
+      showOpenRoads
     };
   }
 
@@ -418,6 +420,8 @@
   {isExampleData}
   {showNcn}
   onToggleNcn={() => showNcn = !showNcn}
+  {showOpenRoads}
+  onToggleOpenRoads={() => showOpenRoads = !showOpenRoads}
 />
 
 <main class="main-viewport">
@@ -454,6 +458,7 @@
     {selectedSegment}
     onSelectSegment={(seg) => selectedSegment = seg}
     {showNcn}
+    {showOpenRoads}
   />
 
   {#if !selectedSegment}
@@ -466,6 +471,8 @@
       onShowAll={handleShowAllLegendItems}
       {showNcn}
       onToggleNcn={() => showNcn = !showNcn}
+      {showOpenRoads}
+      onToggleOpenRoads={() => showOpenRoads = !showOpenRoads}
     />
   {/if}
 

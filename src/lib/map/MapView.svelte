@@ -6,7 +6,8 @@
     CyclewayFeatureCollection, 
     FilterState, 
     CyclewaySegmentProperties,
-    NcnProperties
+    NcnProperties,
+    OpenRoadsProperties
   } from '../types/cycleway';
 
   const NCN_SOURCE_ID = 'ncn-data';
@@ -15,6 +16,23 @@
   const NCN_ON_ROAD_LAYER_ID = 'ncn-on-road';
   const NCN_LAYER_IDS = [NCN_CASING_LAYER_ID, NCN_LINE_LAYER_ID, NCN_ON_ROAD_LAYER_ID];
   const NCN_INTERACTIVE_LAYER_IDS = [NCN_LINE_LAYER_ID, NCN_ON_ROAD_LAYER_ID];
+
+  const OPENROADS_SOURCE_ID = 'openroads-data';
+  const OPENROADS_CASING_LAYER_ID = 'openroads-casing';
+  const OPENROADS_LOCAL_LAYER_ID = 'openroads-local';
+  const OPENROADS_MINOR_LAYER_ID = 'openroads-minor';
+  const OPENROADS_MAJOR_LAYER_ID = 'openroads-major';
+  const OPENROADS_LAYER_IDS = [
+    OPENROADS_CASING_LAYER_ID,
+    OPENROADS_LOCAL_LAYER_ID,
+    OPENROADS_MINOR_LAYER_ID,
+    OPENROADS_MAJOR_LAYER_ID
+  ];
+  const OPENROADS_INTERACTIVE_LAYER_IDS = [
+    OPENROADS_LOCAL_LAYER_ID,
+    OPENROADS_MINOR_LAYER_ID,
+    OPENROADS_MAJOR_LAYER_ID
+  ];
   const pmtilesProtocol = new pmtiles.Protocol();
   const maplibreWithPmtiles = maplibregl as typeof maplibregl & {
     railactivePmtilesRegistered?: boolean;
@@ -34,6 +52,8 @@
     onSelectSegment: (segment: CyclewaySegmentProperties | null) => void;
     showNcn?: boolean;
     ncnPmtilesUrl?: string;
+    showOpenRoads?: boolean;
+    openRoadsPmtilesUrl?: string;
   }
 
   let {
@@ -45,7 +65,9 @@
     selectedSegment,
     onSelectSegment,
     showNcn = false,
-    ncnPmtilesUrl = './data/ncn.pmtiles'
+    ncnPmtilesUrl = './data/ncn.pmtiles',
+    showOpenRoads = false,
+    openRoadsPmtilesUrl = './data/openroads.pmtiles'
   }: Props = $props();
 
   let mapContainer: HTMLDivElement;
@@ -569,6 +591,233 @@
     }
   }
 
+  function openRoadsValue(value: unknown, fallback: string): string {
+    return escapeHtml(value === undefined || value === null || value === '' ? fallback : value);
+  }
+
+  function handleOpenRoadsMouseMove(e: maplibregl.MapLayerMouseEvent) {
+    if (!map || !e.features || e.features.length === 0) return;
+    map.getCanvas().style.cursor = 'pointer';
+    const props = e.features[0].properties as OpenRoadsProperties;
+    const name = props.name_1 || props.road_classification_number || 'Unnamed Road';
+    const roadNum = props.road_classification_number ? escapeHtml(props.road_classification_number) : '';
+    const roadGroup = openRoadsValue(props.road_classification, 'Road');
+    const roadFunc = openRoadsValue(props.road_function, 'Local');
+    const formOfWay = openRoadsValue(props.form_of_way, 'Single Carriageway');
+    const lengthStr = props.length ? `${Math.round(Number(props.length))} m` : '';
+
+    const html = `
+      <div class="tooltip-content">
+        <div class="tooltip-title">${escapeHtml(name)}</div>
+        <div class="tooltip-meta">
+          <span class="badge-sec badge-openroads">${roadNum || roadGroup}</span>
+          ${lengthStr ? `<span class="tooltip-len">${lengthStr}</span>` : ''}
+        </div>
+        <div class="tooltip-cat">${roadFunc} &bull; ${formOfWay}</div>
+      </div>
+    `;
+    hoverPopup?.setLngLat(e.lngLat).setHTML(html).addTo(map);
+  }
+
+  function handleOpenRoadsMouseLeave() {
+    if (!map) return;
+    map.getCanvas().style.cursor = '';
+    hoverPopup?.remove();
+  }
+
+  function handleOpenRoadsClick(e: maplibregl.MapLayerMouseEvent) {
+    if (!map || !e.features || e.features.length === 0) return;
+    const props = e.features[0].properties as OpenRoadsProperties;
+
+    if (clickPopup) {
+      clickPopup.remove();
+      clickPopup = null;
+    }
+
+    const name = props.name_1 ? escapeHtml(props.name_1) : 'Unnamed Road';
+    const roadNum = props.road_classification_number ? escapeHtml(props.road_classification_number) : '';
+    const roadClass = openRoadsValue(props.road_classification, 'Unclassified');
+    const roadFunc = openRoadsValue(props.road_function, 'Local Road');
+    const formOfWay = openRoadsValue(props.form_of_way, 'Single Carriageway');
+    const lengthStr = props.length ? `${Math.round(Number(props.length))} m` : 'N/A';
+
+    const html = `
+      <div class="openroads-popup-card">
+        <div class="openroads-popup-header">
+          <div class="openroads-badge-group">
+            <span class="openroads-badge openroads-type">${roadNum || roadClass}</span>
+            <span class="openroads-badge openroads-func">${roadFunc}</span>
+          </div>
+        </div>
+        <h4 class="openroads-popup-title">${name}</h4>
+        <div class="openroads-popup-table">
+          <div class="openroads-cell"><span class="k">Classification:</span><span class="v">${roadClass}</span></div>
+          <div class="openroads-cell"><span class="k">Function:</span><span class="v">${roadFunc}</span></div>
+          <div class="openroads-cell"><span class="k">Form of Way:</span><span class="v">${formOfWay}</span></div>
+          <div class="openroads-cell"><span class="k">Link Length:</span><span class="v">${lengthStr}</span></div>
+          ${props.id ? `<div class="openroads-cell full"><span class="k">Link ID:</span><span class="v font-mono text-xs">${openRoadsValue(props.id, '')}</span></div>` : ''}
+        </div>
+      </div>
+    `;
+
+    clickPopup = new maplibregl.Popup({
+      closeButton: true,
+      closeOnClick: true,
+      maxWidth: '320px',
+      className: 'openroads-click-popup'
+    })
+      .setLngLat(e.lngLat)
+      .setHTML(html)
+      .addTo(map);
+  }
+
+  function setOpenRoadsVisibility() {
+    if (!map) return;
+    const visibility = showOpenRoads ? 'visible' : 'none';
+    for (const layerId of OPENROADS_LAYER_IDS) {
+      if (map.getLayer(layerId)) map.setLayoutProperty(layerId, 'visibility', visibility);
+    }
+    if (!showOpenRoads) {
+      hoverPopup?.remove();
+      clickPopup?.remove();
+      clickPopup = null;
+      map.getCanvas().style.cursor = '';
+    }
+  }
+
+  function loadOpenRoadsSourceAndLayers() {
+    if (!map) return;
+    if (map.getSource(OPENROADS_SOURCE_ID)) {
+      setOpenRoadsVisibility();
+      return;
+    }
+
+    try {
+      const resolvedUrl = new URL(openRoadsPmtilesUrl, window.location.href).href;
+      map.addSource(OPENROADS_SOURCE_ID, {
+        type: 'vector',
+        url: `pmtiles://${resolvedUrl}`
+      });
+
+      const beforeId = map.getLayer(NCN_CASING_LAYER_ID)
+        ? NCN_CASING_LAYER_ID
+        : (map.getLayer('hs2-rail-casing')
+          ? 'hs2-rail-casing'
+          : (map.getLayer('cycleway-casing') ? 'cycleway-casing' : undefined));
+
+      map.addLayer({
+        id: OPENROADS_CASING_LAYER_ID,
+        type: 'line',
+        source: OPENROADS_SOURCE_ID,
+        'source-layer': 'openroads',
+        layout: {
+          'line-cap': 'round',
+          'line-join': 'round',
+          'visibility': showOpenRoads ? 'visible' : 'none'
+        },
+        paint: {
+          'line-color': '#0f172a',
+          'line-width': [
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            7, 1.2,
+            10, 2.5,
+            14, 5.0
+          ],
+          'line-opacity': 0.6
+        }
+      }, beforeId);
+
+      map.addLayer({
+        id: OPENROADS_LOCAL_LAYER_ID,
+        type: 'line',
+        source: OPENROADS_SOURCE_ID,
+        'source-layer': 'openroads',
+        filter: ['in', ['coalesce', ['get', 'road_function'], ''], ['literal', ['Local Road', 'Minor Road', 'Restricted Local Access', 'Secondary Access', 'Local Access']]],
+        minzoom: 9,
+        layout: {
+          'line-cap': 'round',
+          'line-join': 'round',
+          'visibility': showOpenRoads ? 'visible' : 'none'
+        },
+        paint: {
+          'line-color': '#94a3b8',
+          'line-width': [
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            9, 0.8,
+            11, 1.4,
+            14, 2.8
+          ],
+          'line-opacity': 0.8
+        }
+      }, beforeId);
+
+      map.addLayer({
+        id: OPENROADS_MINOR_LAYER_ID,
+        type: 'line',
+        source: OPENROADS_SOURCE_ID,
+        'source-layer': 'openroads',
+        filter: ['==', ['coalesce', ['get', 'road_function'], ''], 'B Road'],
+        layout: {
+          'line-cap': 'round',
+          'line-join': 'round',
+          'visibility': showOpenRoads ? 'visible' : 'none'
+        },
+        paint: {
+          'line-color': '#60a5fa',
+          'line-width': [
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            7, 1.0,
+            10, 2.0,
+            14, 3.8
+          ],
+          'line-opacity': 0.9
+        }
+      }, beforeId);
+
+      map.addLayer({
+        id: OPENROADS_MAJOR_LAYER_ID,
+        type: 'line',
+        source: OPENROADS_SOURCE_ID,
+        'source-layer': 'openroads',
+        filter: ['in', ['coalesce', ['get', 'road_function'], ''], ['literal', ['Motorway', 'A Road']]],
+        layout: {
+          'line-cap': 'round',
+          'line-join': 'round',
+          'visibility': showOpenRoads ? 'visible' : 'none'
+        },
+        paint: {
+          'line-color': '#3b82f6',
+          'line-width': [
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            7, 1.5,
+            10, 3.0,
+            14, 5.5
+          ],
+          'line-opacity': 0.95
+        }
+      }, beforeId);
+
+      for (const layerId of OPENROADS_INTERACTIVE_LAYER_IDS) {
+        map.off('mousemove', layerId, handleOpenRoadsMouseMove);
+        map.on('mousemove', layerId, handleOpenRoadsMouseMove);
+        map.off('mouseleave', layerId, handleOpenRoadsMouseLeave);
+        map.on('mouseleave', layerId, handleOpenRoadsMouseLeave);
+        map.off('click', layerId, handleOpenRoadsClick);
+        map.on('click', layerId, handleOpenRoadsClick);
+      }
+    } catch (err) {
+      console.warn('Unable to load OpenRoads layer:', err);
+    }
+  }
+
   function setupMapLayers() {
     if (!map || !data) return;
 
@@ -733,6 +982,10 @@
         loadNcnSourceAndLayers();
       }
 
+      if (showOpenRoads) {
+        loadOpenRoadsSourceAndLayers();
+      }
+
       fitInitialBounds();
     } catch (err) {
       console.error('Error in setupMapLayers:', err);
@@ -846,6 +1099,16 @@
     setNcnVisibility();
     if (ncnVisible && map.isStyleLoaded() && !map.getSource(NCN_SOURCE_ID)) {
       loadNcnSourceAndLayers();
+    }
+  });
+
+  // Watch OpenRoads visibility reactively
+  $effect(() => {
+    const roadsVisible = showOpenRoads;
+    if (!map) return;
+    setOpenRoadsVisibility();
+    if (roadsVisible && map.isStyleLoaded() && !map.getSource(OPENROADS_SOURCE_ID)) {
+      loadOpenRoadsSourceAndLayers();
     }
   });
 
@@ -1071,6 +1334,97 @@
     background: rgba(15, 23, 42, 0.96) !important;
     backdrop-filter: blur(16px) !important;
     border: 1px solid rgba(225, 29, 72, 0.45) !important;
+    border-radius: 10px !important;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.6) !important;
+  }
+
+  :global(.badge-openroads) {
+    background: rgba(59, 130, 246, 0.25) !important;
+    color: #93c5fd !important;
+  }
+
+  :global(.openroads-popup-card) {
+    font-family: 'Inter', sans-serif;
+    color: #f8fafc;
+    min-width: 220px;
+  }
+
+  :global(.openroads-popup-header) {
+    margin-bottom: 6px;
+  }
+
+  :global(.openroads-badge-group) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+
+  :global(.openroads-badge) {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+
+  :global(.openroads-type) {
+    background: #2563eb;
+    color: #ffffff;
+  }
+
+  :global(.openroads-func) {
+    background: rgba(59, 130, 246, 0.25);
+    color: #93c5fd;
+    border: 1px solid rgba(59, 130, 246, 0.4);
+  }
+
+  :global(.openroads-popup-title) {
+    margin: 4px 0 8px 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: #f1f5f9;
+  }
+
+  :global(.openroads-popup-table) {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 11px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 6px;
+  }
+
+  :global(.openroads-cell) {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  :global(.openroads-cell.full) {
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  :global(.openroads-cell .k) {
+    color: #94a3b8;
+  }
+
+  :global(.openroads-cell .v) {
+    color: #e2e8f0;
+    text-align: right;
+  }
+
+  :global(.openroads-cell.full .v) {
+    text-align: left;
+    word-break: break-all;
+  }
+
+  :global(.openroads-click-popup .maplibregl-popup-content) {
+    padding: 12px 14px !important;
+    background: rgba(15, 23, 42, 0.96) !important;
+    backdrop-filter: blur(16px) !important;
+    border: 1px solid rgba(59, 130, 246, 0.45) !important;
     border-radius: 10px !important;
     box-shadow: 0 12px 28px rgba(0, 0, 0, 0.6) !important;
   }

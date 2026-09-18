@@ -6,6 +6,8 @@
     onCopyLink: () => Promise<void>;
     showNcn: boolean;
     onToggleNcn: () => void;
+    showOpenRoads?: boolean;
+    onToggleOpenRoads?: () => void;
   }
 
   let { 
@@ -14,7 +16,9 @@
     isExampleData = false,
     onCopyLink,
     showNcn,
-    onToggleNcn
+    onToggleNcn,
+    showOpenRoads = false,
+    onToggleOpenRoads
   }: Props = $props();
 
   let copyStatus: 'idle' | 'copied' | 'error' = $state('idle');
@@ -83,6 +87,17 @@
     >
       <span class="ncn-indicator"></span>
       <span>NCN Layer</span>
+    </button>
+    <button
+      class="openroads-toggle-btn"
+      class:active={showOpenRoads}
+      onclick={onToggleOpenRoads}
+      title={showOpenRoads ? 'Hide Ordnance Survey OpenRoads' : 'Show Ordnance Survey OpenRoads'}
+      aria-label="Toggle Ordnance Survey OpenRoads layer"
+      aria-pressed={showOpenRoads}
+    >
+      <span class="openroads-indicator"></span>
+      <span>OpenRoads</span>
     </button>
     <button
       class="share-link"
@@ -292,6 +307,46 @@
   .ncn-toggle-btn.active .ncn-indicator {
     background: #e11d48;
     box-shadow: 0 0 6px rgba(225, 29, 72, 0.9);
+  }
+
+  .openroads-toggle-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 34px;
+    padding: 0 10px;
+    background: rgba(30, 41, 59, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .openroads-toggle-btn:hover {
+    background: rgba(51, 65, 85, 0.8);
+    color: var(--text-primary);
+  }
+
+  .openroads-toggle-btn.active {
+    background: rgba(59, 130, 246, 0.18);
+    border-color: rgba(59, 130, 246, 0.6);
+    color: #93c5fd;
+  }
+
+  .openroads-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #64748b;
+    transition: all 0.2s ease;
+  }
+
+  .openroads-toggle-btn.active .openroads-indicator {
+    background: #3b82f6;
+    box-shadow: 0 0 6px rgba(59, 130, 246, 0.9);
   }
 
   .github-link:hover {
