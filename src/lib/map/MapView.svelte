@@ -515,7 +515,7 @@
           'visibility': showNcn ? 'visible' : 'none'
         },
         paint: {
-          'line-color': '#e11d48',
+          'line-color': '#10b981',
           'line-width': [
             'interpolate',
             ['linear'],
@@ -968,8 +968,8 @@
   }
 
   :global(.badge-trafficfree) {
-    background: rgba(225, 29, 72, 0.25) !important;
-    color: #fda4af !important;
+    background: rgba(16, 185, 129, 0.25) !important;
+    color: #6ee7b7 !important;
   }
 
   :global(.badge-onroad) {
