@@ -52,10 +52,12 @@
     <div class="brand">
       <div class="logo-icon" title="RailActive Multi-Modal Corridor">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M4 19c4-8 4-6 8-10s4-2 8-5"></path>
-          <circle cx="4" cy="19" r="2" fill="currentColor"></circle>
-          <circle cx="12" cy="9" r="2" fill="currentColor"></circle>
-          <circle cx="20" cy="4" r="2" fill="currentColor"></circle>
+          <path d="M3 3 7 7 10 10 12 13 16 16 21 21"></path>
+          <path d="M19 4 17 7 14 9 12 13"></path>
+          <circle cx="3" cy="3" r="1.5" fill="currentColor"></circle>
+          <circle cx="19" cy="4" r="1.5" fill="currentColor"></circle>
+          <circle cx="12" cy="13" r="1.5" fill="currentColor"></circle>
+          <circle cx="21" cy="21" r="1.5" fill="currentColor"></circle>
         </svg>
       </div>
       <div class="title-group">
