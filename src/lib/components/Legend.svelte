@@ -146,6 +146,10 @@
       {#if showOpenRoads}
         <div class="openroads-sublegend">
           <div class="sublegend-item">
+            <span class="openroads-sample-restricted"></span>
+            <span>Restricted Local Access</span>
+          </div>
+          <div class="sublegend-item">
             <span class="openroads-sample-major"></span>
             <span>Motorway / A Road</span>
           </div>
@@ -426,6 +430,13 @@
     width: 14px;
     height: 3px;
     background: #3b82f6;
+    border-radius: 2px;
+  }
+
+  .openroads-sample-restricted {
+    width: 14px;
+    height: 3px;
+    background: #f59e0b;
     border-radius: 2px;
   }
 
