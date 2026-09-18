@@ -246,7 +246,7 @@
   function ensureLayers() {
     if (!map || !data) return;
     if (!map.isStyleLoaded()) {
-      map.once('style.load', () => ensureLayers());
+      map.once('style.load', setupMapLayers);
       return;
     }
     setupMapLayers();
@@ -562,9 +562,7 @@
       ensureLayers();
     });
 
-    map.on('style.load', () => {
-      ensureLayers();
-    });
+    map.on('style.load', setupMapLayers);
   });
 
   onDestroy(() => {
@@ -614,9 +612,8 @@
       const currentPitch = map.getPitch();
       const currentBearing = map.getBearing();
 
-      map.setStyle(basemapStyles[basemap]);
+      map.setStyle(basemapStyles[basemap], { diff: false });
       map.once('style.load', () => {
-        ensureLayers();
         if (map) {
           map.setCenter(currentCenter);
           map.setZoom(currentZoom);
