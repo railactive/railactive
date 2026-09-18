@@ -339,7 +339,7 @@
   }
 
   .ncn-color-bar {
-    background: linear-gradient(90deg, #e11d48, #fb7185) !important;
+    background: linear-gradient(90deg, #10b981, #fb7185) !important;
   }
 
   .ncn-sublegend {
@@ -359,7 +359,7 @@
   .ncn-sample-solid {
     width: 14px;
     height: 3px;
-    background: #e11d48;
+    background: #10b981;
     border-radius: 2px;
   }
 
