@@ -60,8 +60,6 @@ export interface NcnProperties {
   Quality?: string;
   Lighting?: string;
   RoadClass?: string;
-  Shape__Length?: number;
   GlobalID?: string;
   SegmentID?: number;
 }
-

@@ -41,6 +41,7 @@ The application provides:
 ┌────────────────────────────────────────────────────────┐
 │                    Static Data Assets                  │
 │       • public/data/north_south_cycleway.json          │
+│       • public/data/ncn.pmtiles                        │
 │       • Vector Tiles (.pmtiles) / Parquet / DuckDB     │
 └──────────────────────────┬─────────────────────────────┘
                            │

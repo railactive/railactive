@@ -4,8 +4,8 @@
     onToggleSidebar: () => void;
     isExampleData: boolean;
     onCopyLink: () => Promise<void>;
-    showNcn?: boolean;
-    onToggleNcn?: () => void;
+    showNcn: boolean;
+    onToggleNcn: () => void;
   }
 
   let { 
@@ -13,7 +13,7 @@
     onToggleSidebar, 
     isExampleData = false,
     onCopyLink,
-    showNcn = false,
+    showNcn,
     onToggleNcn
   }: Props = $props();
 
@@ -71,19 +71,17 @@
   </div>
 
   <div class="right-section">
-    {#if onToggleNcn}
-      <button
-        class="ncn-toggle-btn"
-        class:active={showNcn}
-        onclick={onToggleNcn}
-        title={showNcn ? 'Hide National Cycle Network (NCN)' : 'Show National Cycle Network (NCN)'}
-        aria-label="Toggle National Cycle Network layer"
-        aria-pressed={showNcn}
-      >
-        <span class="ncn-indicator"></span>
-        <span>NCN Layer</span>
-      </button>
-    {/if}
+    <button
+      class="ncn-toggle-btn"
+      class:active={showNcn}
+      onclick={onToggleNcn}
+      title={showNcn ? 'Hide National Cycle Network (NCN)' : 'Show National Cycle Network (NCN)'}
+      aria-label="Toggle National Cycle Network layer"
+      aria-pressed={showNcn}
+    >
+      <span class="ncn-indicator"></span>
+      <span>NCN Layer</span>
+    </button>
     <button
       class="share-link"
       class:copied={copyStatus === 'copied'}
