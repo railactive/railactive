@@ -16,8 +16,7 @@ const MANAGED_PARAMS = [
   'segment',
   'sidebar',
   'ncn',
-  'openroads',
-  'roads'
+  'openroads'
 ];
 
 export interface AppUrlState {
@@ -58,7 +57,7 @@ export function readUrlState(url: URL): AppUrlState {
     },
     selectedSegmentKey: getLimitedParam(params, 'segment', 100) || null,
     showNcn: params.get('ncn') !== 'false' && params.get('ncn') !== '0',
-    showOpenRoads: params.get('openroads') === 'true' || params.get('roads') === 'true'
+    showOpenRoads: params.get('openroads') === 'true'
   };
 }
 
