@@ -63,3 +63,14 @@ export interface NcnProperties {
   GlobalID?: string;
   SegmentID?: number;
 }
+
+export interface OpenRoadsProperties {
+  id?: string;
+  road_classification?: string;
+  road_function?: string;
+  form_of_way?: string;
+  road_classification_number?: string;
+  name_1?: string;
+  length?: number;
+}
+

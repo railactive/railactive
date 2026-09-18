@@ -26,6 +26,8 @@ The application provides:
   lengths, and remarks, with the option to zoom directly to a segment.
 - **Shareable views**: Copy a URL that restores the current map position,
   basemap, filters, visible legend items, sidebar state, and selected segment.
+- **Reference networks**: Compare proposed routes with the National Cycle
+  Network and OS OpenRoads within 10 km of the corridor.
 - **Cloud-native data transport**: High-performance GeoJSON, PMTiles, and
   DuckDB-WASM integration without a runtime backend server.
 
@@ -42,6 +44,7 @@ The application provides:
 │                    Static Data Assets                  │
 │       • public/data/north_south_cycleway.json          │
 │       • public/data/ncn.pmtiles                        │
+│       • public/data/openroads.pmtiles                  │
 │       • Vector Tiles (.pmtiles) / Parquet / DuckDB     │
 └──────────────────────────┬─────────────────────────────┘
                            │
@@ -91,6 +94,11 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
 Use **Share view** in the header to copy the current view. Map position is
 stored in a MapLibre `#map=` hash, while basemap and application filters use
 readable query parameters. Default settings are omitted from the URL.
+
+OS OpenRoads is available from the header and map legend. Its visibility is
+stored as `openroads=true` in shared URLs. Contains Ordnance Survey data
+© Crown copyright and database right 2026, licensed under the
+[Open Government Licence](https://www.nationalarchives.gov.uk/doc/open-government-licence/).
 
 ### Production Build
 
