@@ -12,6 +12,7 @@
     filters: FilterState;
     basemap: string;
     sidebarOpen: boolean;
+    hasInitialMapView: boolean;
     selectedSegment: CyclewaySegmentProperties | null;
     onSelectSegment: (segment: CyclewaySegmentProperties | null) => void;
   }
@@ -21,6 +22,7 @@
     filters,
     basemap,
     sidebarOpen,
+    hasInitialMapView,
     selectedSegment,
     onSelectSegment
   }: Props = $props();
@@ -29,6 +31,7 @@
   let map: maplibregl.Map | null = null;
   let hoveredId: number | null = null;
   let hoverPopup: maplibregl.Popup | null = null;
+  let shouldFitInitialBounds = true;
 
   // High-performance raster basemap styles (clean, keyless, zero watermarks)
   const basemapStyles: Record<string, any> = {
@@ -252,13 +255,82 @@
     setupMapLayers();
   }
 
+  function handleCyclewayMouseMove(e: maplibregl.MapLayerMouseEvent) {
+    if (!map || !e.features || e.features.length === 0) return;
+    map.getCanvas().style.cursor = 'pointer';
+
+    const feat = e.features[0];
+    const properties = feat.properties as CyclewaySegmentProperties;
+
+    if (hoveredId !== null && hoveredId !== feat.id) {
+      map.setFeatureState({ source: 'cycleway-data', id: hoveredId }, { hover: false });
+    }
+    hoveredId = feat.id as number;
+    map.setFeatureState({ source: 'cycleway-data', id: hoveredId }, { hover: true });
+
+    const length = properties.length_km ? `${Number(properties.length_km).toFixed(2)} km` : '';
+    const classification = properties.classification === 'HS2 Delivery'
+      ? 'HS2 Haulage'
+      : properties.classification || properties.category || 'Active Route';
+    const html = `
+      <div class="tooltip-content">
+        <div class="tooltip-title">${properties.name || `Link ${properties.link_id || properties.id}`}</div>
+        <div class="tooltip-meta">
+          <span class="badge-sec">${properties.section || 'Corridor'}</span>
+          <span class="tooltip-len">${length}</span>
+        </div>
+        <div class="tooltip-cat">${classification}</div>
+      </div>
+    `;
+    hoverPopup?.setLngLat(e.lngLat).setHTML(html).addTo(map);
+  }
+
+  function handleCyclewayMouseLeave() {
+    if (!map) return;
+    map.getCanvas().style.cursor = '';
+    if (hoveredId !== null) {
+      map.setFeatureState({ source: 'cycleway-data', id: hoveredId }, { hover: false });
+      hoveredId = null;
+    }
+    hoverPopup?.remove();
+  }
+
+  function handleCyclewayClick(e: maplibregl.MapLayerMouseEvent) {
+    if (e.features && e.features.length > 0) {
+      onSelectSegment(e.features[0].properties as CyclewaySegmentProperties);
+    }
+  }
+
+  function handleRailwayMouseMove(e: maplibregl.MapLayerMouseEvent) {
+    if (!map || !e.features || e.features.length === 0) return;
+    map.getCanvas().style.cursor = 'pointer';
+    const properties = e.features[0].properties as Record<string, string>;
+    const html = `
+      <div class="tooltip-content">
+        <div class="tooltip-title">HS2 High Speed Rail Line</div>
+        <div class="tooltip-meta">
+          <span class="badge-sec">Railway Track</span>
+          <span class="tooltip-len">${properties.structure || 'Alignment'}</span>
+        </div>
+        <div class="tooltip-cat">${properties.phase || 'Phase 1'}</div>
+      </div>
+    `;
+    hoverPopup?.setLngLat(e.lngLat).setHTML(html).addTo(map);
+  }
+
+  function handleRailwayMouseLeave() {
+    if (!map) return;
+    map.getCanvas().style.cursor = '';
+    hoverPopup?.remove();
+  }
+
   function setupMapLayers() {
     if (!map || !data) return;
 
     const existingSource = map.getSource('cycleway-data') as maplibregl.GeoJSONSource;
     if (existingSource) {
       existingSource.setData(data as any);
-      fitCorridorBounds();
+      fitInitialBounds();
       return;
     }
 
@@ -399,82 +471,20 @@
       }
 
       // Interaction Events on Active Routes
-      map.off('mousemove', 'cycleway-lines');
-      map.on('mousemove', 'cycleway-lines', (e) => {
-        if (!map || !e.features || e.features.length === 0) return;
-        map.getCanvas().style.cursor = 'pointer';
-
-        const feat = e.features[0];
-        const p = feat.properties as CyclewaySegmentProperties;
-
-        if (hoveredId !== null && hoveredId !== feat.id) {
-          map.setFeatureState({ source: 'cycleway-data', id: hoveredId }, { hover: false });
-        }
-        hoveredId = feat.id as number;
-        map.setFeatureState({ source: 'cycleway-data', id: hoveredId }, { hover: true });
-
-        // Show Hover Tooltip
-        const lenStr = p.length_km ? `${Number(p.length_km).toFixed(2)} km` : '';
-        const displayCls = p.classification === 'HS2 Delivery' ? 'HS2 Haulage' : (p.classification || p.category || 'Active Route');
-        const html = `
-          <div class="tooltip-content">
-            <div class="tooltip-title">${p.name || `Link ${p.link_id || p.id}`}</div>
-            <div class="tooltip-meta">
-              <span class="badge-sec">${p.section || 'Corridor'}</span>
-              <span class="tooltip-len">${lenStr}</span>
-            </div>
-            <div class="tooltip-cat">${displayCls}</div>
-          </div>
-        `;
-        hoverPopup?.setLngLat(e.lngLat).setHTML(html).addTo(map);
-      });
-
-      map.off('mouseleave', 'cycleway-lines');
-      map.on('mouseleave', 'cycleway-lines', () => {
-        if (!map) return;
-        map.getCanvas().style.cursor = '';
-        if (hoveredId !== null) {
-          map.setFeatureState({ source: 'cycleway-data', id: hoveredId }, { hover: false });
-          hoveredId = null;
-        }
-        hoverPopup?.remove();
-      });
-
-      map.off('click', 'cycleway-lines', (e) => {
-        if (e.features && e.features.length > 0) {
-          const props = e.features[0].properties as CyclewaySegmentProperties;
-          onSelectSegment(props);
-        }
-      });
+      map.off('mousemove', 'cycleway-lines', handleCyclewayMouseMove);
+      map.on('mousemove', 'cycleway-lines', handleCyclewayMouseMove);
+      map.off('mouseleave', 'cycleway-lines', handleCyclewayMouseLeave);
+      map.on('mouseleave', 'cycleway-lines', handleCyclewayMouseLeave);
+      map.off('click', 'cycleway-lines', handleCyclewayClick);
+      map.on('click', 'cycleway-lines', handleCyclewayClick);
 
       // Hover on Railway Track
-      map.off('mousemove', 'hs2-rail-casing');
-      map.on('mousemove', 'hs2-rail-casing', (e) => {
-        if (!map || !e.features || e.features.length === 0) return;
-        map.getCanvas().style.cursor = 'pointer';
-        const feat = e.features[0];
-        const p = feat.properties as any;
-        const html = `
-          <div class="tooltip-content">
-            <div class="tooltip-title">HS2 High Speed Rail Line</div>
-            <div class="tooltip-meta">
-              <span class="badge-sec">Railway Track</span>
-              <span class="tooltip-len">${p.structure || 'Alignment'}</span>
-            </div>
-            <div class="tooltip-cat">${p.phase || 'Phase 1'}</div>
-          </div>
-        `;
-        hoverPopup?.setLngLat(e.lngLat).setHTML(html).addTo(map);
-      });
+      map.off('mousemove', 'hs2-rail-casing', handleRailwayMouseMove);
+      map.on('mousemove', 'hs2-rail-casing', handleRailwayMouseMove);
+      map.off('mouseleave', 'hs2-rail-casing', handleRailwayMouseLeave);
+      map.on('mouseleave', 'hs2-rail-casing', handleRailwayMouseLeave);
 
-      map.off('mouseleave', 'hs2-rail-casing');
-      map.on('mouseleave', 'hs2-rail-casing', () => {
-        if (!map) return;
-        map.getCanvas().style.cursor = '';
-        hoverPopup?.remove();
-      });
-
-      fitCorridorBounds();
+      fitInitialBounds();
     } catch (err) {
       console.error('Error in setupMapLayers:', err);
     }
@@ -493,6 +503,7 @@
         for (const line of geom.coordinates) {
           for (const c of line) bounds.extend(c as [number, number]);
         }
+
       } else if (geom.type === 'Point') {
         bounds.extend(geom.coordinates as [number, number]);
       }
@@ -510,6 +521,12 @@
         duration: 800
       });
     }
+  }
+
+  function fitInitialBounds() {
+    if (!shouldFitInitialBounds) return;
+    shouldFitInitialBounds = false;
+    fitCorridorBounds();
   }
 
   export function zoomToSegment(id: number) {
@@ -545,12 +562,14 @@
   }
 
   onMount(() => {
+    shouldFitInitialBounds = !hasInitialMapView;
     map = new maplibregl.Map({
       container: mapContainer,
       style: basemapStyles[basemap] || basemapStyles.dark,
       center: [-1.4, 52.3],
       zoom: 7.8,
-      pitch: 0
+      pitch: 0,
+      hash: 'map'
     });
 
     (window as any)._map = map;

@@ -7,6 +7,7 @@
   import BasemapControl from './lib/components/BasemapControl.svelte';
   import PasswordGate from './lib/components/PasswordGate.svelte';
   import MapView from './lib/map/MapView.svelte';
+  import { hasValidMapHash, readUrlState, writeUrlState, type AppUrlState } from './lib/urlState';
   import type { 
     CyclewayFeatureCollection, 
     FilterState, 
@@ -14,27 +15,24 @@
     CyclewaySegmentProperties 
   } from './lib/types/cycleway';
 
+  const initialUrl = new URL(window.location.href);
+  const initialUrlState = readUrlState(initialUrl);
+  const hasInitialMapView = hasValidMapHash(initialUrl.hash);
+
   let rawData: CyclewayFeatureCollection | null = $state(null);
   let loading: boolean = $state(true);
   let error: string | null = $state(null);
   let isExampleData: boolean = $state(false);
   let isAuthenticated: boolean = $state(true); // default true for seamless local dev, checks session on mount
 
-  let sidebarOpen: boolean = $state(true);
-  let basemap: string = $state('dark');
+  let sidebarOpen: boolean = $state(initialUrlState.sidebarOpen);
+  let basemap: string = $state(initialUrlState.basemap);
   let selectedSegment: CyclewaySegmentProperties | null = $state(null);
+  let urlStateReady: boolean = $state(false);
 
   let mapViewRef: any = $state(null);
 
-  let filters: FilterState = $state({
-    developer: '',
-    category: '',
-    classification: '',
-    section: '',
-    searchTerm: '',
-    colorBy: 'classification',
-    hiddenLegendItems: []
-  });
+  let filters: FilterState = $state(initialUrlState.filters);
 
   // Check password authentication on mount
   onMount(async () => {
@@ -78,11 +76,92 @@
           isExampleData = true;
         }
       }
+      validateInitialFilters();
+      restoreSelectedSegment(initialUrlState.selectedSegmentKey);
       loading = false;
     } catch (err: any) {
       error = err.message || 'Error loading cycleway dataset';
       loading = false;
+    } finally {
+      urlStateReady = true;
     }
+  });
+
+  function validateInitialFilters() {
+    if (!rawData) return;
+
+    const activeFeatures = rawData.features.filter(feature =>
+      feature.properties.layer_type !== 'hs2_railway'
+      && feature.properties.layer_type !== 'intervention'
+    );
+    const developers = new Set(activeFeatures.map(feature => feature.properties.developer).filter(Boolean));
+    const categories = new Set(activeFeatures.map(feature => feature.properties.category).filter(Boolean));
+    const classifications = new Set(activeFeatures.map(feature => {
+      const classification = feature.properties.classification;
+      return classification === 'HS2 Delivery' ? 'HS2 Haulage' : classification || 'Existing routes';
+    }));
+    const sections = new Set(activeFeatures.map(feature => feature.properties.section).filter(Boolean));
+    const legendValues = filters.colorBy === 'developer'
+      ? developers
+      : filters.colorBy === 'category'
+        ? categories
+        : classifications;
+
+    filters = {
+      ...filters,
+      developer: developers.has(filters.developer) ? filters.developer : '',
+      category: categories.has(filters.category) ? filters.category : '',
+      classification: classifications.has(filters.classification) ? filters.classification : '',
+      section: sections.has(filters.section) ? filters.section : '',
+      hiddenLegendItems: filters.hiddenLegendItems.filter(item => legendValues.has(item))
+    };
+  }
+
+  function restoreSelectedSegment(segmentKey: string | null) {
+    if (!rawData || !segmentKey) return;
+    selectedSegment = rawData.features.find(feature =>
+      feature.properties.link_id === segmentKey
+      || String(feature.properties.id) === segmentKey
+    )?.properties ?? null;
+  }
+
+  function currentUrlState(): AppUrlState {
+    return {
+      basemap: basemap as AppUrlState['basemap'],
+      sidebarOpen,
+      filters: {
+        developer: filters.developer,
+        category: filters.category,
+        classification: filters.classification,
+        section: filters.section,
+        searchTerm: filters.searchTerm,
+        colorBy: filters.colorBy,
+        hiddenLegendItems: [...filters.hiddenLegendItems]
+      },
+      selectedSegmentKey: selectedSegment?.link_id || (selectedSegment ? String(selectedSegment.id) : null)
+    };
+  }
+
+  function syncUrlState() {
+    const relativeUrl = writeUrlState(new URL(window.location.href), currentUrlState());
+    window.history.replaceState(window.history.state, '', relativeUrl);
+    return new URL(relativeUrl, window.location.origin).href;
+  }
+
+  async function copyShareLink() {
+    await navigator.clipboard.writeText(syncUrlState());
+  }
+
+  $effect(() => {
+    const state = currentUrlState();
+    if (!urlStateReady) return;
+
+    const timer = setTimeout(() => {
+      const relativeUrl = writeUrlState(new URL(window.location.href), state);
+      window.history.replaceState(window.history.state, '', relativeUrl);
+    }, 350);
+
+    return () => clearTimeout(timer);
   });
 
   // Separate active travel routes from the underlying railway line
@@ -325,6 +404,7 @@
 
 <Header 
   {sidebarOpen} 
+  onCopyLink={copyShareLink}
   onToggleSidebar={() => {
     sidebarOpen = !sidebarOpen;
     setTimeout(() => {
@@ -366,6 +446,7 @@
     {filters}
     {basemap}
     {sidebarOpen}
+    {hasInitialMapView}
     {selectedSegment}
     onSelectSegment={(seg) => selectedSegment = seg}
   />

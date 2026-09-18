@@ -3,13 +3,30 @@
     sidebarOpen: boolean;
     onToggleSidebar: () => void;
     isExampleData: boolean;
+    onCopyLink: () => Promise<void>;
   }
 
   let { 
     sidebarOpen, 
     onToggleSidebar, 
-    isExampleData = false
+    isExampleData = false,
+    onCopyLink
   }: Props = $props();
+
+  let copyStatus: 'idle' | 'copied' | 'error' = $state('idle');
+
+  async function copyLink() {
+    try {
+      await onCopyLink();
+      copyStatus = 'copied';
+      setTimeout(() => {
+        if (copyStatus === 'copied') copyStatus = 'idle';
+      }, 2000);
+    } catch (error) {
+      console.error('Unable to copy share link:', error);
+      copyStatus = 'error';
+    }
+  }
 </script>
 
 <header class="app-header">
@@ -50,6 +67,20 @@
   </div>
 
   <div class="right-section">
+    <button
+      class="share-link"
+      class:copied={copyStatus === 'copied'}
+      class:error={copyStatus === 'error'}
+      onclick={copyLink}
+      title={copyStatus === 'error' ? 'Unable to copy link' : 'Copy a link to this view'}
+      aria-label="Copy a link to this view"
+    >
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="9" y="9" width="13" height="13" rx="2"></rect>
+        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+      </svg>
+      <span>{copyStatus === 'copied' ? 'Copied' : copyStatus === 'error' ? 'Copy failed' : 'Share view'}</span>
+    </button>
     <a 
       href="https://github.com/railactive/railactive" 
       target="_blank" 
@@ -176,6 +207,36 @@
     transition: all 0.15s ease;
   }
 
+  .share-link {
+    height: 34px;
+    padding: 0 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--text-secondary);
+    font: inherit;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .share-link:hover,
+  .share-link.copied {
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.12);
+  }
+
+  .share-link.copied {
+    color: #34d399;
+  }
+
+  .share-link.error {
+    color: #f87171;
+  }
+
   .github-link:hover {
     color: var(--text-primary);
     background: rgba(255, 255, 255, 0.08);
@@ -191,6 +252,10 @@
     }
 
     .subtitle {
+      display: none;
+    }
+
+    .share-link span {
       display: none;
     }
   }

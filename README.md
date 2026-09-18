@@ -24,6 +24,8 @@ The application provides:
   length, HS2 delivery lengths, greenway mileage, and category breakdowns.
 - **Segment detail inspection**: Inspect link metadata, classifications,
   lengths, and remarks, with the option to zoom directly to a segment.
+- **Shareable views**: Copy a URL that restores the current map position,
+  basemap, filters, visible legend items, sidebar state, and selected segment.
 - **Cloud-native data transport**: High-performance GeoJSON, PMTiles, and
   DuckDB-WASM integration without a runtime backend server.
 
@@ -82,6 +84,12 @@ npm run dev
 ```
 
 Open [http://localhost:5173](http://localhost:5173) in your browser.
+
+### Sharing a View
+
+Use **Share view** in the header to copy the current view. Map position is
+stored in a MapLibre `#map=` hash, while basemap and application filters use
+readable query parameters. Default settings are omitted from the URL.
 
 ### Production Build
 

@@ -10,6 +10,7 @@ export interface CyclewaySegmentProperties {
   length_km?: number;
   color?: string;
   remarks?: string;
+  layer_type?: string;
 }
 
 export interface CyclewayFeature {
