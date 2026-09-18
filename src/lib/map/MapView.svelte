@@ -20,25 +20,26 @@
   const OPENROADS_SOURCE_ID = 'openroads-data';
   const OPENROADS_CASING_LAYER_ID = 'openroads-casing';
   const OPENROADS_LOCAL_LAYER_ID = 'openroads-local';
-  const OPENROADS_RESTRICTED_LAYER_ID = 'openroads-restricted';
+  const OPENROADS_HAULAGE_LAYER_ID = 'openroads-possible-haulage';
   const OPENROADS_MINOR_LAYER_ID = 'openroads-minor';
   const OPENROADS_MAJOR_LAYER_ID = 'openroads-major';
   const OPENROADS_LAYER_IDS = [
     OPENROADS_CASING_LAYER_ID,
     OPENROADS_LOCAL_LAYER_ID,
-    OPENROADS_RESTRICTED_LAYER_ID,
+    OPENROADS_HAULAGE_LAYER_ID,
     OPENROADS_MINOR_LAYER_ID,
     OPENROADS_MAJOR_LAYER_ID
   ];
   const OPENROADS_INTERACTIVE_LAYER_IDS = [
     OPENROADS_LOCAL_LAYER_ID,
-    OPENROADS_RESTRICTED_LAYER_ID,
+    OPENROADS_HAULAGE_LAYER_ID,
     OPENROADS_MINOR_LAYER_ID,
     OPENROADS_MAJOR_LAYER_ID
   ];
   const OPENROADS_LOCAL_FUNCTIONS = [
     'Local Road',
     'Minor Road',
+    'Restricted Local Access Road',
     'Secondary Access Road',
     'Local Access Road'
   ];
@@ -643,6 +644,9 @@
     const roadNum = props.road_classification_number ? escapeHtml(props.road_classification_number) : '';
     const roadClass = popupValue(props.road_classification, 'Unclassified');
     const roadFunc = popupValue(props.road_function, 'Local Road');
+    const haulageBasis = props.possible_haulage_basis
+      ? `<div class="openroads-cell full"><span class="k">Haulage evidence:</span><span class="v">${popupValue(props.possible_haulage_basis, '')}</span></div>`
+      : '';
     const formOfWay = popupValue(props.form_of_way, 'Single Carriageway');
     const lengthStr = props.length ? `${Math.round(Number(props.length))} m` : 'N/A';
 
@@ -660,6 +664,7 @@
           <div class="openroads-cell"><span class="k">Function:</span><span class="v">${roadFunc}</span></div>
           <div class="openroads-cell"><span class="k">Form of Way:</span><span class="v">${formOfWay}</span></div>
           <div class="openroads-cell"><span class="k">Link Length:</span><span class="v">${lengthStr}</span></div>
+          ${haulageBasis}
           ${props.id ? `<div class="openroads-cell full"><span class="k">Link ID:</span><span class="v font-mono text-xs">${popupValue(props.id, '')}</span></div>` : ''}
         </div>
       </div>
@@ -762,11 +767,11 @@
       }, beforeId);
 
       map.addLayer({
-        id: OPENROADS_RESTRICTED_LAYER_ID,
+        id: OPENROADS_HAULAGE_LAYER_ID,
         type: 'line',
         source: OPENROADS_SOURCE_ID,
         'source-layer': 'openroads',
-        filter: ['==', ['coalesce', ['get', 'road_function'], ''], 'Restricted Local Access Road'],
+        filter: ['==', ['coalesce', ['get', 'road_function'], ''], 'Local Access Possible HS2 Haulage'],
         minzoom: 8,
         layout: {
           'line-cap': 'round',

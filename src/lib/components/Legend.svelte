@@ -146,8 +146,8 @@
       {#if showOpenRoads}
         <div class="openroads-sublegend">
           <div class="sublegend-item">
-            <span class="openroads-sample-restricted"></span>
-            <span>Restricted Local Access</span>
+            <span class="openroads-sample-haulage"></span>
+            <span>Possible HS2 Haulage</span>
           </div>
           <div class="sublegend-item">
             <span class="openroads-sample-major"></span>
@@ -433,7 +433,7 @@
     border-radius: 2px;
   }
 
-  .openroads-sample-restricted {
+  .openroads-sample-haulage {
     width: 14px;
     height: 3px;
     background: #f59e0b;
