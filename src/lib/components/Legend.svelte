@@ -15,6 +15,8 @@
     onShowAll: () => void;
     showNcn: boolean;
     onToggleNcn: () => void;
+    showOpenRoads?: boolean;
+    onToggleOpenRoads?: () => void;
   }
 
   let { 
@@ -25,7 +27,9 @@
     onIsolateItem,
     onShowAll,
     showNcn,
-    onToggleNcn
+    onToggleNcn,
+    showOpenRoads = false,
+    onToggleOpenRoads
   }: Props = $props();
 
   let collapsed: boolean = $state(false);
@@ -116,6 +120,42 @@
           <div class="sublegend-item">
             <span class="ncn-sample-dashed"></span>
             <span>On-Road</span>
+          </div>
+        </div>
+      {/if}
+
+      <div class="legend-divider"></div>
+      <div class="legend-row openroads-legend-row" class:hidden-layer={!showOpenRoads}>
+        <button
+          class="legend-item-btn"
+          onclick={onToggleOpenRoads}
+          title={showOpenRoads ? 'Hide OS OpenRoads' : 'Show OS OpenRoads (10km Corridor Buffer)'}
+          aria-pressed={showOpenRoads}
+        >
+          <span class="toggle-box" class:checked={showOpenRoads}>
+            {#if showOpenRoads}
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            {/if}
+          </span>
+          <span class="color-bar openroads-color-bar"></span>
+          <span class="item-label font-medium">OS OpenRoads (10km)</span>
+        </button>
+      </div>
+      {#if showOpenRoads}
+        <div class="openroads-sublegend">
+          <div class="sublegend-item">
+            <span class="openroads-sample-major"></span>
+            <span>Motorway / A Road</span>
+          </div>
+          <div class="sublegend-item">
+            <span class="openroads-sample-minor"></span>
+            <span>B / Minor Road</span>
+          </div>
+          <div class="sublegend-item">
+            <span class="openroads-sample-local"></span>
+            <span>Local Road</span>
           </div>
         </div>
       {/if}
@@ -367,5 +407,39 @@
     width: 14px;
     height: 3px;
     background: repeating-linear-gradient(90deg, #fb7185, #fb7185 3px, transparent 3px, transparent 6px);
+  }
+
+  .openroads-color-bar {
+    background: linear-gradient(90deg, #3b82f6, #94a3b8) !important;
+  }
+
+  .openroads-sublegend {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 2px 8px 6px 32px;
+    font-size: 10px;
+    color: var(--text-secondary);
+  }
+
+  .openroads-sample-major {
+    width: 14px;
+    height: 3px;
+    background: #3b82f6;
+    border-radius: 2px;
+  }
+
+  .openroads-sample-minor {
+    width: 14px;
+    height: 2px;
+    background: #60a5fa;
+    border-radius: 2px;
+  }
+
+  .openroads-sample-local {
+    width: 14px;
+    height: 1.5px;
+    background: #94a3b8;
+    border-radius: 1px;
   }
 </style>
