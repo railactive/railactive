@@ -4,13 +4,17 @@
     onToggleSidebar: () => void;
     isExampleData: boolean;
     onCopyLink: () => Promise<void>;
+    showNcn: boolean;
+    onToggleNcn: () => void;
   }
 
   let { 
     sidebarOpen, 
     onToggleSidebar, 
     isExampleData = false,
-    onCopyLink
+    onCopyLink,
+    showNcn,
+    onToggleNcn
   }: Props = $props();
 
   let copyStatus: 'idle' | 'copied' | 'error' = $state('idle');
@@ -67,6 +71,17 @@
   </div>
 
   <div class="right-section">
+    <button
+      class="ncn-toggle-btn"
+      class:active={showNcn}
+      onclick={onToggleNcn}
+      title={showNcn ? 'Hide National Cycle Network (NCN)' : 'Show National Cycle Network (NCN)'}
+      aria-label="Toggle National Cycle Network layer"
+      aria-pressed={showNcn}
+    >
+      <span class="ncn-indicator"></span>
+      <span>NCN Layer</span>
+    </button>
     <button
       class="share-link"
       class:copied={copyStatus === 'copied'}
@@ -235,6 +250,46 @@
 
   .share-link.error {
     color: #f87171;
+  }
+
+  .ncn-toggle-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 34px;
+    padding: 0 10px;
+    background: rgba(30, 41, 59, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .ncn-toggle-btn:hover {
+    background: rgba(51, 65, 85, 0.8);
+    color: var(--text-primary);
+  }
+
+  .ncn-toggle-btn.active {
+    background: rgba(225, 29, 72, 0.18);
+    border-color: rgba(225, 29, 72, 0.6);
+    color: #fda4af;
+  }
+
+  .ncn-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #64748b;
+    transition: all 0.2s ease;
+  }
+
+  .ncn-toggle-btn.active .ncn-indicator {
+    background: #e11d48;
+    box-shadow: 0 0 6px rgba(225, 29, 72, 0.9);
   }
 
   .github-link:hover {

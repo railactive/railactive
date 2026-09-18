@@ -28,6 +28,7 @@
   let sidebarOpen: boolean = $state(initialUrlState.sidebarOpen);
   let basemap: string = $state(initialUrlState.basemap);
   let selectedSegment: CyclewaySegmentProperties | null = $state(null);
+  let showNcn: boolean = $state(initialUrlState.showNcn);
   let urlStateReady: boolean = $state(false);
 
   let mapViewRef: any = $state(null);
@@ -138,7 +139,8 @@
         colorBy: filters.colorBy,
         hiddenLegendItems: [...filters.hiddenLegendItems]
       },
-      selectedSegmentKey: selectedSegment?.link_id || (selectedSegment ? String(selectedSegment.id) : null)
+      selectedSegmentKey: selectedSegment?.link_id || (selectedSegment ? String(selectedSegment.id) : null),
+      showNcn
     };
   }
 
@@ -414,6 +416,8 @@
     }, 300);
   }}
   {isExampleData}
+  {showNcn}
+  onToggleNcn={() => showNcn = !showNcn}
 />
 
 <main class="main-viewport">
@@ -449,6 +453,7 @@
     {hasInitialMapView}
     {selectedSegment}
     onSelectSegment={(seg) => selectedSegment = seg}
+    {showNcn}
   />
 
   {#if !selectedSegment}
@@ -459,6 +464,8 @@
       onToggleItem={handleToggleLegendItem}
       onIsolateItem={handleIsolateLegendItem}
       onShowAll={handleShowAllLegendItems}
+      {showNcn}
+      onToggleNcn={() => showNcn = !showNcn}
     />
   {/if}
 

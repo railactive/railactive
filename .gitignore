@@ -21,6 +21,7 @@ public/data/*
 *.parquet
 *.duckdb
 *.pmtiles
+!public/data/ncn.pmtiles
 *.csv
 *.tsv
 *.xlsx
