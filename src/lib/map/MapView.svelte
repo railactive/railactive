@@ -1204,7 +1204,7 @@
   });
 </script>
 
-<div class="map-wrapper" bind:this={mapContainer}></div>
+<div class="map-wrapper" class:sidebar-open={sidebarOpen} bind:this={mapContainer}></div>
 
 <style>
   .map-wrapper {
@@ -1213,6 +1213,16 @@
     position: absolute;
     top: 0;
     left: 0;
+  }
+
+  .map-wrapper :global(.maplibregl-ctrl-bottom-left) {
+    bottom: 54px;
+    left: 14px;
+    transition: left 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .map-wrapper.sidebar-open :global(.maplibregl-ctrl-bottom-left) {
+    left: 350px;
   }
 
   :global(.hover-tooltip-popup .maplibregl-popup-content) {
