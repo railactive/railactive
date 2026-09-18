@@ -20,23 +20,25 @@
   const OPENROADS_SOURCE_ID = 'openroads-data';
   const OPENROADS_CASING_LAYER_ID = 'openroads-casing';
   const OPENROADS_LOCAL_LAYER_ID = 'openroads-local';
+  const OPENROADS_RESTRICTED_LAYER_ID = 'openroads-restricted';
   const OPENROADS_MINOR_LAYER_ID = 'openroads-minor';
   const OPENROADS_MAJOR_LAYER_ID = 'openroads-major';
   const OPENROADS_LAYER_IDS = [
     OPENROADS_CASING_LAYER_ID,
     OPENROADS_LOCAL_LAYER_ID,
+    OPENROADS_RESTRICTED_LAYER_ID,
     OPENROADS_MINOR_LAYER_ID,
     OPENROADS_MAJOR_LAYER_ID
   ];
   const OPENROADS_INTERACTIVE_LAYER_IDS = [
     OPENROADS_LOCAL_LAYER_ID,
+    OPENROADS_RESTRICTED_LAYER_ID,
     OPENROADS_MINOR_LAYER_ID,
     OPENROADS_MAJOR_LAYER_ID
   ];
   const OPENROADS_LOCAL_FUNCTIONS = [
     'Local Road',
     'Minor Road',
-    'Restricted Local Access Road',
     'Secondary Access Road',
     'Local Access Road'
   ];
@@ -756,6 +758,32 @@
             14, 2.8
           ],
           'line-opacity': 0.8
+        }
+      }, beforeId);
+
+      map.addLayer({
+        id: OPENROADS_RESTRICTED_LAYER_ID,
+        type: 'line',
+        source: OPENROADS_SOURCE_ID,
+        'source-layer': 'openroads',
+        filter: ['==', ['coalesce', ['get', 'road_function'], ''], 'Restricted Local Access Road'],
+        minzoom: 8,
+        layout: {
+          'line-cap': 'round',
+          'line-join': 'round',
+          'visibility': showOpenRoads ? 'visible' : 'none'
+        },
+        paint: {
+          'line-color': '#f59e0b',
+          'line-width': [
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            8, 2.0,
+            11, 3.5,
+            14, 6.0
+          ],
+          'line-opacity': 1
         }
       }, beforeId);
 
