@@ -16,7 +16,8 @@ const MANAGED_PARAMS = [
   'segment',
   'sidebar',
   'ncn',
-  'openroads'
+  'openroads',
+  'roads'
 ];
 
 export interface AppUrlState {

@@ -33,6 +33,13 @@
     OPENROADS_MINOR_LAYER_ID,
     OPENROADS_MAJOR_LAYER_ID
   ];
+  const OPENROADS_LOCAL_FUNCTIONS = [
+    'Local Road',
+    'Minor Road',
+    'Restricted Local Access Road',
+    'Secondary Access Road',
+    'Local Access Road'
+  ];
   const pmtilesProtocol = new pmtiles.Protocol();
   const maplibreWithPmtiles = maplibregl as typeof maplibregl & {
     railactivePmtilesRegistered?: boolean;
@@ -52,7 +59,7 @@
     onSelectSegment: (segment: CyclewaySegmentProperties | null) => void;
     showNcn?: boolean;
     ncnPmtilesUrl?: string;
-    showOpenRoads?: boolean;
+    showOpenRoads: boolean;
     openRoadsPmtilesUrl?: string;
   }
 
@@ -66,7 +73,7 @@
     onSelectSegment,
     showNcn = false,
     ncnPmtilesUrl = './data/ncn.pmtiles',
-    showOpenRoads = false,
+    showOpenRoads,
     openRoadsPmtilesUrl = './data/openroads.pmtiles'
   }: Props = $props();
 
@@ -377,7 +384,7 @@
       .replaceAll("'", '&#039;');
   }
 
-  function ncnValue(value: unknown, fallback: string): string {
+  function popupValue(value: unknown, fallback: string): string {
     return escapeHtml(value === undefined || value === null || value === '' ? fallback : value);
   }
 
@@ -385,14 +392,14 @@
     if (!map || !e.features || e.features.length === 0) return;
     map.getCanvas().style.cursor = 'pointer';
     const props = e.features[0].properties as NcnProperties;
-    const routeNum = props.RouteNo === undefined ? '' : `Route ${ncnValue(props.RouteNo, '')}`;
-    const routeType = ncnValue(props.RouteType, 'NCN');
+    const routeNum = props.RouteNo === undefined ? '' : `Route ${popupValue(props.RouteNo, '')}`;
+    const routeType = popupValue(props.RouteType, 'NCN');
     const isTrafficFree = props.Desc_ === 'TrafficFree';
-    const desc = isTrafficFree ? 'Traffic-Free' : ncnValue(props.Desc_, 'Route');
+    const desc = isTrafficFree ? 'Traffic-Free' : popupValue(props.Desc_, 'Route');
     const cat = props.RouteCat && props.RouteCat !== 'N/A'
-      ? ncnValue(props.RouteCat, '')
+      ? popupValue(props.RouteCat, '')
       : 'National Cycle Network';
-    const surface = ncnValue(props.Surface, '');
+    const surface = popupValue(props.Surface, '');
     const greenway = props.Greenway === 'Yes' ? ' • Greenway' : '';
 
     const html = `
@@ -423,17 +430,17 @@
       clickPopup = null;
     }
 
-    const routeNum = props.RouteNo === undefined ? '' : `Route ${ncnValue(props.RouteNo, '')}`;
-    const routeType = ncnValue(props.RouteType, 'NCN');
+    const routeNum = props.RouteNo === undefined ? '' : `Route ${popupValue(props.RouteNo, '')}`;
+    const routeType = popupValue(props.RouteType, 'NCN');
     const isTrafficFree = props.Desc_ === 'TrafficFree';
     const isGreenway = props.Greenway === 'Yes';
     const desc = isTrafficFree
       ? 'Traffic-Free Path'
       : props.Desc_ === 'OnRoad'
         ? 'On-Road Cycling'
-        : ncnValue(props.Desc_, 'N/A');
+        : popupValue(props.Desc_, 'N/A');
     const routeCategory = props.RouteCat && props.RouteCat !== 'N/A'
-      ? ncnValue(props.RouteCat, '')
+      ? popupValue(props.RouteCat, '')
       : 'National Cycle Network';
 
     const html = `
@@ -448,13 +455,13 @@
         <h4 class="ncn-popup-title">${routeCategory}</h4>
         <div class="ncn-popup-table">
           <div class="ncn-cell"><span class="k">Traffic:</span><span class="v">${desc}</span></div>
-          <div class="ncn-cell"><span class="k">Surface:</span><span class="v">${ncnValue(props.Surface, 'Unspecified')}</span></div>
-          <div class="ncn-cell"><span class="k">Quality:</span><span class="v">${ncnValue(props.Quality, 'Standard')}</span></div>
-          <div class="ncn-cell"><span class="k">Lighting:</span><span class="v">${ncnValue(props.Lighting, 'Not lit')}</span></div>
-          ${props.RoadClass ? `<div class="ncn-cell"><span class="k">Road Class:</span><span class="v">${ncnValue(props.RoadClass, '')}</span></div>` : ''}
-          <div class="ncn-cell"><span class="k">Open Status:</span><span class="v">${ncnValue(props.OpenStatus, 'Open')}</span></div>
-          <div class="ncn-cell"><span class="k">Segment ID:</span><span class="v font-mono">${ncnValue(props.SegmentID, 'N/A')}</span></div>
-          <div class="ncn-cell full"><span class="k">Global ID:</span><span class="v font-mono text-xs">${ncnValue(props.GlobalID, 'N/A')}</span></div>
+          <div class="ncn-cell"><span class="k">Surface:</span><span class="v">${popupValue(props.Surface, 'Unspecified')}</span></div>
+          <div class="ncn-cell"><span class="k">Quality:</span><span class="v">${popupValue(props.Quality, 'Standard')}</span></div>
+          <div class="ncn-cell"><span class="k">Lighting:</span><span class="v">${popupValue(props.Lighting, 'Not lit')}</span></div>
+          ${props.RoadClass ? `<div class="ncn-cell"><span class="k">Road Class:</span><span class="v">${popupValue(props.RoadClass, '')}</span></div>` : ''}
+          <div class="ncn-cell"><span class="k">Open Status:</span><span class="v">${popupValue(props.OpenStatus, 'Open')}</span></div>
+          <div class="ncn-cell"><span class="k">Segment ID:</span><span class="v font-mono">${popupValue(props.SegmentID, 'N/A')}</span></div>
+          <div class="ncn-cell full"><span class="k">Global ID:</span><span class="v font-mono text-xs">${popupValue(props.GlobalID, 'N/A')}</span></div>
         </div>
       </div>
     `;
@@ -591,19 +598,15 @@
     }
   }
 
-  function openRoadsValue(value: unknown, fallback: string): string {
-    return escapeHtml(value === undefined || value === null || value === '' ? fallback : value);
-  }
-
   function handleOpenRoadsMouseMove(e: maplibregl.MapLayerMouseEvent) {
     if (!map || !e.features || e.features.length === 0) return;
     map.getCanvas().style.cursor = 'pointer';
     const props = e.features[0].properties as OpenRoadsProperties;
     const name = props.name_1 || props.road_classification_number || 'Unnamed Road';
     const roadNum = props.road_classification_number ? escapeHtml(props.road_classification_number) : '';
-    const roadGroup = openRoadsValue(props.road_classification, 'Road');
-    const roadFunc = openRoadsValue(props.road_function, 'Local');
-    const formOfWay = openRoadsValue(props.form_of_way, 'Single Carriageway');
+    const roadGroup = popupValue(props.road_classification, 'Road');
+    const roadFunc = popupValue(props.road_function, 'Local');
+    const formOfWay = popupValue(props.form_of_way, 'Single Carriageway');
     const lengthStr = props.length ? `${Math.round(Number(props.length))} m` : '';
 
     const html = `
@@ -636,9 +639,9 @@
 
     const name = props.name_1 ? escapeHtml(props.name_1) : 'Unnamed Road';
     const roadNum = props.road_classification_number ? escapeHtml(props.road_classification_number) : '';
-    const roadClass = openRoadsValue(props.road_classification, 'Unclassified');
-    const roadFunc = openRoadsValue(props.road_function, 'Local Road');
-    const formOfWay = openRoadsValue(props.form_of_way, 'Single Carriageway');
+    const roadClass = popupValue(props.road_classification, 'Unclassified');
+    const roadFunc = popupValue(props.road_function, 'Local Road');
+    const formOfWay = popupValue(props.form_of_way, 'Single Carriageway');
     const lengthStr = props.length ? `${Math.round(Number(props.length))} m` : 'N/A';
 
     const html = `
@@ -655,7 +658,7 @@
           <div class="openroads-cell"><span class="k">Function:</span><span class="v">${roadFunc}</span></div>
           <div class="openroads-cell"><span class="k">Form of Way:</span><span class="v">${formOfWay}</span></div>
           <div class="openroads-cell"><span class="k">Link Length:</span><span class="v">${lengthStr}</span></div>
-          ${props.id ? `<div class="openroads-cell full"><span class="k">Link ID:</span><span class="v font-mono text-xs">${openRoadsValue(props.id, '')}</span></div>` : ''}
+          ${props.id ? `<div class="openroads-cell full"><span class="k">Link ID:</span><span class="v font-mono text-xs">${popupValue(props.id, '')}</span></div>` : ''}
         </div>
       </div>
     `;
@@ -696,7 +699,8 @@
       const resolvedUrl = new URL(openRoadsPmtilesUrl, window.location.href).href;
       map.addSource(OPENROADS_SOURCE_ID, {
         type: 'vector',
-        url: `pmtiles://${resolvedUrl}`
+        url: `pmtiles://${resolvedUrl}`,
+        attribution: 'Contains Ordnance Survey data &copy; Crown copyright and database right 2026. Licensed under the <a href="https://www.nationalarchives.gov.uk/doc/open-government-licence/" target="_blank" rel="noreferrer">Open Government Licence</a>.'
       });
 
       const beforeId = map.getLayer(NCN_CASING_LAYER_ID)
@@ -734,7 +738,7 @@
         type: 'line',
         source: OPENROADS_SOURCE_ID,
         'source-layer': 'openroads',
-        filter: ['in', ['coalesce', ['get', 'road_function'], ''], ['literal', ['Local Road', 'Minor Road', 'Restricted Local Access', 'Secondary Access', 'Local Access']]],
+        filter: ['in', ['coalesce', ['get', 'road_function'], ''], ['literal', OPENROADS_LOCAL_FUNCTIONS]],
         minzoom: 9,
         layout: {
           'line-cap': 'round',
