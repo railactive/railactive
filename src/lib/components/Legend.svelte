@@ -13,8 +13,8 @@
     onToggleItem: (label: string) => void;
     onIsolateItem: (label: string) => void;
     onShowAll: () => void;
-    showNcn?: boolean;
-    onToggleNcn?: () => void;
+    showNcn: boolean;
+    onToggleNcn: () => void;
   }
 
   let { 
@@ -24,7 +24,7 @@
     onToggleItem,
     onIsolateItem,
     onShowAll,
-    showNcn = false,
+    showNcn,
     onToggleNcn
   }: Props = $props();
 
@@ -57,8 +57,8 @@
         {@const visible = isVisible(item.label)}
         <div class="legend-row" class:hidden-layer={!visible}>
           <!-- Toggle checkbox / click row to toggle layer -->
-          <button 
-            class="legend-item-btn" 
+          <button
+            class="legend-item-btn"
             onclick={() => onToggleItem(item.label)}
             title={visible ? `Hide ${item.label} layer` : `Show ${item.label} layer`}
             aria-pressed={visible}
@@ -88,38 +88,36 @@
         </div>
       {/each}
 
-      {#if onToggleNcn}
-        <div class="legend-divider"></div>
-        <div class="legend-row ncn-legend-row" class:hidden-layer={!showNcn}>
-          <button 
-            class="legend-item-btn" 
-            onclick={onToggleNcn}
-            title={showNcn ? 'Hide National Cycle Network' : 'Show National Cycle Network (Sustrans)'}
-            aria-pressed={showNcn}
-          >
-            <span class="toggle-box" class:checked={showNcn}>
-              {#if showNcn}
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-                  <polyline points="20 6 9 17 4 12"></polyline>
-                </svg>
-              {/if}
-            </span>
-            <span class="color-bar ncn-color-bar"></span>
-            <span class="item-label font-medium">NCN Network (Sustrans)</span>
-          </button>
-        </div>
-        {#if showNcn}
-          <div class="ncn-sublegend">
-            <div class="sublegend-item">
-              <span class="ncn-sample-solid"></span>
-              <span>Traffic-Free</span>
-            </div>
-            <div class="sublegend-item">
-              <span class="ncn-sample-dashed"></span>
-              <span>On-Road</span>
-            </div>
+      <div class="legend-divider"></div>
+      <div class="legend-row ncn-legend-row" class:hidden-layer={!showNcn}>
+        <button 
+          class="legend-item-btn" 
+          onclick={onToggleNcn}
+          title={showNcn ? 'Hide National Cycle Network' : 'Show National Cycle Network (Sustrans)'}
+          aria-pressed={showNcn}
+        >
+          <span class="toggle-box" class:checked={showNcn}>
+            {#if showNcn}
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            {/if}
+          </span>
+          <span class="color-bar ncn-color-bar"></span>
+          <span class="item-label font-medium">NCN Network (Sustrans)</span>
+        </button>
+      </div>
+      {#if showNcn}
+        <div class="ncn-sublegend">
+          <div class="sublegend-item">
+            <span class="ncn-sample-solid"></span>
+            <span>Traffic-Free</span>
           </div>
-        {/if}
+          <div class="sublegend-item">
+            <span class="ncn-sample-dashed"></span>
+            <span>On-Road</span>
+          </div>
+        </div>
       {/if}
     </div>
     <div class="legend-footer">

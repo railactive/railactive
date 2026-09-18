@@ -5,12 +5,24 @@
   import type { 
     CyclewayFeatureCollection, 
     FilterState, 
-    CyclewaySegmentProperties 
+    CyclewaySegmentProperties,
+    NcnProperties
   } from '../types/cycleway';
 
-  // Register PMTiles vector tile protocol handler
+  const NCN_SOURCE_ID = 'ncn-data';
+  const NCN_CASING_LAYER_ID = 'ncn-casing';
+  const NCN_LINE_LAYER_ID = 'ncn-lines';
+  const NCN_ON_ROAD_LAYER_ID = 'ncn-on-road';
+  const NCN_LAYER_IDS = [NCN_CASING_LAYER_ID, NCN_LINE_LAYER_ID, NCN_ON_ROAD_LAYER_ID];
+  const NCN_INTERACTIVE_LAYER_IDS = [NCN_LINE_LAYER_ID, NCN_ON_ROAD_LAYER_ID];
   const pmtilesProtocol = new pmtiles.Protocol();
-  maplibregl.addProtocol('pmtiles', pmtilesProtocol.tile);
+  const maplibreWithPmtiles = maplibregl as typeof maplibregl & {
+    railactivePmtilesRegistered?: boolean;
+  };
+  if (!maplibreWithPmtiles.railactivePmtilesRegistered) {
+    maplibregl.addProtocol('pmtiles', pmtilesProtocol.tile);
+    maplibreWithPmtiles.railactivePmtilesRegistered = true;
+  }
 
   interface Props {
     data: CyclewayFeatureCollection | null;
@@ -334,16 +346,31 @@
     hoverPopup?.remove();
   }
 
+  function escapeHtml(value: unknown): string {
+    return String(value)
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#039;');
+  }
+
+  function ncnValue(value: unknown, fallback: string): string {
+    return escapeHtml(value === undefined || value === null || value === '' ? fallback : value);
+  }
+
   function handleNcnMouseMove(e: maplibregl.MapLayerMouseEvent) {
     if (!map || !e.features || e.features.length === 0) return;
     map.getCanvas().style.cursor = 'pointer';
-    const props = e.features[0].properties as any;
-    const routeNum = props.RouteNo ? `Route ${props.RouteNo}` : '';
-    const routeType = props.RouteType || 'NCN';
+    const props = e.features[0].properties as NcnProperties;
+    const routeNum = props.RouteNo === undefined ? '' : `Route ${ncnValue(props.RouteNo, '')}`;
+    const routeType = ncnValue(props.RouteType, 'NCN');
     const isTrafficFree = props.Desc_ === 'TrafficFree';
-    const desc = isTrafficFree ? 'Traffic-Free' : (props.Desc_ || 'Route');
-    const cat = props.RouteCat && props.RouteCat !== 'N/A' ? props.RouteCat : 'National Cycle Network';
-    const surface = props.Surface ? props.Surface : '';
+    const desc = isTrafficFree ? 'Traffic-Free' : ncnValue(props.Desc_, 'Route');
+    const cat = props.RouteCat && props.RouteCat !== 'N/A'
+      ? ncnValue(props.RouteCat, '')
+      : 'National Cycle Network';
+    const surface = ncnValue(props.Surface, '');
     const greenway = props.Greenway === 'Yes' ? ' • Greenway' : '';
 
     const html = `
@@ -367,19 +394,25 @@
 
   function handleNcnClick(e: maplibregl.MapLayerMouseEvent) {
     if (!map || !e.features || e.features.length === 0) return;
-    const props = e.features[0].properties as any;
+    const props = e.features[0].properties as NcnProperties;
 
     if (clickPopup) {
       clickPopup.remove();
       clickPopup = null;
     }
 
-    const routeNum = props.RouteNo ? `Route ${props.RouteNo}` : '';
-    const routeType = props.RouteType || 'NCN';
+    const routeNum = props.RouteNo === undefined ? '' : `Route ${ncnValue(props.RouteNo, '')}`;
+    const routeType = ncnValue(props.RouteType, 'NCN');
     const isTrafficFree = props.Desc_ === 'TrafficFree';
     const isGreenway = props.Greenway === 'Yes';
-    const desc = isTrafficFree ? 'Traffic-Free Path' : (props.Desc_ === 'OnRoad' ? 'On-Road Cycling' : (props.Desc_ || 'N/A'));
-    const estKm = props.Shape__Length ? (Number(props.Shape__Length) / 1665).toFixed(2) : 'N/A';
+    const desc = isTrafficFree
+      ? 'Traffic-Free Path'
+      : props.Desc_ === 'OnRoad'
+        ? 'On-Road Cycling'
+        : ncnValue(props.Desc_, 'N/A');
+    const routeCategory = props.RouteCat && props.RouteCat !== 'N/A'
+      ? ncnValue(props.RouteCat, '')
+      : 'National Cycle Network';
 
     const html = `
       <div class="ncn-popup-card">
@@ -390,17 +423,16 @@
             ${isGreenway ? '<span class="ncn-badge ncn-greenway">Greenway</span>' : ''}
           </div>
         </div>
-        <h4 class="ncn-popup-title">${props.RouteCat && props.RouteCat !== 'N/A' ? props.RouteCat : 'National Cycle Network'}</h4>
+        <h4 class="ncn-popup-title">${routeCategory}</h4>
         <div class="ncn-popup-table">
           <div class="ncn-cell"><span class="k">Traffic:</span><span class="v">${desc}</span></div>
-          <div class="ncn-cell"><span class="k">Surface:</span><span class="v">${props.Surface || 'Unspecified'}</span></div>
-          <div class="ncn-cell"><span class="k">Quality:</span><span class="v">${props.Quality || 'Standard'}</span></div>
-          <div class="ncn-cell"><span class="k">Lighting:</span><span class="v">${props.Lighting || 'NotLit'}</span></div>
-          ${props.RoadClass ? `<div class="ncn-cell"><span class="k">Road Class:</span><span class="v">${props.RoadClass}</span></div>` : ''}
-          <div class="ncn-cell"><span class="k">Open Status:</span><span class="v">${props.OpenStatus || 'Open'}</span></div>
-          <div class="ncn-cell"><span class="k">Est. Length:</span><span class="v font-mono">${estKm} km</span></div>
-          <div class="ncn-cell"><span class="k">Segment ID:</span><span class="v font-mono">${props.SegmentID ?? 'N/A'}</span></div>
-          <div class="ncn-cell full"><span class="k">Global ID:</span><span class="v font-mono text-xs">${props.GlobalID ?? 'N/A'}</span></div>
+          <div class="ncn-cell"><span class="k">Surface:</span><span class="v">${ncnValue(props.Surface, 'Unspecified')}</span></div>
+          <div class="ncn-cell"><span class="k">Quality:</span><span class="v">${ncnValue(props.Quality, 'Standard')}</span></div>
+          <div class="ncn-cell"><span class="k">Lighting:</span><span class="v">${ncnValue(props.Lighting, 'Not lit')}</span></div>
+          ${props.RoadClass ? `<div class="ncn-cell"><span class="k">Road Class:</span><span class="v">${ncnValue(props.RoadClass, '')}</span></div>` : ''}
+          <div class="ncn-cell"><span class="k">Open Status:</span><span class="v">${ncnValue(props.OpenStatus, 'Open')}</span></div>
+          <div class="ncn-cell"><span class="k">Segment ID:</span><span class="v font-mono">${ncnValue(props.SegmentID, 'N/A')}</span></div>
+          <div class="ncn-cell full"><span class="k">Global ID:</span><span class="v font-mono text-xs">${ncnValue(props.GlobalID, 'N/A')}</span></div>
         </div>
       </div>
     `;
@@ -416,18 +448,30 @@
       .addTo(map);
   }
 
+  function setNcnVisibility() {
+    if (!map) return;
+    const visibility = showNcn ? 'visible' : 'none';
+    for (const layerId of NCN_LAYER_IDS) {
+      if (map.getLayer(layerId)) map.setLayoutProperty(layerId, 'visibility', visibility);
+    }
+    if (!showNcn) {
+      hoverPopup?.remove();
+      clickPopup?.remove();
+      clickPopup = null;
+      map.getCanvas().style.cursor = '';
+    }
+  }
+
   function loadNcnSourceAndLayers() {
     if (!map) return;
-    if (map.getSource('ncn-data')) {
-      const visibility = showNcn ? 'visible' : 'none';
-      if (map.getLayer('ncn-casing')) map.setLayoutProperty('ncn-casing', 'visibility', visibility);
-      if (map.getLayer('ncn-lines')) map.setLayoutProperty('ncn-lines', 'visibility', visibility);
+    if (map.getSource(NCN_SOURCE_ID)) {
+      setNcnVisibility();
       return;
     }
 
     try {
       const resolvedUrl = new URL(ncnPmtilesUrl, window.location.href).href;
-      map.addSource('ncn-data', {
+      map.addSource(NCN_SOURCE_ID, {
         type: 'vector',
         url: `pmtiles://${resolvedUrl}`
       });
@@ -435,9 +479,9 @@
       const beforeId = map.getLayer('hs2-rail-casing') ? 'hs2-rail-casing' : (map.getLayer('cycleway-casing') ? 'cycleway-casing' : undefined);
 
       map.addLayer({
-        id: 'ncn-casing',
+        id: NCN_CASING_LAYER_ID,
         type: 'line',
-        source: 'ncn-data',
+        source: NCN_SOURCE_ID,
         'source-layer': 'ncn',
         layout: {
           'line-cap': 'round',
@@ -460,22 +504,18 @@
       }, beforeId);
 
       map.addLayer({
-        id: 'ncn-lines',
+        id: NCN_LINE_LAYER_ID,
         type: 'line',
-        source: 'ncn-data',
+        source: NCN_SOURCE_ID,
         'source-layer': 'ncn',
+        filter: ['==', ['coalesce', ['get', 'Desc_'], ''], 'TrafficFree'],
         layout: {
           'line-cap': 'round',
           'line-join': 'round',
           'visibility': showNcn ? 'visible' : 'none'
         },
         paint: {
-          'line-color': [
-            'case',
-            ['==', ['coalesce', ['get', 'Desc_'], ''], 'TrafficFree'],
-            '#e11d48',
-            '#fb7185'
-          ],
+          'line-color': '#e11d48',
           'line-width': [
             'interpolate',
             ['linear'],
@@ -485,22 +525,45 @@
             12, 3.5,
             16, 5.0
           ],
-          'line-dasharray': [
-            'case',
-            ['==', ['coalesce', ['get', 'Desc_'], ''], 'OnRoad'],
-            ['literal', [3, 2]],
-            ['literal', [1, 0]]
-          ],
           'line-opacity': 0.95
         }
       }, beforeId);
 
-      map.off('mousemove', 'ncn-lines', handleNcnMouseMove);
-      map.on('mousemove', 'ncn-lines', handleNcnMouseMove);
-      map.off('mouseleave', 'ncn-lines', handleNcnMouseLeave);
-      map.on('mouseleave', 'ncn-lines', handleNcnMouseLeave);
-      map.off('click', 'ncn-lines', handleNcnClick);
-      map.on('click', 'ncn-lines', handleNcnClick);
+      map.addLayer({
+        id: NCN_ON_ROAD_LAYER_ID,
+        type: 'line',
+        source: NCN_SOURCE_ID,
+        'source-layer': 'ncn',
+        filter: ['!=', ['coalesce', ['get', 'Desc_'], ''], 'TrafficFree'],
+        layout: {
+          'line-cap': 'round',
+          'line-join': 'round',
+          'visibility': showNcn ? 'visible' : 'none'
+        },
+        paint: {
+          'line-color': '#fb7185',
+          'line-width': [
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            5, 1.2,
+            8, 2.0,
+            12, 3.5,
+            16, 5.0
+          ],
+          'line-dasharray': [3, 2],
+          'line-opacity': 0.95
+        }
+      }, beforeId);
+
+      for (const layerId of NCN_INTERACTIVE_LAYER_IDS) {
+        map.off('mousemove', layerId, handleNcnMouseMove);
+        map.on('mousemove', layerId, handleNcnMouseMove);
+        map.off('mouseleave', layerId, handleNcnMouseLeave);
+        map.on('mouseleave', layerId, handleNcnMouseLeave);
+        map.off('click', layerId, handleNcnClick);
+        map.on('click', layerId, handleNcnClick);
+      }
     } catch (err) {
       console.warn('Unable to load NCN layer:', err);
     }
@@ -778,15 +841,10 @@
 
   // Watch NCN visibility reactively
   $effect(() => {
+    const ncnVisible = showNcn;
     if (!map || !map.isStyleLoaded()) return;
-    const visibility = showNcn ? 'visible' : 'none';
-    if (map.getLayer('ncn-lines')) {
-      map.setLayoutProperty('ncn-lines', 'visibility', visibility);
-    }
-    if (map.getLayer('ncn-casing')) {
-      map.setLayoutProperty('ncn-casing', 'visibility', visibility);
-    }
-    if (showNcn && !map.getSource('ncn-data')) {
+    setNcnVisibility();
+    if (ncnVisible && !map.getSource(NCN_SOURCE_ID)) {
       loadNcnSourceAndLayers();
     }
   });
