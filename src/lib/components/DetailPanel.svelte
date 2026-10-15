@@ -14,8 +14,8 @@
   <div class="detail-card">
     <div class="detail-header">
       <div class="title-wrap">
-        <span class="badge-section">Section {segment.section || 'N/A'}</span>
-        <h3>{segment.name || `Segment #${segment.id}`}</h3>
+        <span class="badge-section">{segment.layer_type === 'intervention' ? 'Intervention' : `Section ${segment.section || 'N/A'}`}</span>
+        <h3>{segment.name || (segment.layer_type === 'intervention' ? `Point #${segment.id}` : `Segment #${segment.id}`)}</h3>
       </div>
       <button class="close-btn" onclick={onClose}>×</button>
     </div>
@@ -23,29 +23,39 @@
     <div class="detail-body">
       <div class="attr-grid">
         <div class="attr-item">
-          <span class="attr-label">Link ID</span>
+          <span class="attr-label">{segment.layer_type === 'intervention' ? 'Point ID' : 'Link ID'}</span>
           <span class="attr-value font-mono">{segment.link_id || segment.id}</span>
         </div>
-        <div class="attr-item">
-          <span class="attr-label">Length</span>
-          <span class="attr-value font-mono">{segment.length_km ? segment.length_km.toFixed(2) + ' km' : 'N/A'}</span>
-        </div>
+        {#if segment.layer_type !== 'intervention'}
+          <div class="attr-item">
+            <span class="attr-label">Length</span>
+            <span class="attr-value font-mono">{segment.length_km ? segment.length_km.toFixed(2) + ' km' : 'N/A'}</span>
+          </div>
+        {/if}
         <div class="attr-item full">
           <span class="attr-label">Category</span>
-          <span class="attr-value">{segment.category || 'Uncategorized'}</span>
+          <span class="attr-value">{segment.category || (segment.layer_type === 'intervention' ? 'Active Route Treatment' : 'Uncategorized')}</span>
         </div>
         <div class="attr-item full">
           <span class="attr-label">Classification</span>
-          <span class="attr-value">{segment.classification === 'HS2 Delivery' ? 'HS2 Haulage' : (segment.classification || 'Unclassified')}</span>
+          <span class="attr-value">{segment.classification === 'HS2 Delivery' ? 'HS2 Haulage' : (segment.classification || (segment.layer_type === 'intervention' ? 'Intervention Point' : 'Unclassified'))}</span>
         </div>
-        <div class="attr-item">
-          <span class="attr-label">Lead Developer</span>
-          <span class="attr-value">{segment.developer || 'Unassigned'}</span>
-        </div>
-        <div class="attr-item">
-          <span class="attr-label">Setting</span>
-          <span class="attr-value">{segment.setting || 'Rural'}</span>
-        </div>
+        {#if segment.folder}
+          <div class="attr-item full">
+            <span class="attr-label">Corridor Section</span>
+            <span class="attr-value">{segment.folder}</span>
+          </div>
+        {/if}
+        {#if segment.layer_type !== 'intervention'}
+          <div class="attr-item">
+            <span class="attr-label">Lead Developer</span>
+            <span class="attr-value">{segment.developer || 'Unassigned'}</span>
+          </div>
+          <div class="attr-item">
+            <span class="attr-label">Setting</span>
+            <span class="attr-value">{segment.setting || 'Rural'}</span>
+          </div>
+        {/if}
         {#if segment.remarks}
           <div class="attr-item full">
             <span class="attr-label">Remarks</span>
@@ -59,7 +69,7 @@
           <circle cx="11" cy="11" r="8"></circle>
           <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
         </svg>
-        Zoom to Segment
+        {segment.layer_type === 'intervention' ? 'Zoom to Point' : 'Zoom to Segment'}
       </button>
     </div>
   </div>

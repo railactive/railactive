@@ -208,12 +208,18 @@
   };
 
   function getColorExpression(colorBy: string): any {
+    const isSuperseded = [
+      'any',
+      ['==', ['coalesce', ['get', 'folder'], ''], 'Superseded'],
+      ['==', ['coalesce', ['get', 'status'], ''], 'superseded'],
+      ['==', ['coalesce', ['get', 'category'], ''], 'Old active travel route alignment']
+    ];
+
+    let baseColorExpr: any;
     if (colorBy === 'kml') {
-      return ['coalesce', ['get', 'color'], '#3b82f6'];
-    }
-    
-    if (colorBy === 'category') {
-      return [
+      baseColorExpr = ['coalesce', ['get', 'color'], '#3b82f6'];
+    } else if (colorBy === 'category') {
+      baseColorExpr = [
         'match',
         ['coalesce', ['get', 'category'], ''],
         'Cycleway beside HS2', '#f97316', // HS2 Haulage - Coral Orange
@@ -222,10 +228,8 @@
         'Canal tow path or new path close by canal', '#06b6d4', // Canal - Teal Blue
         '#3b82f6' // Corridor Blue
       ];
-    }
-
-    if (colorBy === 'developer') {
-      return [
+    } else if (colorBy === 'developer') {
+      baseColorExpr = [
         'match',
         ['coalesce', ['get', 'developer'], ''],
         'HS2', '#f97316', // HS2 Haulage - Coral Orange
@@ -236,26 +240,33 @@
         'Developer', '#38bdf8', // Developer - Sky Blue
         '#3b82f6'
       ];
+    } else {
+      // Default: Classification (HS2 Haulage = Orange, Greenways = Green, Existing/Upgrades = Shades of Blue)
+      baseColorExpr = [
+        'match',
+        ['coalesce', ['get', 'classification'], ''],
+        'HS2 Haulage', '#f97316', // Vibrant Coral Orange
+        'HS2 Delivery', '#f97316', // Legacy label mapped to Orange
+        'HS2 Legacy', '#ea580c', // Darker Orange
+        'New Greenway', '#10b981', // Vibrant Emerald Green
+        'Upgrade PROW', '#38bdf8', // Light Sky Blue
+        'Local Road Quietway', '#3b82f6', // Bright Royal Blue
+        'Quiet Lane', '#1d4ed8', // Deep Cobalt Blue
+        'Existing routes', '#64748b', // Muted Slate Blue
+        'Town or village centre', '#818cf8', // Soft Indigo Blue
+        'Main Road-Cycle tracks', '#4338ca', // Dark Royal Blue
+        'Canal Towpath Upgrade', '#06b6d4', // Teal Cyan Blue
+        'Existing Footway Level Cycle Track', '#6366f1', // Indigo Blue
+        'Proposed Footway Level Cycle Track', '#a855f7', // Violet Blue
+        '#3b82f6' // Default active route: Blue
+      ];
     }
 
-    // Default: Classification (HS2 Haulage = Orange, Greenways = Green, Existing/Upgrades = Shades of Blue)
     return [
-      'match',
-      ['coalesce', ['get', 'classification'], ''],
-      'HS2 Haulage', '#f97316', // Vibrant Coral Orange
-      'HS2 Delivery', '#f97316', // Legacy label mapped to Orange
-      'HS2 Legacy', '#ea580c', // Darker Orange
-      'New Greenway', '#10b981', // Vibrant Emerald Green
-      'Upgrade PROW', '#38bdf8', // Light Sky Blue
-      'Local Road Quietway', '#3b82f6', // Bright Royal Blue
-      'Quiet Lane', '#1d4ed8', // Deep Cobalt Blue
-      'Existing routes', '#64748b', // Muted Slate Blue
-      'Town or village centre', '#818cf8', // Soft Indigo Blue
-      'Main Road-Cycle tracks', '#4338ca', // Dark Royal Blue
-      'Canal Towpath Upgrade', '#06b6d4', // Teal Cyan Blue
-      'Existing Footway Level Cycle Track', '#6366f1', // Indigo Blue
-      'Proposed Footway Level Cycle Track', '#a855f7', // Violet Blue
-      '#3b82f6' // Default active route: Blue
+      'case',
+      isSuperseded,
+      '#94a3b8', // Muted slate grey for superseded reference links
+      baseColorExpr
     ];
   }
 
@@ -283,7 +294,12 @@
     // Interactive Legend Layer Visibility Toggle (Exclude unchecked layers)
     if (f.hiddenLegendItems && f.hiddenLegendItems.length > 0) {
       for (const item of f.hiddenLegendItems) {
-        if (f.colorBy === 'category') {
+        if (item === 'Old active travel route alignment' || item === 'Superseded (reference)') {
+          expressions.push(['!=', ['coalesce', ['get', 'folder'], ''], 'Superseded']);
+          expressions.push(['!=', ['coalesce', ['get', 'status'], ''], 'superseded']);
+          expressions.push(['!=', ['coalesce', ['get', 'category'], ''], 'Old active travel route alignment']);
+          expressions.push(['!=', ['coalesce', ['get', 'classification'], ''], 'Old active travel route alignment']);
+        } else if (f.colorBy === 'category') {
           expressions.push(['!=', ['coalesce', ['get', 'category'], ''], item]);
         } else if (f.colorBy === 'developer') {
           expressions.push(['!=', ['coalesce', ['get', 'developer'], ''], item]);
@@ -293,6 +309,33 @@
           if (item === 'HS2 Haulage') {
             expressions.push(['!=', ['coalesce', ['get', 'classification'], ''], 'HS2 Delivery']);
           }
+        }
+      }
+    }
+
+    return expressions;
+  }
+
+  function getPointFilterExpression(f: FilterState): any {
+    const expressions: any[] = [
+      'all',
+      ['==', '$type', 'Point']
+    ];
+
+    // Interactive Legend Layer Visibility Toggle (Exclude unchecked layers)
+    if (f.hiddenLegendItems && f.hiddenLegendItems.length > 0) {
+      for (const item of f.hiddenLegendItems) {
+        if (item === 'Old active travel route alignment' || item === 'Superseded (reference)') {
+          expressions.push(['!=', ['coalesce', ['get', 'folder'], ''], 'Superseded']);
+          expressions.push(['!=', ['coalesce', ['get', 'status'], ''], 'superseded']);
+          expressions.push(['!=', ['coalesce', ['get', 'category'], ''], 'Old active travel route alignment']);
+          expressions.push(['!=', ['coalesce', ['get', 'classification'], ''], 'Old active travel route alignment']);
+        } else if (f.colorBy === 'category') {
+          expressions.push(['!=', ['coalesce', ['get', 'category'], ''], item]);
+        } else if (f.colorBy === 'developer') {
+          expressions.push(['!=', ['coalesce', ['get', 'developer'], ''], item]);
+        } else {
+          expressions.push(['!=', ['coalesce', ['get', 'classification'], ''], item]);
         }
       }
     }
@@ -322,10 +365,15 @@
     hoveredId = feat.id as number;
     map.setFeatureState({ source: 'cycleway-data', id: hoveredId }, { hover: true });
 
+    const isSuperseded = properties.folder === 'Superseded' ||
+      (properties as any).status === 'superseded' ||
+      properties.category === 'Old active travel route alignment';
     const length = properties.length_km ? `${Number(properties.length_km).toFixed(2)} km` : '';
-    const classification = properties.classification === 'HS2 Delivery'
-      ? 'HS2 Haulage'
-      : properties.classification || properties.category || 'Active Route';
+    const classification = isSuperseded
+      ? 'Old active travel route alignment'
+      : properties.classification === 'HS2 Delivery'
+        ? 'HS2 Haulage'
+        : properties.classification || properties.category || 'Active Route';
     const html = `
       <div class="tooltip-content">
         <div class="tooltip-title">${properties.name || `Link ${properties.link_id || properties.id}`}</div>
@@ -389,6 +437,94 @@
 
   function popupValue(value: unknown, fallback: string): string {
     return escapeHtml(value === undefined || value === null || value === '' ? fallback : value);
+  }
+
+  function handlePointMouseMove(e: maplibregl.MapLayerMouseEvent) {
+    if (!map || !e.features || e.features.length === 0) return;
+    map.getCanvas().style.cursor = 'pointer';
+
+    const feat = e.features[0];
+    const properties = feat.properties as CyclewaySegmentProperties;
+
+    const isSuperseded = properties.folder === 'Superseded' ||
+      (properties as any).status === 'superseded' ||
+      properties.category === 'Old active travel route alignment';
+
+    const title = properties.name || 'Junction Treatment';
+    const folder = properties.folder ? properties.folder.replace(' - Interventions', '') : 'Intervention';
+    const classification = isSuperseded ? 'Old active travel route alignment' : (properties.classification || 'Intervention Point');
+    const remarks = properties.remarks ? `<div class="tooltip-remarks">${escapeHtml(properties.remarks)}</div>` : '';
+
+    const html = `
+      <div class="tooltip-content point-tooltip">
+        <div class="tooltip-title">${escapeHtml(title)}</div>
+        <div class="tooltip-meta">
+          <span class="badge-sec">${escapeHtml(folder)}</span>
+          <span class="tooltip-len">ID: ${properties.id}</span>
+        </div>
+        <div class="tooltip-cat">${escapeHtml(classification)}</div>
+        ${remarks}
+      </div>
+    `;
+    hoverPopup?.setLngLat(e.lngLat).setHTML(html).addTo(map);
+  }
+
+  function handlePointMouseLeave() {
+    if (!map) return;
+    map.getCanvas().style.cursor = '';
+    hoverPopup?.remove();
+  }
+
+  function handlePointClick(e: maplibregl.MapLayerMouseEvent) {
+    if (!map || !e.features || e.features.length === 0) return;
+    const feat = e.features[0];
+    const properties = feat.properties as CyclewaySegmentProperties;
+
+    if (clickPopup) {
+      clickPopup.remove();
+      clickPopup = null;
+    }
+
+    const isSuperseded = properties.folder === 'Superseded' ||
+      (properties as any).status === 'superseded' ||
+      properties.category === 'Old active travel route alignment';
+
+    const title = popupValue(properties.name, 'Junction Treatment');
+    const folder = popupValue(properties.folder ? properties.folder.replace(' - Interventions', '') : '', 'Intervention');
+    const classification = isSuperseded ? 'Old active travel route alignment' : popupValue(properties.classification, 'Active Route Treatment');
+
+    const html = `
+      <div class="point-popup-card">
+        <div class="point-popup-header">
+          <div class="point-badge-group">
+            <span class="point-badge ${isSuperseded ? 'point-superseded' : 'point-type'}">
+              ${isSuperseded ? 'Old Alignment' : 'Intervention'}
+            </span>
+            <span class="point-badge point-sub">${folder}</span>
+          </div>
+        </div>
+        <h4 class="point-popup-title">${title}</h4>
+        <div class="point-popup-table">
+          <div class="point-cell"><span class="k">Point ID:</span><span class="v font-mono">${properties.id}</span></div>
+          <div class="point-cell"><span class="k">Type:</span><span class="v">${title}</span></div>
+          <div class="point-cell"><span class="k">Status:</span><span class="v">${classification}</span></div>
+          <div class="point-cell full"><span class="k">Corridor Section:</span><span class="v">${folder}</span></div>
+          ${properties.remarks ? `<div class="point-cell full"><span class="k">Remarks:</span><span class="v">${escapeHtml(properties.remarks)}</span></div>` : ''}
+        </div>
+      </div>
+    `;
+
+    clickPopup = new maplibregl.Popup({
+      closeButton: true,
+      closeOnClick: true,
+      maxWidth: '320px',
+      className: 'point-click-popup'
+    })
+      .setLngLat(e.lngLat)
+      .setHTML(html)
+      .addTo(map);
+
+    onSelectSegment(properties);
   }
 
   function handleNcnMouseMove(e: maplibregl.MapLayerMouseEvent) {
@@ -982,7 +1118,7 @@
         id: 'cycleway-points',
         type: 'circle',
         source: 'cycleway-data',
-        filter: ['==', '$type', 'Point'],
+        filter: getPointFilterExpression(filters),
         paint: {
           'circle-radius': ['interpolate', ['linear'], ['zoom'], 6, 4, 12, 7, 16, 11],
           'circle-color': getColorExpression(filters.colorBy),
@@ -1008,6 +1144,14 @@
       map.on('mouseleave', 'cycleway-lines', handleCyclewayMouseLeave);
       map.off('click', 'cycleway-lines', handleCyclewayClick);
       map.on('click', 'cycleway-lines', handleCyclewayClick);
+
+      // Interaction Events on Points / Interventions
+      map.off('mousemove', 'cycleway-points', handlePointMouseMove);
+      map.on('mousemove', 'cycleway-points', handlePointMouseMove);
+      map.off('mouseleave', 'cycleway-points', handlePointMouseLeave);
+      map.on('mouseleave', 'cycleway-points', handlePointMouseLeave);
+      map.off('click', 'cycleway-points', handlePointClick);
+      map.on('click', 'cycleway-points', handlePointClick);
 
       // Hover on Railway Track
       map.off('mousemove', 'hs2-rail-casing', handleRailwayMouseMove);
@@ -1172,7 +1316,7 @@
       map.setFilter('cycleway-casing', filterExpr);
       
       if (map.getLayer('cycleway-points')) {
-        map.setFilter('cycleway-points', ['all', ['==', '$type', 'Point'], filterExpr]);
+        map.setFilter('cycleway-points', getPointFilterExpression(filters));
       }
       
       const colorExpr = getColorExpression(filters.colorBy);
@@ -1474,5 +1618,104 @@
     border: 1px solid rgba(59, 130, 246, 0.45) !important;
     border-radius: 10px !important;
     box-shadow: 0 12px 28px rgba(0, 0, 0, 0.6) !important;
+  }
+
+  :global(.point-popup-card) {
+    font-family: 'Inter', sans-serif;
+    color: #f8fafc;
+    min-width: 220px;
+  }
+
+  :global(.point-popup-header) {
+    margin-bottom: 6px;
+  }
+
+  :global(.point-badge-group) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+
+  :global(.point-badge) {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+
+  :global(.point-type) {
+    background: #3b82f6;
+    color: #ffffff;
+  }
+
+  :global(.point-superseded) {
+    background: #64748b;
+    color: #f1f5f9;
+  }
+
+  :global(.point-sub) {
+    background: rgba(148, 163, 184, 0.25);
+    color: #cbd5e1;
+    border: 1px solid rgba(148, 163, 184, 0.4);
+  }
+
+  :global(.point-popup-title) {
+    margin: 4px 0 8px 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: #f1f5f9;
+    text-transform: capitalize;
+  }
+
+  :global(.point-popup-table) {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 11px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 6px;
+  }
+
+  :global(.point-cell) {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  :global(.point-cell.full) {
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  :global(.point-cell .k) {
+    color: #94a3b8;
+  }
+
+  :global(.point-cell .v) {
+    color: #e2e8f0;
+    text-align: right;
+  }
+
+  :global(.point-cell.full .v) {
+    text-align: left;
+    word-break: break-all;
+  }
+
+  :global(.point-click-popup .maplibregl-popup-content) {
+    padding: 12px 14px !important;
+    background: rgba(15, 23, 42, 0.96) !important;
+    backdrop-filter: blur(16px) !important;
+    border: 1px solid rgba(59, 130, 246, 0.45) !important;
+    border-radius: 10px !important;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.6) !important;
+  }
+
+  :global(.tooltip-remarks) {
+    font-size: 10px;
+    color: #94a3b8;
+    margin-top: 2px;
+    font-style: italic;
   }
 </style>

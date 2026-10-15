@@ -11,6 +11,8 @@ export interface CyclewaySegmentProperties {
   color?: string;
   remarks?: string;
   layer_type?: string;
+  folder?: string;
+  status?: string;
 }
 
 export interface CyclewayFeature {
