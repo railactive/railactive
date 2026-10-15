@@ -16,7 +16,8 @@ const MANAGED_PARAMS = [
   'segment',
   'sidebar',
   'ncn',
-  'openroads'
+  'openroads',
+  'studyarea'
 ];
 
 export interface AppUrlState {
@@ -26,6 +27,7 @@ export interface AppUrlState {
   selectedSegmentKey: string | null;
   showNcn: boolean;
   showOpenRoads: boolean;
+  showStudyArea: boolean;
 }
 
 function getLimitedParam(params: URLSearchParams, key: string, maxLength = 200): string {
@@ -57,7 +59,8 @@ export function readUrlState(url: URL): AppUrlState {
     },
     selectedSegmentKey: getLimitedParam(params, 'segment', 100) || null,
     showNcn: params.get('ncn') !== 'false' && params.get('ncn') !== '0',
-    showOpenRoads: params.get('openroads') === 'true'
+    showOpenRoads: params.get('openroads') === 'true',
+    showStudyArea: params.get('studyarea') === 'true' || params.get('study_area') === 'true'
   };
 }
 
@@ -83,6 +86,7 @@ export function writeUrlState(url: URL, state: AppUrlState): string {
   if (!state.sidebarOpen) nextUrl.searchParams.set('sidebar', 'closed');
   if (!state.showNcn) nextUrl.searchParams.set('ncn', 'false');
   if (state.showOpenRoads) nextUrl.searchParams.set('openroads', 'true');
+  if (state.showStudyArea) nextUrl.searchParams.set('studyarea', 'true');
 
   return `${nextUrl.pathname}${nextUrl.search}${nextUrl.hash}`;
 }

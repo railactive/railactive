@@ -1,0 +1,1375 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.43">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Prof Robin Lovelace &amp; hs2cycle Team">
+<meta name="dcterms.date" content="2026-10-01">
+
+<title>RailActive Data Dictionary &amp; Dataset Register</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="data_dictionary_files/libs/clipboard/clipboard.min.js"></script>
+<script src="data_dictionary_files/libs/quarto-html/quarto.js"></script>
+<script src="data_dictionary_files/libs/quarto-html/popper.min.js"></script>
+<script src="data_dictionary_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="data_dictionary_files/libs/quarto-html/anchor.min.js"></script>
+<link href="data_dictionary_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="data_dictionary_files/libs/quarto-html/quarto-syntax-highlighting-d4d76bf8491c20bad77d141916dc28e1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="data_dictionary_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="data_dictionary_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="data_dictionary_files/libs/bootstrap/bootstrap-32162a2fca7cb0439643f2faaab1edf3.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<style>html{ scroll-behavior: smooth; }</style>
+<link href="data_dictionary_files/libs/htmltools-fill-0.5.8.1/fill.css" rel="stylesheet">
+
+<script src="data_dictionary_files/libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+
+<link href="data_dictionary_files/libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet">
+
+<script src="data_dictionary_files/libs/datatables-binding-0.33/datatables.js"></script>
+
+<script src="data_dictionary_files/libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+
+<link href="data_dictionary_files/libs/dt-core-1.13.6/css/jquery.dataTables.min.css" rel="stylesheet">
+
+<link href="data_dictionary_files/libs/dt-core-1.13.6/css/jquery.dataTables.extra.css" rel="stylesheet">
+
+<script src="data_dictionary_files/libs/dt-core-1.13.6/js/jquery.dataTables.min.js"></script>
+
+<link href="data_dictionary_files/libs/nouislider-7.0.10/jquery.nouislider.min.css" rel="stylesheet">
+
+<script src="data_dictionary_files/libs/nouislider-7.0.10/jquery.nouislider.min.js"></script>
+
+<link href="data_dictionary_files/libs/selectize-0.12.0/selectize.bootstrap3.css" rel="stylesheet">
+
+<script src="data_dictionary_files/libs/selectize-0.12.0/selectize.min.js"></script>
+
+<link href="data_dictionary_files/libs/dt-plugin-searchhighlight-1.13.6/source.css" rel="stylesheet">
+
+<script src="data_dictionary_files/libs/dt-plugin-searchhighlight-1.13.6/jquery.highlight.js"></script>
+
+<script src="data_dictionary_files/libs/dt-plugin-searchhighlight-1.13.6/source.min.js"></script>
+
+<link href="data_dictionary_files/libs/crosstalk-1.2.1/css/crosstalk.min.css" rel="stylesheet">
+
+<script src="data_dictionary_files/libs/crosstalk-1.2.1/js/crosstalk.min.js"></script>
+
+
+
+</head>
+
+<body>
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#overview" id="toc-overview" class="nav-link active" data-scroll-target="#overview"><span class="header-section-number">1</span> Overview</a></li>
+  <li><a href="#datasets-overview-register" id="toc-datasets-overview-register" class="nav-link" data-scroll-target="#datasets-overview-register"><span class="header-section-number">2</span> Datasets Overview Register</a></li>
+  <li><a href="#detailed-variable-dictionaries-by-dataset" id="toc-detailed-variable-dictionaries-by-dataset" class="nav-link" data-scroll-target="#detailed-variable-dictionaries-by-dataset"><span class="header-section-number">3</span> Detailed Variable Dictionaries by Dataset</a>
+  <ul class="collapse">
+  <li><a href="#north-south-active-travel-corridor-v1-v2" id="toc-north-south-active-travel-corridor-v1-v2" class="nav-link" data-scroll-target="#north-south-active-travel-corridor-v1-v2"><span class="header-section-number">3.1</span> North-South Active Travel Corridor (v1 / v2)</a></li>
+  <li><a href="#custom-re-alignments-shane-snow-gpx" id="toc-custom-re-alignments-shane-snow-gpx" class="nav-link" data-scroll-target="#custom-re-alignments-shane-snow-gpx"><span class="header-section-number">3.2</span> Custom Re-alignments (Shane Snow GPX)</a></li>
+  <li><a href="#os-openroads-corridor-network" id="toc-os-openroads-corridor-network" class="nav-link" data-scroll-target="#os-openroads-corridor-network"><span class="header-section-number">3.3</span> OS OpenRoads (Corridor Network)</a></li>
+  <li><a href="#dft-stats19-road-safety-collisions" id="toc-dft-stats19-road-safety-collisions" class="nav-link" data-scroll-target="#dft-stats19-road-safety-collisions"><span class="header-section-number">3.4</span> DfT STATS19 Road Safety &amp; Collisions</a></li>
+  <li><a href="#openstreetmap-osm-active-travel-infrastructure" id="toc-openstreetmap-osm-active-travel-infrastructure" class="nav-link" data-scroll-target="#openstreetmap-osm-active-travel-infrastructure"><span class="header-section-number">3.5</span> OpenStreetMap (OSM) Active Travel Infrastructure</a></li>
+  <li><a href="#national-cycle-network-ncn" id="toc-national-cycle-network-ncn" class="nav-link" data-scroll-target="#national-cycle-network-ncn"><span class="header-section-number">3.6</span> National Cycle Network (NCN)</a></li>
+  </ul></li>
+  <li><a href="#forthcoming-tbc-datasets" id="toc-forthcoming-tbc-datasets" class="nav-link" data-scroll-target="#forthcoming-tbc-datasets"><span class="header-section-number">4</span> Forthcoming &amp; TBC Datasets</a></li>
+  <li><a href="#interactive-variable-explorer" id="toc-interactive-variable-explorer" class="nav-link" data-scroll-target="#interactive-variable-explorer"><span class="header-section-number">5</span> Interactive Variable Explorer</a></li>
+  </ul>
+</nav>
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">RailActive Data Dictionary &amp; Dataset Register</h1>
+<p class="subtitle lead">HS2 Active Travel Opportunity Mapping and Appraisal (hs2cycle)</p>
+</div>
+
+
+<div class="quarto-title-meta-author">
+  <div class="quarto-title-meta-heading">Author</div>
+  <div class="quarto-title-meta-heading">Affiliation</div>
+  
+    <div class="quarto-title-meta-contents">
+    <p class="author">Prof Robin Lovelace &amp; hs2cycle Team </p>
+  </div>
+  <div class="quarto-title-meta-contents">
+        <p class="affiliation">
+            Institute for Transport Studies, University of Leeds
+          </p>
+      </div>
+  </div>
+
+<div class="quarto-title-meta">
+
+      
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">October 1, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="overview" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="overview"><span class="header-section-number">1</span> Overview</h2>
+<p>This document defines the live, machine-readable data dictionary and datasets register for the <strong>hs2cycle</strong> project and <strong>RailActive</strong> application.</p>
+<p>The register standardizes data structures, variable names, units, and licensing across all active datasets (North-South Corridor, custom GPX re-alignments, OS OpenRoads, DfT STATS19 road safety, OpenStreetMap active travel infrastructure, and the National Cycle Network), while tracking dependencies for forthcoming datasets (trip attractors, LCWIPs, OSMRN/PSGA, and OS NGD pavements).</p>
+<p>All underlying schemas are version-controlled and available as machine-readable files:</p>
+<ul>
+<li><a href="file:///C:/Users/georl/github/railactive/hs2cycle/data/datasets_overview.csv"><code>data/datasets_overview.csv</code></a>: High-level dataset catalog and status</li>
+<li><a href="file:///C:/Users/georl/github/railactive/hs2cycle/data/data_dictionary.csv"><code>data/data_dictionary.csv</code></a>: Full variable schema and technical definitions</li>
+<li><a href="file:///C:/Users/georl/github/railactive/hs2cycle/data/data_dictionary.json"><code>data/data_dictionary.json</code></a>: Web-ready JSON format consumed by the frontend</li>
+</ul>
+<hr>
+</section>
+<section id="datasets-overview-register" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="datasets-overview-register"><span class="header-section-number">2</span> Datasets Overview Register</h2>
+<p>The table below summarizes all primary datasets evaluated for the RailActive corridor and economic appraisal.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Table 1: RailActive Dataset Inventory &amp; Current Implementation Status</caption>
+<colgroup>
+<col style="width: 8%">
+<col style="width: 21%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 18%">
+<col style="width: 11%">
+<col style="width: 23%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Dataset ID</th>
+<th style="text-align: left;">Dataset Name</th>
+<th style="text-align: left;">Status</th>
+<th style="text-align: left;">Format</th>
+<th style="text-align: left;">Source Agency</th>
+<th style="text-align: left;">Licence / Open Status</th>
+<th style="text-align: left;">Coverage</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">north_south_corridor</td>
+<td style="text-align: left;">North-South Active Travel Corridor (v1/v2)</td>
+<td style="text-align: left;">Active / QA</td>
+<td style="text-align: left;">GeoJSON / KML</td>
+<td style="text-align: left;">Active Travel England / HS2 / John Grimshaw</td>
+<td style="text-align: left;">Open (Project Archive)</td>
+<td style="text-align: left;">London to Birmingham, Stoke, Liverpool, Manchester</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">custom_gpx</td>
+<td style="text-align: left;">Custom Re-alignments (Shane Snow GPX)</td>
+<td style="text-align: left;">Active (Ingested)</td>
+<td style="text-align: left;">GPX / GeoJSON</td>
+<td style="text-align: left;">Shane Snow / Ordnance Survey / Project Team</td>
+<td style="text-align: left;">Open (Derived)</td>
+<td style="text-align: left;">Cheshire Lanes, East Sussex Coast, Kent NT, Gatwick Bypass</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">openroads</td>
+<td style="text-align: left;">OS OpenRoads (Corridor Network)</td>
+<td style="text-align: left;">Active (Cached)</td>
+<td style="text-align: left;">GeoPackage / PMTiles</td>
+<td style="text-align: left;">Ordnance Survey (OS OpenData)</td>
+<td style="text-align: left;">Open Government Licence (OGL)</td>
+<td style="text-align: left;">10 km buffer of active travel corridor</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">stats19</td>
+<td style="text-align: left;">DfT STATS19 Road Safety &amp; Collisions</td>
+<td style="text-align: left;">Active (Live)</td>
+<td style="text-align: left;">CSV / GeoJSON / GPKG</td>
+<td style="text-align: left;">Department for Transport (DfT)</td>
+<td style="text-align: left;">Open Government Licence (OGL)</td>
+<td style="text-align: left;">Standardized 5 km study area buffer</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">osm</td>
+<td style="text-align: left;">OpenStreetMap Active Travel Infrastructure</td>
+<td style="text-align: left;">Active (Live Extract)</td>
+<td style="text-align: left;">GeoPackage / PBF</td>
+<td style="text-align: left;">OpenStreetMap Contributors</td>
+<td style="text-align: left;">ODbL</td>
+<td style="text-align: left;">Corridor county extracts</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ncn</td>
+<td style="text-align: left;">National Cycle Network (NCN)</td>
+<td style="text-align: left;">Active (Ingested)</td>
+<td style="text-align: left;">GeoPackage / PMTiles</td>
+<td style="text-align: left;">Sustrans</td>
+<td style="text-align: left;">Open / Sustrans Data Licence</td>
+<td style="text-align: left;">National UK Network</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">trip_attractors</td>
+<td style="text-align: left;">Trip Attractors (Schools &amp; New Developments)</td>
+<td style="text-align: left;">TBC</td>
+<td style="text-align: left;">TBC</td>
+<td style="text-align: left;">DfT / DfE / Local Planning Authorities</td>
+<td style="text-align: left;">TBC</td>
+<td style="text-align: left;">Study Area</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">lcwip</td>
+<td style="text-align: left;">Local Cycling and Walking Infrastructure Plans (LCWIP)</td>
+<td style="text-align: left;">TBC</td>
+<td style="text-align: left;">TBC</td>
+<td style="text-align: left;">Active Travel England (ATE) / Local Authorities</td>
+<td style="text-align: left;">TBC</td>
+<td style="text-align: left;">Local Transport Authorities along Corridor</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">osmrn</td>
+<td style="text-align: left;">OS MasterMap Road Network (OSMRN / PSGA)</td>
+<td style="text-align: left;">TBC</td>
+<td style="text-align: left;">TBC</td>
+<td style="text-align: left;">Ordnance Survey (PSGA)</td>
+<td style="text-align: left;">Restricted / PSGA Licence</td>
+<td style="text-align: left;">Corridor Route Buffer</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">pavements_ngd</td>
+<td style="text-align: left;">Pavements &amp; Footways in OS NGD</td>
+<td style="text-align: left;">TBC</td>
+<td style="text-align: left;">TBC</td>
+<td style="text-align: left;">Ordnance Survey (OS NGD)</td>
+<td style="text-align: left;">Restricted / PSGA Licence</td>
+<td style="text-align: left;">Urban Corridor Zones</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<hr>
+</section>
+<section id="detailed-variable-dictionaries-by-dataset" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="detailed-variable-dictionaries-by-dataset"><span class="header-section-number">3</span> Detailed Variable Dictionaries by Dataset</h2>
+<section id="north-south-active-travel-corridor-v1-v2" class="level3" data-number="3.1">
+<h3 data-number="3.1" class="anchored" data-anchor-id="north-south-active-travel-corridor-v1-v2"><span class="header-section-number">3.1</span> North-South Active Travel Corridor (v1 / v2)</h3>
+<p>The central spinal active travel corridor running along the HS2 civil engineering alignment from London through the Midlands to Liverpool and Manchester, incorporating regional arterial links.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Table 2: North-South Active Travel Corridor Variable Dictionary</caption>
+<colgroup>
+<col style="width: 4%">
+<col style="width: 2%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 51%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Variable</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Description</th>
+<th style="text-align: left;">Values / Units</th>
+<th style="text-align: left;">Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">id</td>
+<td style="text-align: left;">integer</td>
+<td style="text-align: left;">Unique identifier for each link or intervention point</td>
+<td style="text-align: left;">Positive integer</td>
+<td style="text-align: left;">Primary key</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">name</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">Descriptive name of the route link or junction treatment</td>
+<td style="text-align: left;">Text</td>
+<td style="text-align: left;">e.g.&nbsp;‘Link 202’, ‘Pear Tree Farm Footpath Upgrade’</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">link_id</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">Standardized corridor link code</td>
+<td style="text-align: left;">Text (e.g.&nbsp;‘202’, ‘V2-CH01’)</td>
+<td style="text-align: left;">Prefixed with V2- for client re-alignments</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">section</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">Corridor section identifier or regional segment name</td>
+<td style="text-align: left;">Text (e.g.&nbsp;‘1’..’35’, ‘Northwest’, ‘South of London’)</td>
+<td style="text-align: left;">Defines macro corridor stage</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">category</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">Functional route intervention category</td>
+<td style="text-align: left;">Categorical</td>
+<td style="text-align: left;">e.g.&nbsp;‘Cycleway beside HS2’, ‘Traffic-free path away from highway’, ‘20mph and traffic calmed or protected cycle lane’, ‘Old active travel route alignment’</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">classification</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">Engineering intervention classification</td>
+<td style="text-align: left;">Categorical</td>
+<td style="text-align: left;">e.g.&nbsp;‘HS2 Haulage’, ‘New Greenway’, ‘Upgrade PROW’, ‘Quiet Lane’, ‘Local Road Quietway’, ‘Existing routes’, ‘Old active travel route alignment’</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">developer</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">Anticipated delivery organisation or authority</td>
+<td style="text-align: left;">Categorical</td>
+<td style="text-align: left;">e.g.&nbsp;‘HS2’, ‘Local Authority’, ‘National Trust’, ‘Sustrans’, ‘Canals &amp; River Trust’, ‘DfT’</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">setting</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">Landscape setting</td>
+<td style="text-align: left;">Categorical (‘Rural’, ‘Urban’, ‘Suburban’)</td>
+<td style="text-align: left;">Derived from ONS settlement boundaries</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">length_km</td>
+<td style="text-align: left;">numeric</td>
+<td style="text-align: left;">Length of the segment in kilometres</td>
+<td style="text-align: left;">km (&gt;= 0.0)</td>
+<td style="text-align: left;">Computed using EPSG:27700 planar length</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">folder</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">Thematic group or route cluster</td>
+<td style="text-align: left;">Text</td>
+<td style="text-align: left;">e.g.&nbsp;‘HS2 Alignment’, ‘Averte Verte’, ‘Cheshire Lanes - Swanley Bypass (v2)’, ‘Superseded’</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">layer_type</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">Geometry layer classification</td>
+<td style="text-align: left;">Categorical (‘active_route’, ‘hs2_railway’, ‘point_treatment’)</td>
+<td style="text-align: left;">Used for frontend styling and filtering</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">status</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">Lifecycle status of the alignment</td>
+<td style="text-align: left;">Categorical (‘active’, ‘superseded’)</td>
+<td style="text-align: left;">Superseded features preserved for comparison</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">remarks</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">Contextual rationale, engineering notes, and QA audit details</td>
+<td style="text-align: left;">Text</td>
+<td style="text-align: left;">Detailed audit history</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="custom-re-alignments-shane-snow-gpx" class="level3" data-number="3.2">
+<h3 data-number="3.2" class="anchored" data-anchor-id="custom-re-alignments-shane-snow-gpx"><span class="header-section-number">3.2</span> Custom Re-alignments (Shane Snow GPX)</h3>
+<p>Granular re-alignments digitised from client GPX tracks to bypass dangerous road sections (e.g.&nbsp;Swanley Lane rat run, Crawley gyratory) and link into National Trust assets and coastal routes.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Table 3: Custom Client GPX Re-alignments Variable Dictionary</caption>
+<colgroup>
+<col style="width: 6%">
+<col style="width: 3%">
+<col style="width: 22%">
+<col style="width: 28%">
+<col style="width: 38%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Variable</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Description</th>
+<th style="text-align: left;">Values / Units</th>
+<th style="text-align: left;">Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">track_name</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">Name of the client GPX route track</td>
+<td style="text-align: left;">Text</td>
+<td style="text-align: left;">e.g.&nbsp;‘Pear Tree Farm footpath upgrade’, ‘AV Direct’</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">source_file</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">Source .gpx filename from client archive</td>
+<td style="text-align: left;">Text</td>
+<td style="text-align: left;">Stored in data/gpx/</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">case_study</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">Designated case study corridor area</td>
+<td style="text-align: left;">Text</td>
+<td style="text-align: left;">e.g.&nbsp;‘Cheshire Lanes’, ‘Cuckmere &amp; Coast’, ‘Knole &amp; Mote’, ‘AV Direct’</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">link_prefix</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">Prefix applied to generated link_ids</td>
+<td style="text-align: left;">Text (e.g.&nbsp;‘V2-CH’, ‘V2-AV-CR’, ‘V2-AV-KM’, ‘V2-AV-DIR’)</td>
+<td style="text-align: left;">Ensures unique global namespace</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">source</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">Data derivation origin for segment</td>
+<td style="text-align: left;">Categorical (‘gpx_upgrade’, ‘osm’)</td>
+<td style="text-align: left;">‘gpx_upgrade’ for new off-road paths; ‘osm’ for existing highway centreline</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">feature_type</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">Matched physical infrastructure type</td>
+<td style="text-align: left;">Categorical (‘off-road’, ‘road’, ‘track’, ‘traffic_free’)</td>
+<td style="text-align: left;">Classified via STRtree nearest neighbour matching</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">highway</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">OSM highway tag or proposed footpath upgrade</td>
+<td style="text-align: left;">Text</td>
+<td style="text-align: left;">e.g.&nbsp;‘unclassified’, ‘tertiary’, ‘cycleway’, ‘bridleway’, ‘footpath_upgrade’</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">surface</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">Pavement surface condition</td>
+<td style="text-align: left;">Text (e.g.&nbsp;‘asphalt’, ‘unpaved’, ‘gravel’)</td>
+<td style="text-align: left;">Recorded from OSM extra tags</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">length_km</td>
+<td style="text-align: left;">numeric</td>
+<td style="text-align: left;">Length of the segment in kilometres</td>
+<td style="text-align: left;">km (&gt;= 0.0)</td>
+<td style="text-align: left;">Strictly continuous 2D planar length</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="os-openroads-corridor-network" class="level3" data-number="3.3">
+<h3 data-number="3.3" class="anchored" data-anchor-id="os-openroads-corridor-network"><span class="header-section-number">3.3</span> OS OpenRoads (Corridor Network)</h3>
+<p>Ordnance Survey OpenData highway network used to map road centrelines, evaluate quiet lane connectivity, and identify roads designated for HS2 construction logistics.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Table 4: OS OpenRoads Variable Dictionary</caption>
+<colgroup>
+<col style="width: 10%">
+<col style="width: 3%">
+<col style="width: 18%">
+<col style="width: 41%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Variable</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Description</th>
+<th style="text-align: left;">Values / Units</th>
+<th style="text-align: left;">Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">id</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">Unique OS OpenRoads link identifier</td>
+<td style="text-align: left;">URN (e.g.&nbsp;‘urn:os:open:roadlink:…’)</td>
+<td style="text-align: left;">OS OpenData national road identifier</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">name_1</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">Primary gazetted road name</td>
+<td style="text-align: left;">Text</td>
+<td style="text-align: left;">e.g.&nbsp;‘Swanley Lane’, ‘A452 Chester Road’</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">road_classification</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">Department for Transport classification</td>
+<td style="text-align: left;">Categorical (‘A Road’, ‘B Road’, ‘Classified Unnumbered’, ‘Unclassified’)</td>
+<td style="text-align: left;">Official UK road hierarchy</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">road_function</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">Functional road network hierarchy role</td>
+<td style="text-align: left;">Categorical (‘Motorway’, ‘A Road’, ‘B Road’, ‘Minor Road’, ‘Local Road’, ‘Restricted Local Access Road’)</td>
+<td style="text-align: left;">Used for filtering cycle suitability</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">form_of_way</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">Physical carriageway geometry structure</td>
+<td style="text-align: left;">Categorical (‘Single Carriageway’, ‘Dual Carriageway’, ‘Roundabout’, ‘Slip Road’)</td>
+<td style="text-align: left;">Guides segregation requirements</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">road_classification_number</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">Official classified route number</td>
+<td style="text-align: left;">Text (e.g.&nbsp;‘A452’, ‘B4114’, ‘M42’)</td>
+<td style="text-align: left;">Blank for unclassified local roads</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">length</td>
+<td style="text-align: left;">numeric</td>
+<td style="text-align: left;">Length of the road link</td>
+<td style="text-align: left;">metres</td>
+<td style="text-align: left;">Metric length in BNG</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">possible_haulage_basis</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">Spatial deduction flag for HS2 haulage overlap</td>
+<td style="text-align: left;">Categorical (‘hs2_haulage_collinear’, ‘none’)</td>
+<td style="text-align: left;">Identifies local roads designated for HS2 construction logistics</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="dft-stats19-road-safety-collisions" class="level3" data-number="3.4">
+<h3 data-number="3.4" class="anchored" data-anchor-id="dft-stats19-road-safety-collisions"><span class="header-section-number">3.4</span> DfT STATS19 Road Safety &amp; Collisions</h3>
+<p>Official Department for Transport personal injury road collisions spatially filtered within the standardized 5 km RailActive study area buffer to assess baseline traffic danger and economic appraisal safety benefits.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Table 5: DfT STATS19 Collisions Variable Dictionary</caption>
+<colgroup>
+<col style="width: 10%">
+<col style="width: 3%">
+<col style="width: 25%">
+<col style="width: 39%">
+<col style="width: 21%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Variable</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Description</th>
+<th style="text-align: left;">Values / Units</th>
+<th style="text-align: left;">Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">collision_index</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">Unique national collision reference number</td>
+<td style="text-align: left;">Text (13-character string)</td>
+<td style="text-align: left;">Primary key for road casualties</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">collision_year</td>
+<td style="text-align: left;">integer</td>
+<td style="text-align: left;">Year collision occurred</td>
+<td style="text-align: left;">YYYY (e.g.&nbsp;2023)</td>
+<td style="text-align: left;">Annual reporting period</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">date</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">Date of collision</td>
+<td style="text-align: left;">Date (YYYY-MM-DD)</td>
+<td style="text-align: left;">Standard ISO format</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">time</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">Time of collision</td>
+<td style="text-align: left;">Time (HH:MM)</td>
+<td style="text-align: left;">24-hour clock</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">collision_severity</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">Maximum severity of any casualty involved</td>
+<td style="text-align: left;">Categorical (‘Fatal’, ‘Serious’, ‘Slight’)</td>
+<td style="text-align: left;">Key road safety performance metric</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">number_of_vehicles</td>
+<td style="text-align: left;">integer</td>
+<td style="text-align: left;">Number of motorized and non-motorized vehicles involved</td>
+<td style="text-align: left;">Positive integer (&gt;= 1)</td>
+<td style="text-align: left;">Measure of multi-vehicle involvement</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">number_of_casualties</td>
+<td style="text-align: left;">integer</td>
+<td style="text-align: left;">Total casualties resulting from the collision</td>
+<td style="text-align: left;">Positive integer (&gt;= 1)</td>
+<td style="text-align: left;">Direct injury count</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">speed_limit</td>
+<td style="text-align: left;">integer</td>
+<td style="text-align: left;">Posted permanent speed limit at collision site</td>
+<td style="text-align: left;">mph (20, 30, 40, 50, 60, 70)</td>
+<td style="text-align: left;">High-speed rural lanes correlate with severity</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">road_type</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">Road layout at collision location</td>
+<td style="text-align: left;">Categorical (‘Single carriageway’, ‘Dual carriageway’, ‘Roundabout’, ‘One way street’)</td>
+<td style="text-align: left;">Identifies junction vs link risk</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">light_conditions</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">Natural and artificial illumination state</td>
+<td style="text-align: left;">Categorical (‘Daylight’, ‘Darkness - lights lit’, ‘Darkness - no lighting’)</td>
+<td style="text-align: left;">Evaluates unlit rural road risk</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">weather_conditions</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">Atmospheric weather state at collision time</td>
+<td style="text-align: left;">Categorical (‘Fine no high winds’, ‘Raining’, ‘Fog or mist’, ‘Snowing’)</td>
+<td style="text-align: left;">Environmental risk modifier</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">road_surface_conditions</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">Pavement surface condition</td>
+<td style="text-align: left;">Categorical (‘Dry’, ‘Wet or damp’, ‘Snow’, ‘Frost or ice’)</td>
+<td style="text-align: left;">Friction / skid risk factor</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">urban_or_rural_area</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">DfT urban/rural classification</td>
+<td style="text-align: left;">Categorical (‘Urban’, ‘Rural’)</td>
+<td style="text-align: left;">Based on settlement population thresholds</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="openstreetmap-osm-active-travel-infrastructure" class="level3" data-number="3.5">
+<h3 data-number="3.5" class="anchored" data-anchor-id="openstreetmap-osm-active-travel-infrastructure"><span class="header-section-number">3.5</span> OpenStreetMap (OSM) Active Travel Infrastructure</h3>
+<p>Crowdsourced active travel network extracts providing detailed attributes for off-carriageway cycleways, public bridleways, pedestrian crossings, and surface conditions.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Table 6: OpenStreetMap Active Travel Infrastructure Variable Dictionary</caption>
+<colgroup>
+<col style="width: 4%">
+<col style="width: 6%">
+<col style="width: 21%">
+<col style="width: 47%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Variable</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Description</th>
+<th style="text-align: left;">Values / Units</th>
+<th style="text-align: left;">Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">osm_id</td>
+<td style="text-align: left;">integer/string</td>
+<td style="text-align: left;">Unique OpenStreetMap feature identifier</td>
+<td style="text-align: left;">Integer</td>
+<td style="text-align: left;">Global OSM way ID</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">name</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">Gazetted road or path name in OSM</td>
+<td style="text-align: left;">Text</td>
+<td style="text-align: left;">e.g.&nbsp;‘Stoneley Green’, ‘Cuckmere River Path’</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">highway</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">Primary OpenStreetMap highway classification tag</td>
+<td style="text-align: left;">Categorical (‘cycleway’, ‘path’, ‘bridleway’, ‘footway’, ‘track’, ‘service’, ‘unclassified’, ‘tertiary’)</td>
+<td style="text-align: left;">Core active travel infrastructure tag</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">cycleway</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">Specific cycling accommodation along highway</td>
+<td style="text-align: left;">Categorical (‘track’, ‘lane’, ‘opposite’, ‘shared_busway’, ‘no’)</td>
+<td style="text-align: left;">Detailed cycle provision</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">bicycle</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">Legal access designation for bicycles</td>
+<td style="text-align: left;">Categorical (‘yes’, ‘designated’, ‘permissive’, ‘no’)</td>
+<td style="text-align: left;">Legal rights of way</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">foot</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">Legal access designation for pedestrians</td>
+<td style="text-align: left;">Categorical (‘yes’, ‘designated’, ‘permissive’, ‘no’)</td>
+<td style="text-align: left;">Pedestrian rights of way</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">surface</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">Pavement surface material and condition</td>
+<td style="text-align: left;">Categorical (‘asphalt’, ‘paved’, ‘concrete’, ‘gravel’, ‘unpaved’, ‘compacted’)</td>
+<td style="text-align: left;">Determines cycle ride quality</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">crossing</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">Pedestrian / cycle crossing facility type</td>
+<td style="text-align: left;">Categorical (‘traffic_signals’, ‘zebra’, ‘toucan’, ‘pegasus’, ‘uncontrolled’)</td>
+<td style="text-align: left;">Critical for severance assessment</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">lit</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">Presence of dedicated street lighting</td>
+<td style="text-align: left;">Categorical (‘yes’, ‘no’)</td>
+<td style="text-align: left;">Personal security &amp; winter usability</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">maxspeed</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">Legal speed limit tag</td>
+<td style="text-align: left;">Text (e.g.&nbsp;‘30 mph’, ‘20 mph’, ‘60 mph’)</td>
+<td style="text-align: left;">Local speed regulation</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="national-cycle-network-ncn" class="level3" data-number="3.6">
+<h3 data-number="3.6" class="anchored" data-anchor-id="national-cycle-network-ncn"><span class="header-section-number">3.6</span> National Cycle Network (NCN)</h3>
+<p>Authoritative Sustrans National Cycle Network links, route numbers, operational open status, and infrastructure quality audits across the corridor geography.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Table 7: National Cycle Network (NCN) Variable Dictionary</caption>
+<colgroup>
+<col style="width: 6%">
+<col style="width: 4%">
+<col style="width: 28%">
+<col style="width: 36%">
+<col style="width: 23%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Variable</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Description</th>
+<th style="text-align: left;">Values / Units</th>
+<th style="text-align: left;">Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">RouteNo</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">Designated National Cycle Network route number</td>
+<td style="text-align: left;">Text (e.g.&nbsp;‘4’, ‘5’, ‘54’, ‘55’, ‘68’)</td>
+<td style="text-align: left;">National route corridor identifier</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Desc_</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">Traffic separation status indicator</td>
+<td style="text-align: left;">Categorical (‘TrafficFree’, ‘OnRoad’)</td>
+<td style="text-align: left;">Primary safety attribute</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Greenway</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">Greenway facility designation flag</td>
+<td style="text-align: left;">Categorical (‘Yes’, ‘No’)</td>
+<td style="text-align: left;">Off-road landscape greenway designation</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">RouteType</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">Sustrans route facility layout typology</td>
+<td style="text-align: left;">Categorical (‘Cycleway’, ‘Shared Use’, ‘Segregated’, ‘Road’)</td>
+<td style="text-align: left;">Technical layout</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">RouteCat</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">Network hierarchy categorization tier</td>
+<td style="text-align: left;">Categorical (‘Primary’, ‘Secondary’, ‘Connecting’)</td>
+<td style="text-align: left;">Strategic importance</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">OpenStatus</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">Network operational status</td>
+<td style="text-align: left;">Categorical (‘Open’, ‘Proposed’, ‘Under Construction’)</td>
+<td style="text-align: left;">Identifies future network developments</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Surface</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">Surface condition audit</td>
+<td style="text-align: left;">Categorical (‘Sealed’, ‘Unsealed’, ‘Mixed’)</td>
+<td style="text-align: left;">Physical ridability</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Quality</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">Sustrans network audit quality rating</td>
+<td style="text-align: left;">Categorical (‘Good’, ‘Fair’, ‘Poor’)</td>
+<td style="text-align: left;">Infrastructure maintenance audit</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Lighting</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">Presence of route lighting</td>
+<td style="text-align: left;">Categorical (‘Lit’, ‘Unlit’, ‘Partial’)</td>
+<td style="text-align: left;">Evening &amp; commuter utility</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">RoadClass</td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;">Highway classification for on-road NCN links</td>
+<td style="text-align: left;">Categorical (‘A’, ‘B’, ‘C’, ‘U’)</td>
+<td style="text-align: left;">On-road traffic exposure</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">length_km</td>
+<td style="text-align: left;">numeric</td>
+<td style="text-align: left;">Length of the NCN link in kilometres</td>
+<td style="text-align: left;">km (&gt;= 0.0)</td>
+<td style="text-align: left;">Metric planar length</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="forthcoming-tbc-datasets" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="forthcoming-tbc-datasets"><span class="header-section-number">4</span> Forthcoming &amp; TBC Datasets</h2>
+<p>The following candidate datasets are currently under scoping or awaiting licensing approval and data delivery:</p>
+<ul>
+<li><strong>Trip Attractors (Schools &amp; Strategic Developments):</strong>
+<ul>
+<li><strong>Status:</strong> TBC</li>
+<li><strong>Lead / Action:</strong> Tim / Local Planning Authorities</li>
+<li><strong>Scope:</strong> Primary and secondary schools (Get Information About Schools / GIAS) and allocated residential and commercial sites within the 5 km study area to model first- and last-mile demand.</li>
+<li><strong>Variables:</strong> <em>TBC (Pending dataset delivery)</em></li>
+</ul></li>
+<li><strong>Local Cycling and Walking Infrastructure Plans (LCWIPs):</strong>
+<ul>
+<li><strong>Status:</strong> TBC</li>
+<li><strong>Lead / Action:</strong> Active Travel England (ATE)</li>
+<li><strong>Scope:</strong> Spatial integration of adopted LCWIP networks from local transport authorities intersecting the corridor to ensure proposed HS2 infrastructure acts as a backbone for local feeder networks.</li>
+<li><strong>Variables:</strong> <em>TBC (Pending dataset delivery)</em></li>
+</ul></li>
+<li><strong>OS MasterMap Road Network (OSMRN / PSGA):</strong>
+<ul>
+<li><strong>Status:</strong> TBC</li>
+<li><strong>Lead / Action:</strong> Project Team / PSGA Licencing</li>
+<li><strong>Scope:</strong> Detailed carriageway widths, average traffic speeds, and vehicle access restrictions from Ordnance Survey under the Public Sector Geospatial Agreement.</li>
+<li><strong>Variables:</strong> <em>TBC (Pending dataset delivery)</em></li>
+</ul></li>
+<li><strong>Pavements &amp; Footways in OS NGD:</strong>
+<ul>
+<li><strong>Status:</strong> TBC</li>
+<li><strong>Lead / Action:</strong> Project Team / Ordnance Survey</li>
+<li><strong>Scope:</strong> Dedicated pedestrian pavement geometry, effective footway widths, and severance barriers from the OS National Geographic Database.</li>
+<li><strong>Variables:</strong> <em>TBC (Pending dataset delivery)</em></li>
+</ul></li>
+</ul>
+<hr>
+</section>
+<section id="interactive-variable-explorer" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="interactive-variable-explorer"><span class="header-section-number">5</span> Interactive Variable Explorer</h2>
+<p>Search and filter across all variables, types, and descriptions in the complete unified data dictionary:</p>
+<div class="cell">
+<div class="cell-output-display">
+<div class="datatables html-widget html-fill-item" id="htmlwidget-0c57bd22c2fbbb9eb99e" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-0c57bd22c2fbbb9eb99e">{"x":{"filter":"top","vertical":false,"filterHTML":"<tr>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n<\/tr>","data":[["north_south_corridor","north_south_corridor","north_south_corridor","north_south_corridor","north_south_corridor","north_south_corridor","north_south_corridor","north_south_corridor","north_south_corridor","north_south_corridor","north_south_corridor","north_south_corridor","north_south_corridor","custom_gpx","custom_gpx","custom_gpx","custom_gpx","custom_gpx","custom_gpx","custom_gpx","custom_gpx","custom_gpx","openroads","openroads","openroads","openroads","openroads","openroads","openroads","openroads","stats19","stats19","stats19","stats19","stats19","stats19","stats19","stats19","stats19","stats19","stats19","stats19","stats19","osm","osm","osm","osm","osm","osm","osm","osm","osm","osm","ncn","ncn","ncn","ncn","ncn","ncn","ncn","ncn","ncn","ncn","ncn"],["id","name","link_id","section","category","classification","developer","setting","length_km","folder","layer_type","status","remarks","track_name","source_file","case_study","link_prefix","source","feature_type","highway","surface","length_km","id","name_1","road_classification","road_function","form_of_way","road_classification_number","length","possible_haulage_basis","collision_index","collision_year","date","time","collision_severity","number_of_vehicles","number_of_casualties","speed_limit","road_type","light_conditions","weather_conditions","road_surface_conditions","urban_or_rural_area","osm_id","name","highway","cycleway","bicycle","foot","surface","crossing","lit","maxspeed","RouteNo","Desc_","Greenway","RouteType","RouteCat","OpenStatus","Surface","Quality","Lighting","RoadClass","length_km"],["integer","string","string","string","string","string","string","string","numeric","string","string","string","string","string","string","string","string","string","string","string","string","numeric","string","string","string","string","string","string","numeric","string","string","integer","string","string","string","integer","integer","integer","string","string","string","string","string","integer/string","string","string","string","string","string","string","string","string","string","string","string","string","string","string","string","string","string","string","string","numeric"],["Unique identifier for each link or intervention point","Descriptive name of the route link or junction treatment","Standardized corridor link code","Corridor section identifier or regional segment name","Functional route intervention category","Engineering intervention classification","Anticipated delivery organisation or authority","Landscape setting","Length of the segment in kilometres","Thematic group or route cluster","Geometry layer classification","Lifecycle status of the alignment","Contextual rationale, engineering notes, and QA audit details","Name of the client GPX route track","Source .gpx filename from client archive","Designated case study corridor area","Prefix applied to generated link_ids","Data derivation origin for segment","Matched physical infrastructure type","OSM highway tag or proposed footpath upgrade","Pavement surface condition","Length of the segment in kilometres","Unique OS OpenRoads link identifier","Primary gazetted road name","Department for Transport classification","Functional road network hierarchy role","Physical carriageway geometry structure","Official classified route number","Length of the road link","Spatial deduction flag for HS2 haulage overlap","Unique national collision reference number","Year collision occurred","Date of collision","Time of collision","Maximum severity of any casualty involved","Number of motorized and non-motorized vehicles involved","Total casualties resulting from the collision","Posted permanent speed limit at collision site","Road layout at collision location","Natural and artificial illumination state","Atmospheric weather state at collision time","Pavement surface condition","DfT urban/rural classification","Unique OpenStreetMap feature identifier","Gazetted road or path name in OSM","Primary OpenStreetMap highway classification tag","Specific cycling accommodation along highway","Legal access designation for bicycles","Legal access designation for pedestrians","Pavement surface material and condition","Pedestrian / cycle crossing facility type","Presence of dedicated street lighting","Legal speed limit tag","Designated National Cycle Network route number","Traffic separation status indicator","Greenway facility designation flag","Sustrans route facility layout typology","Network hierarchy categorization tier","Network operational status","Surface condition audit","Sustrans network audit quality rating","Presence of route lighting","Highway classification for on-road NCN links","Length of the NCN link in kilometres"],["Project Pipeline","KML / Client Route Plan","Client / Pipeline","KML Section Plan","ATE / Client Schema","Client Specification","Client Dataset","Spatial Analysis","Spatial Calculation (BNG)","KML Hierarchy","Pipeline","Pipeline","Client / Pipeline","Shane Snow (OS Maps)","Project Archive","Project Specification","Pipeline","Pipeline","Pipeline","OSM / Client Track","OSM / Aerial Photography","Spatial Calculation (BNG)","Ordnance Survey","Ordnance Survey","Ordnance Survey","Ordnance Survey","Ordnance Survey","Ordnance Survey","Ordnance Survey","Pipeline Deduction","DfT STATS19","DfT STATS19","DfT STATS19","DfT STATS19","DfT STATS19","DfT STATS19","DfT STATS19","DfT STATS19","DfT STATS19","DfT STATS19","DfT STATS19","DfT STATS19","DfT STATS19","OpenStreetMap","OpenStreetMap","OpenStreetMap","OpenStreetMap","OpenStreetMap","OpenStreetMap","OpenStreetMap","OpenStreetMap","OpenStreetMap","OpenStreetMap","Sustrans","Sustrans","Sustrans","Sustrans","Sustrans","Sustrans","Sustrans","Sustrans","Sustrans","Sustrans","Spatial Calculation (BNG)"],["Positive integer","Text","Text (e.g. '202', 'V2-CH01')","Text (e.g. '1'..'35', 'Northwest', 'South of London')","Categorical","Categorical","Categorical","Categorical ('Rural', 'Urban', 'Suburban')","km (&gt;= 0.0)","Text","Categorical ('active_route', 'hs2_railway', 'point_treatment')","Categorical ('active', 'superseded')","Text","Text","Text","Text","Text (e.g. 'V2-CH', 'V2-AV-CR', 'V2-AV-KM', 'V2-AV-DIR')","Categorical ('gpx_upgrade', 'osm')","Categorical ('off-road', 'road', 'track', 'traffic_free')","Text","Text (e.g. 'asphalt', 'unpaved', 'gravel')","km (&gt;= 0.0)","URN (e.g. 'urn:os:open:roadlink:...')","Text","Categorical ('A Road', 'B Road', 'Classified Unnumbered', 'Unclassified')","Categorical ('Motorway', 'A Road', 'B Road', 'Minor Road', 'Local Road', 'Restricted Local Access Road')","Categorical ('Single Carriageway', 'Dual Carriageway', 'Roundabout', 'Slip Road')","Text (e.g. 'A452', 'B4114', 'M42')","metres","Categorical ('hs2_haulage_collinear', 'none')","Text (13-character string)","YYYY (e.g. 2023)","Date (YYYY-MM-DD)","Time (HH:MM)","Categorical ('Fatal', 'Serious', 'Slight')","Positive integer (&gt;= 1)","Positive integer (&gt;= 1)","mph (20, 30, 40, 50, 60, 70)","Categorical ('Single carriageway', 'Dual carriageway', 'Roundabout', 'One way street')","Categorical ('Daylight', 'Darkness - lights lit', 'Darkness - no lighting')","Categorical ('Fine no high winds', 'Raining', 'Fog or mist', 'Snowing')","Categorical ('Dry', 'Wet or damp', 'Snow', 'Frost or ice')","Categorical ('Urban', 'Rural')","Integer","Text","Categorical ('cycleway', 'path', 'bridleway', 'footway', 'track', 'service', 'unclassified', 'tertiary')","Categorical ('track', 'lane', 'opposite', 'shared_busway', 'no')","Categorical ('yes', 'designated', 'permissive', 'no')","Categorical ('yes', 'designated', 'permissive', 'no')","Categorical ('asphalt', 'paved', 'concrete', 'gravel', 'unpaved', 'compacted')","Categorical ('traffic_signals', 'zebra', 'toucan', 'pegasus', 'uncontrolled')","Categorical ('yes', 'no')","Text (e.g. '30 mph', '20 mph', '60 mph')","Text (e.g. '4', '5', '54', '55', '68')","Categorical ('TrafficFree', 'OnRoad')","Categorical ('Yes', 'No')","Categorical ('Cycleway', 'Shared Use', 'Segregated', 'Road')","Categorical ('Primary', 'Secondary', 'Connecting')","Categorical ('Open', 'Proposed', 'Under Construction')","Categorical ('Sealed', 'Unsealed', 'Mixed')","Categorical ('Good', 'Fair', 'Poor')","Categorical ('Lit', 'Unlit', 'Partial')","Categorical ('A', 'B', 'C', 'U')","km (&gt;= 0.0)"],["Primary key","e.g. 'Link 202', 'Pear Tree Farm Footpath Upgrade'","Prefixed with V2- for client re-alignments","Defines macro corridor stage","e.g. 'Cycleway beside HS2', 'Traffic-free path away from highway', '20mph and traffic calmed or protected cycle lane', 'Old active travel route alignment'","e.g. 'HS2 Haulage', 'New Greenway', 'Upgrade PROW', 'Quiet Lane', 'Local Road Quietway', 'Existing routes', 'Old active travel route alignment'","e.g. 'HS2', 'Local Authority', 'National Trust', 'Sustrans', 'Canals &amp; River Trust', 'DfT'","Derived from ONS settlement boundaries","Computed using EPSG:27700 planar length","e.g. 'HS2 Alignment', 'Averte Verte', 'Cheshire Lanes - Swanley Bypass (v2)', 'Superseded'","Used for frontend styling and filtering","Superseded features preserved for comparison","Detailed audit history","e.g. 'Pear Tree Farm footpath upgrade', 'AV Direct'","Stored in data/gpx/","e.g. 'Cheshire Lanes', 'Cuckmere &amp; Coast', 'Knole &amp; Mote', 'AV Direct'","Ensures unique global namespace","'gpx_upgrade' for new off-road paths; 'osm' for existing highway centreline","Classified via STRtree nearest neighbour matching","e.g. 'unclassified', 'tertiary', 'cycleway', 'bridleway', 'footpath_upgrade'","Recorded from OSM extra tags","Strictly continuous 2D planar length","OS OpenData national road identifier","e.g. 'Swanley Lane', 'A452 Chester Road'","Official UK road hierarchy","Used for filtering cycle suitability","Guides segregation requirements","Blank for unclassified local roads","Metric length in BNG","Identifies local roads designated for HS2 construction logistics","Primary key for road casualties","Annual reporting period","Standard ISO format","24-hour clock","Key road safety performance metric","Measure of multi-vehicle involvement","Direct injury count","High-speed rural lanes correlate with severity","Identifies junction vs link risk","Evaluates unlit rural road risk","Environmental risk modifier","Friction / skid risk factor","Based on settlement population thresholds","Global OSM way ID","e.g. 'Stoneley Green', 'Cuckmere River Path'","Core active travel infrastructure tag","Detailed cycle provision","Legal rights of way","Pedestrian rights of way","Determines cycle ride quality","Critical for severance assessment","Personal security &amp; winter usability","Local speed regulation","National route corridor identifier","Primary safety attribute","Off-road landscape greenway designation","Technical layout","Strategic importance","Identifies future network developments","Physical ridability","Infrastructure maintenance audit","Evening &amp; commuter utility","On-road traffic exposure","Metric planar length"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>dataset_id<\/th>\n      <th>variable_name<\/th>\n      <th>data_type<\/th>\n      <th>description<\/th>\n      <th>source<\/th>\n      <th>allowed_values_or_units<\/th>\n      <th>notes<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":20,"autoWidth":true,"searchHighlight":true,"columnDefs":[{"name":"dataset_id","targets":0},{"name":"variable_name","targets":1},{"name":"data_type","targets":2},{"name":"description","targets":3},{"name":"source","targets":4},{"name":"allowed_values_or_units","targets":5},{"name":"notes","targets":6}],"order":[],"orderClasses":false,"orderCellsTop":true,"lengthMenu":[10,20,25,50,100]}},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+<script src="data_dictionary_files/libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

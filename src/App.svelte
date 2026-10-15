@@ -30,6 +30,7 @@
   let selectedSegment: CyclewaySegmentProperties | null = $state(null);
   let showNcn: boolean = $state(initialUrlState.showNcn);
   let showOpenRoads: boolean = $state(initialUrlState.showOpenRoads);
+  let showStudyArea: boolean = $state(initialUrlState.showStudyArea);
   let urlStateReady: boolean = $state(false);
 
   let mapViewRef: any = $state(null);
@@ -146,7 +147,8 @@
       },
       selectedSegmentKey: selectedSegment?.link_id || (selectedSegment ? String(selectedSegment.id) : null),
       showNcn,
-      showOpenRoads
+      showOpenRoads,
+      showStudyArea
     };
   }
 
@@ -448,6 +450,8 @@
   onToggleNcn={() => showNcn = !showNcn}
   {showOpenRoads}
   onToggleOpenRoads={() => showOpenRoads = !showOpenRoads}
+  {showStudyArea}
+  onToggleStudyArea={() => showStudyArea = !showStudyArea}
 />
 
 <main class="main-viewport">
@@ -485,6 +489,7 @@
     onSelectSegment={(seg) => selectedSegment = seg}
     {showNcn}
     {showOpenRoads}
+    {showStudyArea}
   />
 
   {#if !selectedSegment}
@@ -499,6 +504,8 @@
       onToggleNcn={() => showNcn = !showNcn}
       {showOpenRoads}
       onToggleOpenRoads={() => showOpenRoads = !showOpenRoads}
+      {showStudyArea}
+      onToggleStudyArea={() => showStudyArea = !showStudyArea}
     />
   {/if}
 
