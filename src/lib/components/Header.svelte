@@ -8,6 +8,8 @@
     onToggleNcn: () => void;
     showOpenRoads: boolean;
     onToggleOpenRoads: () => void;
+    showStudyArea?: boolean;
+    onToggleStudyArea?: () => void;
   }
 
   let { 
@@ -18,7 +20,9 @@
     showNcn,
     onToggleNcn,
     showOpenRoads,
-    onToggleOpenRoads
+    onToggleOpenRoads,
+    showStudyArea = false,
+    onToggleStudyArea
   }: Props = $props();
 
   let copyStatus: 'idle' | 'copied' | 'error' = $state('idle');
@@ -100,12 +104,37 @@
       <span>OpenRoads</span>
     </button>
     <button
+      class="studyarea-toggle-btn"
+      class:active={showStudyArea}
+      onclick={onToggleStudyArea}
+      title={showStudyArea ? 'Hide Study Area (5km Corridor Buffer)' : 'Show Study Area (5km Corridor Buffer)'}
+      aria-label="Toggle Study Area layer"
+      aria-pressed={showStudyArea}
+    >
+      <span class="studyarea-indicator"></span>
+      <span>Study Area</span>
+    </button>
+    <a
+      href="./data_dictionary.html"
+      target="_blank"
+      rel="noreferrer"
+      class="doc-link"
+      title="View Machine-Readable Data Dictionary and Metadata Schema"
+    >
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+      </svg>
+      <span>Dictionary</span>
+    </a>
+    <button
       class="share-link"
       class:copied={copyStatus === 'copied'}
       class:error={copyStatus === 'error'}
       onclick={copyLink}
       title={copyStatus === 'error' ? 'Unable to copy link' : 'Copy a link to this view'}
       aria-label="Copy a link to this view"
+      aria-pressed={copyStatus === 'copied'}
     >
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <rect x="9" y="9" width="13" height="13" rx="2"></rect>
@@ -347,6 +376,70 @@
   .openroads-toggle-btn.active .openroads-indicator {
     background: #3b82f6;
     box-shadow: 0 0 6px rgba(59, 130, 246, 0.9);
+  }
+
+  .studyarea-toggle-btn {
+    height: 34px;
+    padding: 0 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text-secondary);
+    font: inherit;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .studyarea-toggle-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-primary);
+  }
+
+  .studyarea-toggle-btn.active {
+    background: rgba(139, 92, 246, 0.18);
+    border-color: rgba(139, 92, 246, 0.6);
+    color: #c4b5fd;
+  }
+
+  .studyarea-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #64748b;
+    transition: all 0.2s ease;
+  }
+
+  .studyarea-toggle-btn.active .studyarea-indicator {
+    background: #a855f7;
+    box-shadow: 0 0 6px rgba(168, 85, 247, 0.9);
+  }
+
+  .doc-link {
+    height: 34px;
+    padding: 0 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text-secondary);
+    font: inherit;
+    font-size: 11px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+
+  .doc-link:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-primary);
+    border-color: rgba(255, 255, 255, 0.2);
   }
 
   .github-link:hover {

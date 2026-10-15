@@ -64,6 +64,8 @@
     ncnPmtilesUrl?: string;
     showOpenRoads: boolean;
     openRoadsPmtilesUrl?: string;
+    showStudyArea?: boolean;
+    studyAreaGeojsonUrl?: string;
   }
 
   let {
@@ -77,7 +79,9 @@
     showNcn = false,
     ncnPmtilesUrl = './data/ncn.pmtiles',
     showOpenRoads,
-    openRoadsPmtilesUrl = './data/openroads.pmtiles'
+    openRoadsPmtilesUrl = './data/openroads.pmtiles',
+    showStudyArea = false,
+    studyAreaGeojsonUrl = './data/study_area.geojson'
   }: Props = $props();
 
   let mapContainer: HTMLDivElement;
@@ -1009,6 +1013,51 @@
       });
 
       // ==========================================
+      // STUDY AREA BOUNDARY LAYER (5km Corridor Buffer)
+      // ==========================================
+      if (!map.getSource('study-area-data')) {
+        map.addSource('study-area-data', {
+          type: 'geojson',
+          data: studyAreaGeojsonUrl
+        });
+
+        map.addLayer({
+          id: 'study-area-fill',
+          type: 'fill',
+          source: 'study-area-data',
+          layout: {
+            'visibility': showStudyArea ? 'visible' : 'none'
+          },
+          paint: {
+            'fill-color': '#8b5cf6',
+            'fill-opacity': 0.08
+          }
+        });
+
+        map.addLayer({
+          id: 'study-area-line',
+          type: 'line',
+          source: 'study-area-data',
+          layout: {
+            'visibility': showStudyArea ? 'visible' : 'none'
+          },
+          paint: {
+            'line-color': '#7c3aed',
+            'line-width': [
+              'interpolate',
+              ['linear'],
+              ['zoom'],
+              6, 1.2,
+              10, 2.0,
+              14, 3.2
+            ],
+            'line-dasharray': [4, 3],
+            'line-opacity': 0.75
+          }
+        });
+      }
+
+      // ==========================================
       // A. MAIN HS2 RAILWAY TRACK LINE (Solid / Dashed Black Track)
       // ==========================================
       map.addLayer({
@@ -1290,6 +1339,18 @@
     setOpenRoadsVisibility();
     if (roadsVisible && map.isStyleLoaded() && !map.getSource(OPENROADS_SOURCE_ID)) {
       loadOpenRoadsSourceAndLayers();
+    }
+  });
+
+  // Watch Study Area visibility reactively
+  $effect(() => {
+    const studyVisible = showStudyArea ? 'visible' : 'none';
+    if (!map || !map.isStyleLoaded()) return;
+    if (map.getLayer('study-area-fill')) {
+      map.setLayoutProperty('study-area-fill', 'visibility', studyVisible);
+    }
+    if (map.getLayer('study-area-line')) {
+      map.setLayoutProperty('study-area-line', 'visibility', studyVisible);
     }
   });
 

@@ -17,6 +17,8 @@
     onToggleNcn: () => void;
     showOpenRoads: boolean;
     onToggleOpenRoads: () => void;
+    showStudyArea?: boolean;
+    onToggleStudyArea?: () => void;
   }
 
   let { 
@@ -29,7 +31,9 @@
     showNcn,
     onToggleNcn,
     showOpenRoads,
-    onToggleOpenRoads
+    onToggleOpenRoads,
+    showStudyArea = false,
+    onToggleStudyArea
   }: Props = $props();
 
   let collapsed: boolean = $state(false);
@@ -163,6 +167,26 @@
           </div>
         </div>
       {/if}
+
+      <div class="legend-divider"></div>
+      <div class="legend-row studyarea-legend-row" class:hidden-layer={!showStudyArea}>
+        <button
+          class="legend-item-btn"
+          onclick={onToggleStudyArea}
+          title={showStudyArea ? 'Hide Study Area' : 'Show RailActive Study Area (5km Corridor Buffer)'}
+          aria-pressed={showStudyArea}
+        >
+          <span class="toggle-box" class:checked={showStudyArea}>
+            {#if showStudyArea}
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            {/if}
+          </span>
+          <span class="color-bar studyarea-color-bar"></span>
+          <span class="item-label font-medium">Study Area (5km)</span>
+        </button>
+      </div>
     </div>
     <div class="legend-footer">
       <span>Click item to toggle layer on/off &bull; Click "only" to isolate</span>
@@ -415,6 +439,11 @@
 
   .openroads-color-bar {
     background: linear-gradient(90deg, #3b82f6, #94a3b8) !important;
+  }
+
+  .studyarea-color-bar {
+    background: #a855f7 !important;
+    border: 1px dashed #c084fc;
   }
 
   .openroads-sublegend {
