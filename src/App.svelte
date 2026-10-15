@@ -103,11 +103,15 @@
       return classification === 'HS2 Delivery' ? 'HS2 Haulage' : classification || 'Existing routes';
     }));
     const sections = new Set(activeFeatures.map(feature => feature.properties.section).filter(Boolean));
-    const legendValues = filters.colorBy === 'developer'
-      ? developers
-      : filters.colorBy === 'category'
-        ? categories
-        : classifications;
+    const legendValues = new Set([
+      ...(filters.colorBy === 'developer'
+        ? developers
+        : filters.colorBy === 'category'
+          ? categories
+          : classifications),
+      'Old active travel route alignment',
+      'Superseded (reference)'
+    ]);
 
     filters = {
       ...filters,
@@ -234,6 +238,13 @@
         if (!matchName && !matchId && !matchRemarks) return false;
       }
       if (filters.hiddenLegendItems && filters.hiddenLegendItems.length > 0) {
+        const isOld = p.category === 'Old active travel route alignment' ||
+          p.classification === 'Old active travel route alignment' ||
+          p.folder === 'Superseded' ||
+          (p as any).status === 'superseded';
+        if (isOld && (filters.hiddenLegendItems.includes('Old active travel route alignment') || filters.hiddenLegendItems.includes('Superseded (reference)'))) {
+          return false;
+        }
         if (filters.colorBy === 'category') {
           if (filters.hiddenLegendItems.includes(p.category || 'Uncategorized')) return false;
         } else if (filters.colorBy === 'developer') {
@@ -351,6 +362,7 @@
       for (const [cls, color] of Object.entries(colors)) {
         let clsKm = 0;
         for (const f of activeNetworkFeatures) {
+          if (f.properties.folder === 'Superseded' || (f.properties as any).status === 'superseded') continue;
           const c = f.properties.classification === 'HS2 Delivery' ? 'HS2 Haulage' : (f.properties.classification || 'Existing routes');
           if (c === cls) clsKm += f.properties.length_km || 0;
         }
@@ -359,6 +371,20 @@
         }
       }
     }
+
+    // Always include superseded links as a reference layer in grey
+    let supersededKm = 0;
+    for (const f of activeNetworkFeatures) {
+      if (f.properties.folder === 'Superseded' ||
+          (f.properties as any).status === 'superseded' ||
+          f.properties.category === 'Old active travel route alignment') {
+        supersededKm += f.properties.length_km || 0;
+      }
+    }
+    if (supersededKm > 0) {
+      items.push({ label: 'Old active travel route alignment', color: '#94a3b8', km: supersededKm });
+    }
+
     return items;
   });
 
