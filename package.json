@@ -8,8 +8,10 @@
     "example": "vite --mode example --host 0.0.0.0 --port 5173",
     "dev:example": "vite --mode example",
     "build": "vite build",
+    "build:all": "quarto render docs && vite build",
     "docs:build": "quarto render docs",
     "docs:preview": "quarto preview docs",
+    "deploy": "npx @azure/static-web-apps-cli deploy ./dist --env production",
     "preview": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.json"
   },
