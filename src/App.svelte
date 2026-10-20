@@ -271,6 +271,7 @@
 
     for (const f of filteredFeatures) {
       const p = f.properties;
+      if (p.folder === 'Superseded' || (p as any).status === 'superseded' || (p as any).status === 'alternative') continue;
       const km = p.length_km || 0;
       totalKm += km;
 

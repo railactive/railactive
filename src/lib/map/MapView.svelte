@@ -383,6 +383,7 @@
         <div class="tooltip-title">${properties.name || `Link ${properties.link_id || properties.id}`}</div>
         <div class="tooltip-meta">
           <span class="badge-sec">${properties.section || 'Corridor'}</span>
+          ${properties.status ? `<span class="badge-sec badge-${properties.status.toLowerCase()}">${properties.status}</span>` : ''}
           <span class="tooltip-len">${length}</span>
         </div>
         <div class="tooltip-cat">${classification}</div>
@@ -464,6 +465,7 @@
         <div class="tooltip-title">${escapeHtml(title)}</div>
         <div class="tooltip-meta">
           <span class="badge-sec">${escapeHtml(folder)}</span>
+          ${properties.status ? `<span class="badge-sec badge-${properties.status.toLowerCase()}">${properties.status}</span>` : ''}
           <span class="tooltip-len">ID: ${properties.id}</span>
         </div>
         <div class="tooltip-cat">${escapeHtml(classification)}</div>
@@ -1480,6 +1482,21 @@
   :global(.tooltip-cat) {
     font-size: 10px;
     color: #cbd5e1;
+  }
+
+  :global(.badge-preferred) {
+    background: rgba(16, 185, 129, 0.25) !important;
+    color: #34d399 !important;
+  }
+
+  :global(.badge-alternative) {
+    background: rgba(245, 158, 11, 0.25) !important;
+    color: #fbbf24 !important;
+  }
+
+  :global(.badge-superseded) {
+    background: rgba(148, 163, 184, 0.25) !important;
+    color: #94a3b8 !important;
   }
 
   :global(.badge-trafficfree) {
