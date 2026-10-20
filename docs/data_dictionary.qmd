@@ -1,0 +1,228 @@
+---
+title: "RailActive Data Dictionary & Dataset Register"
+subtitle: "HS2 Active Travel Opportunity Mapping and Appraisal"
+author: "Prof Robin Lovelace & hs2cycle Team"
+institute: "Institute for Transport Studies, University of Leeds"
+date: "October 2026"
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+## Overview
+
+ 
+
+This document defines the machine-readable data dictionary and datasets register for the **RailActive** project and application.
+
+ 
+
+The register standardizes data structures, variable names, units, and licensing across active datasets (North-South Corridor, custom GPX re-alignments, OS OpenRoads, DfT STATS19 road safety, OpenStreetMap active travel infrastructure, and the National Cycle Network), while tracking dependencies for forthcoming datasets (trip attractors, LCWIPs, OSMRN/PSGA, and OS NGD pavements).
+
+ 
+
+Underlying schemas are version-controlled and available for download:
+
+ 
+
+- [`data/datasets_overview.csv`](data/datasets_overview.csv): High-level dataset catalog and status
+
+- [`data/data_dictionary.csv`](data/data_dictionary.csv): Full variable schema and technical definitions
+
+- [`data/data_dictionary.json`](data/data_dictionary.json): Web-ready JSON format consumed by the frontend
+
+ 
+
+---
+
+## Datasets Overview Register
+
+ 
+
+The table below summarizes all primary datasets evaluated for the RailActive corridor and economic appraisal.
+
+ 
+
+```{r}
+library(readr)
+library(dplyr)
+library(knitr)
+library(DT)
+
+overview <- read_csv("data/datasets_overview.csv", show_col_types = FALSE)
+
+overview_display <- overview |>
+  select(
+    `Dataset ID` = dataset_id,
+    `Dataset Name` = dataset_name,
+    `Status` = status,
+    `Format` = format,
+    `Source Agency` = source_agency,
+    `Licence / Open Status` = open_status,
+    `Coverage` = coverage
+  )
+
+knitr::kable(overview_display, caption = "Table 1: RailActive Dataset Inventory & Current Implementation Status")
+```
+
+ 
+
+---
+
+## Detailed Variable Dictionaries by Dataset
+
+ 
+
+### North-South Active Travel Corridor (v1 / v2)
+
+ 
+
+The central spinal active travel corridor running along the HS2 civil engineering alignment from London through the Midlands to Liverpool and Manchester, incorporating regional arterial links.
+
+ 
+
+```{r}
+dict <- read_csv("data/data_dictionary.csv", show_col_types = FALSE)
+
+corridor_vars <- dict |>
+  filter(dataset_id == "north_south_corridor") |>
+  select(`Variable` = variable_name, `Type` = data_type, `Description` = description, `Values / Units` = allowed_values_or_units, `Notes` = notes)
+
+knitr::kable(corridor_vars, caption = "Table 2: North-South Active Travel Corridor Variable Dictionary")
+```
+
+ 
+
+### Custom Re-alignments (Shane Snow GPX)
+
+ 
+
+Granular re-alignments digitised from client GPX tracks to bypass dangerous road sections (e.g. Swanley Lane rat run, Crawley gyratory) and link into National Trust assets and coastal routes.
+
+ 
+
+```{r}
+gpx_vars <- dict |>
+  filter(dataset_id == "custom_gpx") |>
+  select(`Variable` = variable_name, `Type` = data_type, `Description` = description, `Values / Units` = allowed_values_or_units, `Notes` = notes)
+
+knitr::kable(gpx_vars, caption = "Table 3: Custom Client GPX Re-alignments Variable Dictionary")
+```
+
+ 
+
+### OS OpenRoads (Corridor Network)
+
+ 
+
+Ordnance Survey OpenData highway network used to map road centrelines, evaluate quiet lane connectivity, and identify roads designated for HS2 construction logistics.
+
+ 
+
+```{r}
+openroads_vars <- dict |>
+  filter(dataset_id == "openroads") |>
+  select(`Variable` = variable_name, `Type` = data_type, `Description` = description, `Values / Units` = allowed_values_or_units, `Notes` = notes)
+
+knitr::kable(openroads_vars, caption = "Table 4: OS OpenRoads Variable Dictionary")
+```
+
+ 
+
+### DfT STATS19 Road Safety & Collisions
+
+ 
+
+Official Department for Transport personal injury road collisions spatially filtered within the standardized 5 km RailActive study area buffer to assess baseline traffic danger and economic appraisal safety benefits.
+
+ 
+
+```{r}
+stats19_vars <- dict |>
+  filter(dataset_id == "stats19") |>
+  select(`Variable` = variable_name, `Type` = data_type, `Description` = description, `Values / Units` = allowed_values_or_units, `Notes` = notes)
+
+knitr::kable(stats19_vars, caption = "Table 5: DfT STATS19 Collisions Variable Dictionary")
+```
+
+ 
+
+### OpenStreetMap (OSM) Active Travel Infrastructure
+
+ 
+
+Crowdsourced active travel network extracts providing detailed attributes for off-carriageway cycleways, public bridleways, pedestrian crossings, and surface conditions.
+
+ 
+
+```{r}
+osm_vars <- dict |>
+  filter(dataset_id == "osm") |>
+  select(`Variable` = variable_name, `Type` = data_type, `Description` = description, `Values / Units` = allowed_values_or_units, `Notes` = notes)
+
+knitr::kable(osm_vars, caption = "Table 6: OpenStreetMap Active Travel Infrastructure Variable Dictionary")
+```
+
+ 
+
+### National Cycle Network (NCN)
+
+ 
+
+Authoritative Sustrans National Cycle Network links, route numbers, operational open status, and infrastructure quality audits across the corridor geography.
+
+ 
+
+```{r}
+ncn_vars <- dict |>
+  filter(dataset_id == "ncn") |>
+  select(`Variable` = variable_name, `Type` = data_type, `Description` = description, `Values / Units` = allowed_values_or_units, `Notes` = notes)
+
+knitr::kable(ncn_vars, caption = "Table 7: National Cycle Network (NCN) Variable Dictionary")
+```
+
+ 
+
+---
+
+## Forthcoming & TBC Datasets
+
+ 
+
+The following candidate datasets are currently under scoping or awaiting licensing approval and data delivery:
+
+ 
+
+- **Trip Attractors (Schools & Strategic Developments)**: Primary and secondary schools (Get Information About Schools / GIAS) and allocated residential and commercial sites within the 5 km study area to model first- and last-mile demand.
+
+- **Local Cycling and Walking Infrastructure Plans (LCWIPs)**: Spatial integration of adopted LCWIP networks from local transport authorities intersecting the corridor to ensure proposed HS2 infrastructure acts as a backbone for local feeder networks.
+
+- **OS MasterMap Road Network (OSMRN / PSGA)**: Detailed carriageway widths, average traffic speeds, and vehicle access restrictions from Ordnance Survey under the Public Sector Geospatial Agreement.
+
+- **Pavements & Footways in OS NGD**: Dedicated pedestrian pavement geometry, effective footway widths, and severance barriers from the OS National Geographic Database.
+
+ 
+
+---
+
+## Interactive Variable Explorer
+
+ 
+
+Search and filter across all variables, types, and descriptions in the complete unified data dictionary:
+
+ 
+
+```{r}
+datatable(
+  dict |> filter(variable_name != "TBC"),
+  options = list(
+    pageLength = 20,
+    autoWidth = TRUE,
+    searchHighlight = TRUE
+  ),
+  filter = "top",
+  rownames = FALSE
+)
+```

@@ -1,0 +1,635 @@
+{
+  "title": "RailActive Data Dictionary & Datasets Registry",
+  "version": "2.0.0",
+  "last_updated": "2026-10-20",
+  "datasets": [
+    {
+      "dataset_id": "north_south_corridor",
+      "dataset_name": "North-South Active Travel Corridor (v1/v2)",
+      "status": "Active / QA",
+      "format": "GeoJSON / KML",
+      "source_agency": "Active Travel England / HS2 / John Grimshaw",
+      "open_status": "Open (Project Archive)",
+      "coverage": "London to Birmingham, Stoke, Liverpool, Manchester",
+      "description": "Primary spine of the proposed national cycling and walking corridor along HS2 civil engineering works and regional connections.",
+      "fields": [
+        {
+          "variable_name": "id",
+          "data_type": "integer",
+          "description": "Unique identifier for each link or intervention point",
+          "source": "Project Pipeline",
+          "allowed_values_or_units": "Positive integer",
+          "notes": "Primary key"
+        },
+        {
+          "variable_name": "name",
+          "data_type": "string",
+          "description": "Descriptive name of the route link or junction treatment",
+          "source": "KML / Client Route Plan",
+          "allowed_values_or_units": "Text",
+          "notes": "e.g. 'Link 202', 'Pear Tree Farm Footpath Upgrade'"
+        },
+        {
+          "variable_name": "link_id",
+          "data_type": "string",
+          "description": "Standardized corridor link code",
+          "source": "Client / Pipeline",
+          "allowed_values_or_units": "Text (e.g. '202', 'V2-CH01')",
+          "notes": "Prefixed with V2- for client re-alignments"
+        },
+        {
+          "variable_name": "section",
+          "data_type": "string",
+          "description": "Corridor section identifier or regional segment name",
+          "source": "KML Section Plan",
+          "allowed_values_or_units": "Text (e.g. '1'..'35', 'Northwest', 'South of London')",
+          "notes": "Defines macro corridor stage"
+        },
+        {
+          "variable_name": "category",
+          "data_type": "string",
+          "description": "Functional route intervention category",
+          "source": "ATE / Client Schema",
+          "allowed_values_or_units": "Categorical",
+          "notes": "e.g. 'Cycleway beside HS2', 'Traffic-free path away from highway', '20mph and traffic calmed or protected cycle lane', 'Old active travel route alignment'"
+        },
+        {
+          "variable_name": "classification",
+          "data_type": "string",
+          "description": "Engineering intervention classification",
+          "source": "Client Specification",
+          "allowed_values_or_units": "Categorical",
+          "notes": "e.g. 'HS2 Haulage', 'New Greenway', 'Upgrade PROW', 'Quiet Lane', 'Local Road Quietway', 'Existing routes', 'Old active travel route alignment'"
+        },
+        {
+          "variable_name": "developer",
+          "data_type": "string",
+          "description": "Anticipated delivery organisation or authority",
+          "source": "Client Dataset",
+          "allowed_values_or_units": "Categorical",
+          "notes": "e.g. 'HS2', 'Local Authority', 'National Trust', 'Sustrans', 'Canals & River Trust', 'DfT'"
+        },
+        {
+          "variable_name": "setting",
+          "data_type": "string",
+          "description": "Landscape setting",
+          "source": "Spatial Analysis",
+          "allowed_values_or_units": "Categorical ('Rural', 'Urban', 'Suburban')",
+          "notes": "Derived from ONS settlement boundaries"
+        },
+        {
+          "variable_name": "length_km",
+          "data_type": "numeric",
+          "description": "Length of the segment in kilometres",
+          "source": "Spatial Calculation (BNG)",
+          "allowed_values_or_units": "km (>= 0.0)",
+          "notes": "Computed using EPSG:27700 planar length"
+        },
+        {
+          "variable_name": "folder",
+          "data_type": "string",
+          "description": "Thematic group or route cluster",
+          "source": "KML Hierarchy",
+          "allowed_values_or_units": "Text",
+          "notes": "e.g. 'HS2 Alignment', 'Averte Verte', 'Cheshire Lanes - Swanley Bypass (v2)', 'Superseded'"
+        },
+        {
+          "variable_name": "layer_type",
+          "data_type": "string",
+          "description": "Geometry layer classification",
+          "source": "Pipeline",
+          "allowed_values_or_units": "Categorical ('active_route', 'hs2_railway', 'point_treatment')",
+          "notes": "Used for frontend styling and filtering"
+        },
+        {
+          "variable_name": "status",
+          "data_type": "string",
+          "description": "Lifecycle and appraisal status of the alignment",
+          "source": "Pipeline",
+          "allowed_values_or_units": "Categorical ('preferred', 'alternative', 'superseded')",
+          "notes": "Preferred = primary spine; Alternative = comparative/interim route (e.g. AV Direct, Sevenoaks West); Superseded = decommissioned route"
+        },
+        {
+          "variable_name": "remarks",
+          "data_type": "string",
+          "description": "Contextual rationale, engineering notes, and QA audit details",
+          "source": "Client / Pipeline",
+          "allowed_values_or_units": "Text",
+          "notes": "Detailed audit history"
+        }
+      ]
+    },
+    {
+      "dataset_id": "custom_gpx",
+      "dataset_name": "Custom Re-alignments (Shane Snow GPX)",
+      "status": "Active (Ingested)",
+      "format": "GPX / GeoJSON",
+      "source_agency": "Shane Snow / Ordnance Survey / Project Team",
+      "open_status": "Open (Derived)",
+      "coverage": "Cheshire Lanes, East Sussex Coast, Kent NT, Gatwick Bypass",
+      "description": "Four client-specified GPX alignments matched to OSM and PROW to bypass traffic pinch points and rat runs.",
+      "fields": [
+        {
+          "variable_name": "track_name",
+          "data_type": "string",
+          "description": "Name of the client GPX route track",
+          "source": "Shane Snow (OS Maps)",
+          "allowed_values_or_units": "Text",
+          "notes": "e.g. 'Pear Tree Farm footpath upgrade', 'AV Direct'"
+        },
+        {
+          "variable_name": "source_file",
+          "data_type": "string",
+          "description": "Source .gpx filename from client archive",
+          "source": "Project Archive",
+          "allowed_values_or_units": "Text",
+          "notes": "Stored in data/gpx/"
+        },
+        {
+          "variable_name": "case_study",
+          "data_type": "string",
+          "description": "Designated case study corridor area",
+          "source": "Project Specification",
+          "allowed_values_or_units": "Text",
+          "notes": "e.g. 'Cheshire Lanes', 'Cuckmere & Coast', 'Knole & Mote', 'AV Direct'"
+        },
+        {
+          "variable_name": "link_prefix",
+          "data_type": "string",
+          "description": "Prefix applied to generated link_ids",
+          "source": "Pipeline",
+          "allowed_values_or_units": "Text (e.g. 'V2-CH', 'V2-AV-CR', 'V2-AV-KM', 'V2-AV-DIR')",
+          "notes": "Ensures unique global namespace"
+        },
+        {
+          "variable_name": "source",
+          "data_type": "string",
+          "description": "Data derivation origin for segment",
+          "source": "Pipeline",
+          "allowed_values_or_units": "Categorical ('gpx_upgrade', 'osm')",
+          "notes": "'gpx_upgrade' for new off-road paths; 'osm' for existing highway centreline"
+        },
+        {
+          "variable_name": "feature_type",
+          "data_type": "string",
+          "description": "Matched physical infrastructure type",
+          "source": "Pipeline",
+          "allowed_values_or_units": "Categorical ('off-road', 'road', 'track', 'traffic_free')",
+          "notes": "Classified via STRtree nearest neighbour matching"
+        },
+        {
+          "variable_name": "highway",
+          "data_type": "string",
+          "description": "OSM highway tag or proposed footpath upgrade",
+          "source": "OSM / Client Track",
+          "allowed_values_or_units": "Text",
+          "notes": "e.g. 'unclassified', 'tertiary', 'cycleway', 'bridleway', 'footpath_upgrade'"
+        },
+        {
+          "variable_name": "surface",
+          "data_type": "string",
+          "description": "Pavement surface condition",
+          "source": "OSM / Aerial Photography",
+          "allowed_values_or_units": "Text (e.g. 'asphalt', 'unpaved', 'gravel')",
+          "notes": "Recorded from OSM extra tags"
+        },
+        {
+          "variable_name": "length_km",
+          "data_type": "numeric",
+          "description": "Length of the segment in kilometres",
+          "source": "Spatial Calculation (BNG)",
+          "allowed_values_or_units": "km (>= 0.0)",
+          "notes": "Strictly continuous 2D planar length"
+        }
+      ]
+    },
+    {
+      "dataset_id": "openroads",
+      "dataset_name": "OS OpenRoads (Corridor Network)",
+      "status": "Active (Cached)",
+      "format": "GeoPackage / PMTiles",
+      "source_agency": "Ordnance Survey (OS OpenData)",
+      "open_status": "Open Government Licence (OGL)",
+      "coverage": "10 km buffer of active travel corridor",
+      "description": "Complete open road centrelines used to identify possible HS2 construction haulage routes and quiet cycle connections.",
+      "fields": [
+        {
+          "variable_name": "id",
+          "data_type": "string",
+          "description": "Unique OS OpenRoads link identifier",
+          "source": "Ordnance Survey",
+          "allowed_values_or_units": "URN (e.g. 'urn:os:open:roadlink:...')",
+          "notes": "OS OpenData national road identifier"
+        },
+        {
+          "variable_name": "name_1",
+          "data_type": "string",
+          "description": "Primary gazetted road name",
+          "source": "Ordnance Survey",
+          "allowed_values_or_units": "Text",
+          "notes": "e.g. 'Swanley Lane', 'A452 Chester Road'"
+        },
+        {
+          "variable_name": "road_classification",
+          "data_type": "string",
+          "description": "Department for Transport classification",
+          "source": "Ordnance Survey",
+          "allowed_values_or_units": "Categorical ('A Road', 'B Road', 'Classified Unnumbered', 'Unclassified')",
+          "notes": "Official UK road hierarchy"
+        },
+        {
+          "variable_name": "road_function",
+          "data_type": "string",
+          "description": "Functional road network hierarchy role",
+          "source": "Ordnance Survey",
+          "allowed_values_or_units": "Categorical ('Motorway', 'A Road', 'B Road', 'Minor Road', 'Local Road', 'Restricted Local Access Road')",
+          "notes": "Used for filtering cycle suitability"
+        },
+        {
+          "variable_name": "form_of_way",
+          "data_type": "string",
+          "description": "Physical carriageway geometry structure",
+          "source": "Ordnance Survey",
+          "allowed_values_or_units": "Categorical ('Single Carriageway', 'Dual Carriageway', 'Roundabout', 'Slip Road')",
+          "notes": "Guides segregation requirements"
+        },
+        {
+          "variable_name": "road_classification_number",
+          "data_type": "string",
+          "description": "Official classified route number",
+          "source": "Ordnance Survey",
+          "allowed_values_or_units": "Text (e.g. 'A452', 'B4114', 'M42')",
+          "notes": "Blank for unclassified local roads"
+        },
+        {
+          "variable_name": "length",
+          "data_type": "numeric",
+          "description": "Length of the road link",
+          "source": "Ordnance Survey",
+          "allowed_values_or_units": "metres",
+          "notes": "Metric length in BNG"
+        },
+        {
+          "variable_name": "possible_haulage_basis",
+          "data_type": "string",
+          "description": "Spatial deduction flag for HS2 haulage overlap",
+          "source": "Pipeline Deduction",
+          "allowed_values_or_units": "Categorical ('hs2_haulage_collinear', 'none')",
+          "notes": "Identifies local roads designated for HS2 construction logistics"
+        }
+      ]
+    },
+    {
+      "dataset_id": "stats19",
+      "dataset_name": "DfT STATS19 Road Safety & Collisions",
+      "status": "Active (Live)",
+      "format": "CSV / GeoJSON / GPKG",
+      "source_agency": "Department for Transport (DfT)",
+      "open_status": "Open Government Licence (OGL)",
+      "coverage": "Standardized 5 km study area buffer",
+      "description": "Official records of personal injury road collisions, casualties, and vehicle involvements for risk appraisal and safety interventions.",
+      "fields": [
+        {
+          "variable_name": "collision_index",
+          "data_type": "string",
+          "description": "Unique national collision reference number",
+          "source": "DfT STATS19",
+          "allowed_values_or_units": "Text (13-character string)",
+          "notes": "Primary key for road casualties"
+        },
+        {
+          "variable_name": "collision_year",
+          "data_type": "integer",
+          "description": "Year collision occurred",
+          "source": "DfT STATS19",
+          "allowed_values_or_units": "YYYY (e.g. 2023)",
+          "notes": "Annual reporting period"
+        },
+        {
+          "variable_name": "date",
+          "data_type": "string",
+          "description": "Date of collision",
+          "source": "DfT STATS19",
+          "allowed_values_or_units": "Date (YYYY-MM-DD)",
+          "notes": "Standard ISO format"
+        },
+        {
+          "variable_name": "time",
+          "data_type": "string",
+          "description": "Time of collision",
+          "source": "DfT STATS19",
+          "allowed_values_or_units": "Time (HH:MM)",
+          "notes": "24-hour clock"
+        },
+        {
+          "variable_name": "collision_severity",
+          "data_type": "string",
+          "description": "Maximum severity of any casualty involved",
+          "source": "DfT STATS19",
+          "allowed_values_or_units": "Categorical ('Fatal', 'Serious', 'Slight')",
+          "notes": "Key road safety performance metric"
+        },
+        {
+          "variable_name": "number_of_vehicles",
+          "data_type": "integer",
+          "description": "Number of motorized and non-motorized vehicles involved",
+          "source": "DfT STATS19",
+          "allowed_values_or_units": "Positive integer (>= 1)",
+          "notes": "Measure of multi-vehicle involvement"
+        },
+        {
+          "variable_name": "number_of_casualties",
+          "data_type": "integer",
+          "description": "Total casualties resulting from the collision",
+          "source": "DfT STATS19",
+          "allowed_values_or_units": "Positive integer (>= 1)",
+          "notes": "Direct injury count"
+        },
+        {
+          "variable_name": "speed_limit",
+          "data_type": "integer",
+          "description": "Posted permanent speed limit at collision site",
+          "source": "DfT STATS19",
+          "allowed_values_or_units": "mph (20, 30, 40, 50, 60, 70)",
+          "notes": "High-speed rural lanes correlate with severity"
+        },
+        {
+          "variable_name": "road_type",
+          "data_type": "string",
+          "description": "Road layout at collision location",
+          "source": "DfT STATS19",
+          "allowed_values_or_units": "Categorical ('Single carriageway', 'Dual carriageway', 'Roundabout', 'One way street')",
+          "notes": "Identifies junction vs link risk"
+        },
+        {
+          "variable_name": "light_conditions",
+          "data_type": "string",
+          "description": "Natural and artificial illumination state",
+          "source": "DfT STATS19",
+          "allowed_values_or_units": "Categorical ('Daylight', 'Darkness - lights lit', 'Darkness - no lighting')",
+          "notes": "Evaluates unlit rural road risk"
+        },
+        {
+          "variable_name": "weather_conditions",
+          "data_type": "string",
+          "description": "Atmospheric weather state at collision time",
+          "source": "DfT STATS19",
+          "allowed_values_or_units": "Categorical ('Fine no high winds', 'Raining', 'Fog or mist', 'Snowing')",
+          "notes": "Environmental risk modifier"
+        },
+        {
+          "variable_name": "road_surface_conditions",
+          "data_type": "string",
+          "description": "Pavement surface condition",
+          "source": "DfT STATS19",
+          "allowed_values_or_units": "Categorical ('Dry', 'Wet or damp', 'Snow', 'Frost or ice')",
+          "notes": "Friction / skid risk factor"
+        },
+        {
+          "variable_name": "urban_or_rural_area",
+          "data_type": "string",
+          "description": "DfT urban/rural classification",
+          "source": "DfT STATS19",
+          "allowed_values_or_units": "Categorical ('Urban', 'Rural')",
+          "notes": "Based on settlement population thresholds"
+        }
+      ]
+    },
+    {
+      "dataset_id": "osm",
+      "dataset_name": "OpenStreetMap Active Travel Infrastructure",
+      "status": "Active (Live Extract)",
+      "format": "GeoPackage / PBF",
+      "source_agency": "OpenStreetMap Contributors",
+      "open_status": "ODbL",
+      "coverage": "Corridor county extracts",
+      "description": "Crowdsourced highway network, dedicated cycleways, bridleways, paths, crossings, and surface conditions.",
+      "fields": [
+        {
+          "variable_name": "osm_id",
+          "data_type": "integer/string",
+          "description": "Unique OpenStreetMap feature identifier",
+          "source": "OpenStreetMap",
+          "allowed_values_or_units": "Integer",
+          "notes": "Global OSM way ID"
+        },
+        {
+          "variable_name": "name",
+          "data_type": "string",
+          "description": "Gazetted road or path name in OSM",
+          "source": "OpenStreetMap",
+          "allowed_values_or_units": "Text",
+          "notes": "e.g. 'Stoneley Green', 'Cuckmere River Path'"
+        },
+        {
+          "variable_name": "highway",
+          "data_type": "string",
+          "description": "Primary OpenStreetMap highway classification tag",
+          "source": "OpenStreetMap",
+          "allowed_values_or_units": "Categorical ('cycleway', 'path', 'bridleway', 'footway', 'track', 'service', 'unclassified', 'tertiary')",
+          "notes": "Core active travel infrastructure tag"
+        },
+        {
+          "variable_name": "cycleway",
+          "data_type": "string",
+          "description": "Specific cycling accommodation along highway",
+          "source": "OpenStreetMap",
+          "allowed_values_or_units": "Categorical ('track', 'lane', 'opposite', 'shared_busway', 'no')",
+          "notes": "Detailed cycle provision"
+        },
+        {
+          "variable_name": "bicycle",
+          "data_type": "string",
+          "description": "Legal access designation for bicycles",
+          "source": "OpenStreetMap",
+          "allowed_values_or_units": "Categorical ('yes', 'designated', 'permissive', 'no')",
+          "notes": "Legal rights of way"
+        },
+        {
+          "variable_name": "foot",
+          "data_type": "string",
+          "description": "Legal access designation for pedestrians",
+          "source": "OpenStreetMap",
+          "allowed_values_or_units": "Categorical ('yes', 'designated', 'permissive', 'no')",
+          "notes": "Pedestrian rights of way"
+        },
+        {
+          "variable_name": "surface",
+          "data_type": "string",
+          "description": "Pavement surface material and condition",
+          "source": "OpenStreetMap",
+          "allowed_values_or_units": "Categorical ('asphalt', 'paved', 'concrete', 'gravel', 'unpaved', 'compacted')",
+          "notes": "Determines cycle ride quality"
+        },
+        {
+          "variable_name": "crossing",
+          "data_type": "string",
+          "description": "Pedestrian / cycle crossing facility type",
+          "source": "OpenStreetMap",
+          "allowed_values_or_units": "Categorical ('traffic_signals', 'zebra', 'toucan', 'pegasus', 'uncontrolled')",
+          "notes": "Critical for severance assessment"
+        },
+        {
+          "variable_name": "lit",
+          "data_type": "string",
+          "description": "Presence of dedicated street lighting",
+          "source": "OpenStreetMap",
+          "allowed_values_or_units": "Categorical ('yes', 'no')",
+          "notes": "Personal security & winter usability"
+        },
+        {
+          "variable_name": "maxspeed",
+          "data_type": "string",
+          "description": "Legal speed limit tag",
+          "source": "OpenStreetMap",
+          "allowed_values_or_units": "Text (e.g. '30 mph', '20 mph', '60 mph')",
+          "notes": "Local speed regulation"
+        }
+      ]
+    },
+    {
+      "dataset_id": "ncn",
+      "dataset_name": "National Cycle Network (NCN)",
+      "status": "Active (Ingested)",
+      "format": "GeoPackage / PMTiles",
+      "source_agency": "Sustrans",
+      "open_status": "Open / Sustrans Data Licence",
+      "coverage": "National UK Network",
+      "description": "Official Sustrans National Cycle Network links, route numbers, quality audits, traffic-free designations, and future plans.",
+      "fields": [
+        {
+          "variable_name": "RouteNo",
+          "data_type": "string",
+          "description": "Designated National Cycle Network route number",
+          "source": "Sustrans",
+          "allowed_values_or_units": "Text (e.g. '4', '5', '54', '55', '68')",
+          "notes": "National route corridor identifier"
+        },
+        {
+          "variable_name": "Desc_",
+          "data_type": "string",
+          "description": "Traffic separation status indicator",
+          "source": "Sustrans",
+          "allowed_values_or_units": "Categorical ('TrafficFree', 'OnRoad')",
+          "notes": "Primary safety attribute"
+        },
+        {
+          "variable_name": "Greenway",
+          "data_type": "string",
+          "description": "Greenway facility designation flag",
+          "source": "Sustrans",
+          "allowed_values_or_units": "Categorical ('Yes', 'No')",
+          "notes": "Off-road landscape greenway designation"
+        },
+        {
+          "variable_name": "RouteType",
+          "data_type": "string",
+          "description": "Sustrans route facility layout typology",
+          "source": "Sustrans",
+          "allowed_values_or_units": "Categorical ('Cycleway', 'Shared Use', 'Segregated', 'Road')",
+          "notes": "Technical layout"
+        },
+        {
+          "variable_name": "RouteCat",
+          "data_type": "string",
+          "description": "Network hierarchy categorization tier",
+          "source": "Sustrans",
+          "allowed_values_or_units": "Categorical ('Primary', 'Secondary', 'Connecting')",
+          "notes": "Strategic importance"
+        },
+        {
+          "variable_name": "OpenStatus",
+          "data_type": "string",
+          "description": "Network operational status",
+          "source": "Sustrans",
+          "allowed_values_or_units": "Categorical ('Open', 'Proposed', 'Under Construction')",
+          "notes": "Identifies future network developments"
+        },
+        {
+          "variable_name": "Surface",
+          "data_type": "string",
+          "description": "Surface condition audit",
+          "source": "Sustrans",
+          "allowed_values_or_units": "Categorical ('Sealed', 'Unsealed', 'Mixed')",
+          "notes": "Physical ridability"
+        },
+        {
+          "variable_name": "Quality",
+          "data_type": "string",
+          "description": "Sustrans network audit quality rating",
+          "source": "Sustrans",
+          "allowed_values_or_units": "Categorical ('Good', 'Fair', 'Poor')",
+          "notes": "Infrastructure maintenance audit"
+        },
+        {
+          "variable_name": "Lighting",
+          "data_type": "string",
+          "description": "Presence of route lighting",
+          "source": "Sustrans",
+          "allowed_values_or_units": "Categorical ('Lit', 'Unlit', 'Partial')",
+          "notes": "Evening & commuter utility"
+        },
+        {
+          "variable_name": "RoadClass",
+          "data_type": "string",
+          "description": "Highway classification for on-road NCN links",
+          "source": "Sustrans",
+          "allowed_values_or_units": "Categorical ('A', 'B', 'C', 'U')",
+          "notes": "On-road traffic exposure"
+        },
+        {
+          "variable_name": "length_km",
+          "data_type": "numeric",
+          "description": "Length of the NCN link in kilometres",
+          "source": "Spatial Calculation (BNG)",
+          "allowed_values_or_units": "km (>= 0.0)",
+          "notes": "Metric planar length"
+        }
+      ]
+    },
+    {
+      "dataset_id": "trip_attractors",
+      "dataset_name": "Trip Attractors (Schools & New Developments)",
+      "status": "TBC",
+      "format": "TBC",
+      "source_agency": "DfT / DfE / Local Planning Authorities",
+      "open_status": "TBC",
+      "coverage": "Study Area",
+      "description": "Key destinations including schools, transport hubs, and major strategic development allocations (pending from Tim).",
+      "fields": "TBC"
+    },
+    {
+      "dataset_id": "lcwip",
+      "dataset_name": "Local Cycling and Walking Infrastructure Plans (LCWIP)",
+      "status": "TBC",
+      "format": "TBC",
+      "source_agency": "Active Travel England (ATE) / Local Authorities",
+      "open_status": "TBC",
+      "coverage": "Local Transport Authorities along Corridor",
+      "description": "Local cycling and walking network plans; dataset collation pending from Active Travel England.",
+      "fields": "TBC"
+    },
+    {
+      "dataset_id": "osmrn",
+      "dataset_name": "OS MasterMap Road Network (OSMRN / PSGA)",
+      "status": "TBC",
+      "format": "TBC",
+      "source_agency": "Ordnance Survey (PSGA)",
+      "open_status": "Restricted / PSGA Licence",
+      "coverage": "Corridor Route Buffer",
+      "description": "Authoritative road network geometry containing safety attributes, average speeds, and physical road widths.",
+      "fields": "TBC"
+    },
+    {
+      "dataset_id": "pavements_ngd",
+      "dataset_name": "Pavements & Footways in OS NGD",
+      "status": "TBC",
+      "format": "TBC",
+      "source_agency": "Ordnance Survey (OS NGD)",
+      "open_status": "Restricted / PSGA Licence",
+      "coverage": "Urban Corridor Zones",
+      "description": "Detailed footway, pavement, and path geometry from the new OS National Geographic Database.",
+      "fields": "TBC"
+    }
+  ]
+}

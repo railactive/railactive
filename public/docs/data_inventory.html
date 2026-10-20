@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.43">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Prof Robin Lovelace &amp; hs2cycle Team">
+<meta name="dcterms.date" content="2026-10-01">
+
+<title>Data and Documentation Inventory – RailActive Documentation</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-d4d76bf8491c20bad77d141916dc28e1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-ddd961a2510921635943dfbbd19534c4.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+<link href="site_libs/htmltools-fill-0.5.8.1/fill.css" rel="stylesheet">
+
+<script src="site_libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+
+<link href="site_libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet">
+
+<script src="site_libs/datatables-binding-0.33/datatables.js"></script>
+
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+
+<link href="site_libs/dt-core-1.13.6/css/jquery.dataTables.min.css" rel="stylesheet">
+
+<link href="site_libs/dt-core-1.13.6/css/jquery.dataTables.extra.css" rel="stylesheet">
+
+<script src="site_libs/dt-core-1.13.6/js/jquery.dataTables.min.js"></script>
+
+<link href="site_libs/nouislider-7.0.10/jquery.nouislider.min.css" rel="stylesheet">
+
+<script src="site_libs/nouislider-7.0.10/jquery.nouislider.min.js"></script>
+
+<link href="site_libs/selectize-0.12.0/selectize.bootstrap3.css" rel="stylesheet">
+
+<script src="site_libs/selectize-0.12.0/selectize.min.js"></script>
+
+<link href="site_libs/dt-plugin-searchhighlight-1.13.6/source.css" rel="stylesheet">
+
+<script src="site_libs/dt-plugin-searchhighlight-1.13.6/jquery.highlight.js"></script>
+
+<script src="site_libs/dt-plugin-searchhighlight-1.13.6/source.min.js"></script>
+
+<link href="site_libs/crosstalk-1.2.1/css/crosstalk.min.css" rel="stylesheet">
+
+<script src="site_libs/crosstalk-1.2.1/js/crosstalk.min.js"></script>
+
+
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">RailActive Documentation</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./../"> 
+<span class="menu-text">← Back to Map App</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./index.html"> 
+<span class="menu-text">Overview</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./methods.html"> 
+<span class="menu-text">Methodology</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./data_dictionary.html"> 
+<span class="menu-text">Data Dictionary</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link active" href="./data_inventory.html" aria-current="page"> 
+<span class="menu-text">Data Inventory</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/railactive/railactive"> <i class="bi bi-github" role="img" aria-label="GitHub">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#overview" id="toc-overview" class="nav-link active" data-scroll-target="#overview"><span class="header-section-number">1</span> Overview</a></li>
+  <li><a href="#interactive-asset-register" id="toc-interactive-asset-register" class="nav-link" data-scroll-target="#interactive-asset-register"><span class="header-section-number">2</span> Interactive Asset Register</a></li>
+  <li><a href="#summary-by-category-and-work-package" id="toc-summary-by-category-and-work-package" class="nav-link" data-scroll-target="#summary-by-category-and-work-package"><span class="header-section-number">3</span> Summary by Category and Work Package</a></li>
+  <li><a href="#thematic-cluster-profiles" id="toc-thematic-cluster-profiles" class="nav-link" data-scroll-target="#thematic-cluster-profiles"><span class="header-section-number">4</span> Thematic Cluster Profiles</a>
+  <ul class="collapse">
+  <li><a href="#cluster-1-spatial-network-core-gis-layers-wp2" id="toc-cluster-1-spatial-network-core-gis-layers-wp2" class="nav-link" data-scroll-target="#cluster-1-spatial-network-core-gis-layers-wp2"><span class="header-section-number">4.1</span> Cluster 1: Spatial Network &amp; Core GIS Layers (WP2)</a></li>
+  <li><a href="#cluster-2-john-grimshaw-engineering-feasibility-studies-wp1-wp2" id="toc-cluster-2-john-grimshaw-engineering-feasibility-studies-wp1-wp2" class="nav-link" data-scroll-target="#cluster-2-john-grimshaw-engineering-feasibility-studies-wp1-wp2"><span class="header-section-number">4.2</span> Cluster 2: John Grimshaw Engineering &amp; Feasibility Studies (WP1 / WP2)</a></li>
+  <li><a href="#cluster-3-section-infrastructure-haul-road-retentions-wp2" id="toc-cluster-3-section-infrastructure-haul-road-retentions-wp2" class="nav-link" data-scroll-target="#cluster-3-section-infrastructure-haul-road-retentions-wp2"><span class="header-section-number">4.3</span> Cluster 3: Section Infrastructure &amp; Haul Road Retentions (WP2)</a></li>
+  <li><a href="#cluster-4-economic-appraisal-amat-demand-evidence-wp3" id="toc-cluster-4-economic-appraisal-amat-demand-evidence-wp3" class="nav-link" data-scroll-target="#cluster-4-economic-appraisal-amat-demand-evidence-wp3"><span class="header-section-number">4.4</span> Cluster 4: Economic Appraisal (AMAT) &amp; Demand Evidence (WP3)</a></li>
+  <li><a href="#cluster-5-cost-benchmarks-maintenance-wp3" id="toc-cluster-5-cost-benchmarks-maintenance-wp3" class="nav-link" data-scroll-target="#cluster-5-cost-benchmarks-maintenance-wp3"><span class="header-section-number">4.5</span> Cluster 5: Cost Benchmarks &amp; Maintenance (WP3)</a></li>
+  </ul></li>
+  <li><a href="#data-management-pipeline-ingestion-plan" id="toc-data-management-pipeline-ingestion-plan" class="nav-link" data-scroll-target="#data-management-pipeline-ingestion-plan"><span class="header-section-number">5</span> Data Management &amp; Pipeline Ingestion Plan</a></li>
+  <li><a href="#priority-meeting-discussion-topics" id="toc-priority-meeting-discussion-topics" class="nav-link" data-scroll-target="#priority-meeting-discussion-topics"><span class="header-section-number">6</span> Priority Meeting Discussion Topics</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Data and Documentation Inventory</h1>
+<p class="subtitle lead">HS2 Active Travel Opportunity Mapping and Appraisal</p>
+</div>
+
+
+<div class="quarto-title-meta-author">
+  <div class="quarto-title-meta-heading">Author</div>
+  <div class="quarto-title-meta-heading">Affiliation</div>
+  
+    <div class="quarto-title-meta-contents">
+    <p class="author">Prof Robin Lovelace &amp; hs2cycle Team </p>
+  </div>
+  <div class="quarto-title-meta-contents">
+        <p class="affiliation">
+            Institute for Transport Studies, University of Leeds
+          </p>
+      </div>
+  </div>
+
+<div class="quarto-title-meta">
+
+      
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">October 1, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="overview" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="overview"><span class="header-section-number">1</span> Overview</h2>
+<p>This document catalogs incoming data assets received in the October 2026 project archive (<code>OneDrive_2026-10-05.zip</code>).</p>
+<p>The archive comprises <strong>42 primary assets</strong> (~623 MB uncompressed) plus <strong>3 nested spatial archives</strong> containing over 280 shapefiles and KMZ layers. These assets span strategic policy and benefits reviews, engineering feasibility studies by John Grimshaw CBE, site access road (SAR) retention proposals, public rights of way (PRoW), canals, local cycling plans (LCWIPs), and economic appraisal models using the DfT Active Modes Appraisal Toolkit (AMAT).</p>
+<hr>
+</section>
+<section id="interactive-asset-register" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="interactive-asset-register"><span class="header-section-number">2</span> Interactive Asset Register</h2>
+<p>Use the search bar, sort columns, or paginate through the complete inventory of incoming files below:</p>
+<div class="cell">
+<div class="cell-output-display">
+<div class="datatables html-widget html-fill-item" id="htmlwidget-b54da01bd25a86b62b0c" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-b54da01bd25a86b62b0c">{"x":{"filter":"top","vertical":false,"filterHTML":"<tr>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"number\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"0.022\" data-max=\"309.443\" data-scale=\"3\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n<\/tr>","data":[["COST-01","COST-02","COST-03","APP-01","APP-02","APP-03","APP-04","APP-05","APP-06","APP-07","APP-08","APP-09","APP-10","ENG-01","ENG-02","ENG-03","ENG-04","ENG-05","ENG-06","ENG-07","ENG-08","ENG-09","GIS-01","GIS-02","GIS-03","GIS-04","GIS-05","GIS-06","GIS-07","SEC-01","SEC-02","SEC-03","SEC-04","SEC-05","SEC-06","SEC-07","SEC-08","SEC-09","SEC-10","GOV-01","GOV-02","GOV-03"],["Cost Benchmarks &amp; Maintenance","Cost Benchmarks &amp; Maintenance","Cost Benchmarks &amp; Maintenance","Economic Appraisal &amp; AMAT Modeling","Economic Appraisal &amp; AMAT Modeling","Economic Appraisal &amp; AMAT Modeling","Economic Appraisal &amp; AMAT Modeling","Economic Appraisal &amp; AMAT Modeling","Economic Appraisal &amp; AMAT Modeling","Economic Appraisal &amp; AMAT Modeling","Economic Appraisal &amp; AMAT Modeling","Economic Appraisal &amp; AMAT Modeling","Economic Appraisal &amp; AMAT Modeling","Feasibility &amp; Engineering Studies (John Grimshaw)","Feasibility &amp; Engineering Studies (John Grimshaw)","Feasibility &amp; Engineering Studies (John Grimshaw)","Feasibility &amp; Engineering Studies (John Grimshaw)","Feasibility &amp; Engineering Studies (John Grimshaw)","Feasibility &amp; Engineering Studies (John Grimshaw)","Feasibility &amp; Engineering Studies (John Grimshaw)","Feasibility &amp; Engineering Studies (John Grimshaw)","Feasibility &amp; Engineering Studies (John Grimshaw)","GIS &amp; Corridor Alignments","GIS &amp; Corridor Alignments","GIS &amp; Corridor Alignments","GIS &amp; Corridor Alignments","GIS &amp; Corridor Alignments","GIS &amp; Corridor Alignments","GIS &amp; Corridor Alignments","Section Infrastructure &amp; Greenways","Section Infrastructure &amp; Greenways","Section Infrastructure &amp; Greenways","Section Infrastructure &amp; Greenways","Section Infrastructure &amp; Greenways","Section Infrastructure &amp; Greenways","Section Infrastructure &amp; Greenways","Section Infrastructure &amp; Greenways","Section Infrastructure &amp; Greenways","Section Infrastructure &amp; Greenways","Strategic Governance &amp; Benefits Review","Strategic Governance &amp; Benefits Review","Strategic Governance &amp; Benefits Review"],["WP3 (Cost Modeling)","WP3 (Cost Modeling)","WP3 (Cost Modeling)","WP3 (Economic Appraisal)","WP3 (Economic Appraisal)","WP3 (Economic Appraisal)","WP3 (Economic Appraisal)","WP3 (Economic Appraisal)","WP3 (Economic Appraisal)","WP3 (Economic Appraisal)","WP3 (Economic Appraisal)","WP3 (Economic Appraisal)","WP3 (Economic Appraisal)","WP1 / WP2 (Design &amp; Severance)","WP1 / WP2 (Design &amp; Severance)","WP1 / WP2 (Design &amp; Severance)","WP1 / WP2 (Design &amp; Severance)","WP1 / WP2 (Design &amp; Severance)","WP1 / WP2 (Design &amp; Severance)","WP1 / WP2 (Design &amp; Severance)","WP1 / WP2 (Design &amp; Severance)","WP1 / WP2 (Design &amp; Severance)","WP2 (GIS &amp; Networks)","WP2 (GIS &amp; Networks)","WP2 (GIS &amp; Networks)","WP2 (GIS &amp; Networks)","WP2 (GIS &amp; Networks)","WP2 (GIS &amp; Networks)","WP2 (GIS &amp; Networks)","WP2 (Opportunity Mapping)","WP2 (Opportunity Mapping)","WP2 (Opportunity Mapping)","WP2 (Opportunity Mapping)","WP2 (Opportunity Mapping)","WP2 (Opportunity Mapping)","WP2 (Opportunity Mapping)","WP2 (Opportunity Mapping)","WP2 (Opportunity Mapping)","WP2 (Opportunity Mapping)","WP1 (Strategy &amp; Governance)","WP1 (Strategy &amp; Governance)","WP1 (Strategy &amp; Governance)"],["23105_HS2 Cost Estimate_AllSectionsCombined_Phase 2_RevC (1).xlsx","DfT typical-costings-for-ambitious-cycling-schemes.pdf","Sustrans Maintenance activity cost examples 2024 v2.xlsx","Balsall RC V3.docx","Amersham to Chalfont St Giles Feasibility Note_RevC.pdf","Old Oak Com RC summary.docx","Ladbroke RC sum V3.docx","06019 - HS2 Rural Schemes- Economic Case - May 2023.pdf","AMAT summary slides Feb25.pptx","Cycle Count Examples 23-24 vJune24.xlsx","Examples of dual purposed routes.xlsx","Sustrans-Cycle-Path-Surface-Options-2012 Whole Life Costs.pdf","WormRCsum v3.docx","HS2 17 04 16 BUCKS interface low  res.pdf","HS2 17 04 16  Northants Interfaces low res.pdf","HS2 17 03 07 Intersections Staffordshire low  res.pdf","HS2 17 04 16  Birmingham interfaces A4.pdf","HS2 17 04 16  Solihull interfaces.A4.pdf","HS2 17 04 16 Warwickshire A4 low  res.pdf","HS2-DFT-HW-REP-000-000002 - HS2 cycleway feasibility report.pdf","HS2-DFT-HW-REP-000-000002 - HS2 design notes (all sections).pdf","HS2-DFT-HW-REP-000-000002 - HS2 report appendices.pdf","Copy of North - South Cycleway 2025.kml","GIS file.zip","N-S-Path.qgz","North - South Cycleway 2025 - Copy.kml","North South Path Route Greenways and Cycleroutes July 26.png","North-South Cycleway Alignment.zip","PROWs, LCWIPs etc.zip","Quainton to Calvert Greenway Alignment vApril26.pptx","GC-7960 Scope Schedule - 2025 v3.xlsx","HS2 Ladbroke Section maps and photographs John Grimshaw.pdf","Oxford Canal to Wills Pasture Rd Landscaping&amp;Fencing.pptx","Wormleighton to Southam Greenway Alignment vOct2025 Pages 1-6.pdf","Wormleighton to Southam Greenway Alignment vOct2025 Pages 7-11.pdf","Wormleighton to Southam SAR Alignment Mapped.pptx","Wormleighton to Southam SAR CAR retention and MATs route.pptx","West Mids Arc of Opportunity route vMarch26.pdf","PICD 85 Graphical Representation of the changes to the current design to facilitate a cycle route.pdf","GIS edit - DfT confirmation.pdf","North South Benefits review report v3.docx","Re_ HS2 active travel.msg"],[1.299,1.523,0.048,1.273,8.297000000000001,1.029,2.253,1.2,0.8,0.022,0.028,2.031,0.379,6.813,1.624,4.339,4.755,3.779,4.697,14.712,309.443,42.401,4.292,39.913,0.023,4.292,2.366,0.153,78.994,11.005,0.25,3.296,10.453,5.05,5.225,2.179,33.85,6.203,0.832,0.274,1.322,1.526],["Whole Corridor (London - West Mids - North)","Whole Corridor (London - West Mids - North)","Whole Corridor (London - West Mids - North)","Balsall Common (Solihull)","Buckinghamshire / Chilterns","London (Old Oak Common)","Northamptonshire to Warwickshire","Whole Corridor (London - West Mids - North)","Whole Corridor (London - West Mids - North)","Whole Corridor (London - West Mids - North)","Whole Corridor (London - West Mids - North)","Whole Corridor (London - West Mids - North)","Whole Corridor (London - West Mids - North)","Buckinghamshire / Chilterns","Northamptonshire to Warwickshire","Staffordshire","West Midlands / Solihull / Birmingham","West Midlands / Solihull / Birmingham","Whole Corridor (London - West Mids - North)","Whole Corridor (London - West Mids - North)","Whole Corridor (London - West Mids - North)","Whole Corridor (London - West Mids - North)","Whole Corridor (London - West Mids - North)","Whole Corridor (London - West Mids - North)","Whole Corridor (London - West Mids - North)","Whole Corridor (London - West Mids - North)","Whole Corridor (London - West Mids - North)","Whole Corridor (London - West Mids - North)","Whole Corridor (London - West Mids - North)","Buckinghamshire / Chilterns","Northamptonshire to Warwickshire","Northamptonshire to Warwickshire","Northamptonshire to Warwickshire","Northamptonshire to Warwickshire","Northamptonshire to Warwickshire","Northamptonshire to Warwickshire","Northamptonshire to Warwickshire","West Midlands / Solihull / Birmingham","Whole Corridor (London - West Mids - North)","Whole Corridor (London - West Mids - North)","Whole Corridor (London - West Mids - North)","Whole Corridor (London - West Mids - North)"],["Extract parameters for AMAT / Cost Models","Baseline evidence &amp; design standard review","Extract parameters for AMAT / Cost Models","Baseline evidence &amp; design standard review","Baseline evidence &amp; design standard review","Baseline evidence &amp; design standard review","Baseline evidence &amp; design standard review","Extract parameters for AMAT / Cost Models","Extract parameters for AMAT / Cost Models","Extract parameters for AMAT / Cost Models","Baseline evidence &amp; design standard review","Extract parameters for AMAT / Cost Models","Baseline evidence &amp; design standard review","Baseline evidence &amp; design standard review","Baseline evidence &amp; design standard review","Baseline evidence &amp; design standard review","Baseline evidence &amp; design standard review","Baseline evidence &amp; design standard review","Baseline evidence &amp; design standard review","Baseline evidence &amp; design standard review","Baseline evidence &amp; design standard review","Baseline evidence &amp; design standard review","Ingest to targets pipeline / GeoPackage / PMTiles","Ingest to targets pipeline / GeoPackage / PMTiles","Import layer styling into QGIS / MapLibre stylesheet","Baseline evidence &amp; design standard review","Baseline evidence &amp; design standard review","Ingest to targets pipeline / GeoPackage / PMTiles","Ingest to targets pipeline / GeoPackage / PMTiles","Digitize haul road / SAR retention candidates","Baseline evidence &amp; design standard review","Baseline evidence &amp; design standard review","Baseline evidence &amp; design standard review","Digitize haul road / SAR retention candidates","Digitize haul road / SAR retention candidates","Digitize haul road / SAR retention candidates","Digitize haul road / SAR retention candidates","Baseline evidence &amp; design standard review","Digitize haul road / SAR retention candidates","Baseline evidence &amp; design standard review","Baseline evidence &amp; design standard review","Baseline evidence &amp; design standard review"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>ID<\/th>\n      <th>Category<\/th>\n      <th>Work Package<\/th>\n      <th>File Name<\/th>\n      <th>Size (MB)<\/th>\n      <th>Geography<\/th>\n      <th>Pipeline Action<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":15,"autoWidth":true,"searchHighlight":true,"dom":"Bfrtip","columnDefs":[{"className":"dt-right","targets":4},{"name":"ID","targets":0},{"name":"Category","targets":1},{"name":"Work Package","targets":2},{"name":"File Name","targets":3},{"name":"Size (MB)","targets":4},{"name":"Geography","targets":5},{"name":"Pipeline Action","targets":6}],"order":[],"orderClasses":false,"orderCellsTop":true,"lengthMenu":[10,15,25,50,100]}},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+<hr>
+</section>
+<section id="summary-by-category-and-work-package" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="summary-by-category-and-work-package"><span class="header-section-number">3</span> Summary by Category and Work Package</h2>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Summary of Incoming Datasets by Thematic Cluster</caption>
+<colgroup>
+<col style="width: 46%">
+<col style="width: 28%">
+<col style="width: 10%">
+<col style="width: 14%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Category</th>
+<th style="text-align: left;">Work Package</th>
+<th style="text-align: right;">File Count</th>
+<th style="text-align: right;">Total Size (MB)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Feasibility &amp; Engineering Studies (John Grimshaw)</td>
+<td style="text-align: left;">WP1 / WP2 (Design &amp; Severance)</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">392.56</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">GIS &amp; Corridor Alignments</td>
+<td style="text-align: left;">WP2 (GIS &amp; Networks)</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">130.03</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Section Infrastructure &amp; Greenways</td>
+<td style="text-align: left;">WP2 (Opportunity Mapping)</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">78.34</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Economic Appraisal &amp; AMAT Modeling</td>
+<td style="text-align: left;">WP3 (Economic Appraisal)</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">17.31</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Strategic Governance &amp; Benefits Review</td>
+<td style="text-align: left;">WP1 (Strategy &amp; Governance)</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">3.12</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Cost Benchmarks &amp; Maintenance</td>
+<td style="text-align: left;">WP3 (Cost Modeling)</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">2.87</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<hr>
+</section>
+<section id="thematic-cluster-profiles" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="thematic-cluster-profiles"><span class="header-section-number">4</span> Thematic Cluster Profiles</h2>
+<section id="cluster-1-spatial-network-core-gis-layers-wp2" class="level3" data-number="4.1">
+<h3 data-number="4.1" class="anchored" data-anchor-id="cluster-1-spatial-network-core-gis-layers-wp2"><span class="header-section-number">4.1</span> Cluster 1: Spatial Network &amp; Core GIS Layers (WP2)</h3>
+<ul>
+<li><p><strong>Corridor Alignments</strong>: Official shapefiles and KML representations of the North-South active travel corridor across Phase 1, Phase 2a, and regional feeder branches.</p></li>
+<li><p><strong>Public Rights of Way &amp; Local Networks</strong>: Over 280 spatial layers spanning definitive PRoW maps (Buckinghamshire, Northamptonshire, Staffordshire, Warwickshire), Canal &amp; River Trust (CRT) waterways, Crewe and Warwickshire LCWIP priority networks, and the TfWM Starley Network.</p></li>
+</ul>
+</section>
+<section id="cluster-2-john-grimshaw-engineering-feasibility-studies-wp1-wp2" class="level3" data-number="4.2">
+<h3 data-number="4.2" class="anchored" data-anchor-id="cluster-2-john-grimshaw-engineering-feasibility-studies-wp1-wp2"><span class="header-section-number">4.2</span> Cluster 2: John Grimshaw Engineering &amp; Feasibility Studies (WP1 / WP2)</h3>
+<ul>
+<li><p><strong>All-Sections Design Notes (<code>HS2-DFT-HW-REP-000-000002</code>, 309.4 MB)</strong>: Detailed engineering notes documenting civil works interfaces along Phase 1 and Phase 2a, identifying overbridges, underpasses, trace crossings, and potential greenway alignments.</p></li>
+<li><p><strong>HS2 Cycleway Feasibility Report (<code>HS2-DFT-HW-REP-000-000002</code>, 14.7 MB)</strong>: Baseline feasibility study establishing how a continuous national cycling and walking corridor can be achieved alongside railway civil engineering works.</p></li>
+<li><p><strong>County-Level Interface Studies</strong>: Granular interface assessments for Buckinghamshire, Northamptonshire, Warwickshire, Solihull, Birmingham, and Staffordshire.</p></li>
+</ul>
+</section>
+<section id="cluster-3-section-infrastructure-haul-road-retentions-wp2" class="level3" data-number="4.3">
+<h3 data-number="4.3" class="anchored" data-anchor-id="cluster-3-section-infrastructure-haul-road-retentions-wp2"><span class="header-section-number">4.3</span> Cluster 3: Section Infrastructure &amp; Haul Road Retentions (WP2)</h3>
+<ul>
+<li><p><strong>Wormleighton to Southam (Northamptonshire to Warwickshire)</strong>: Specific engineering proposals to retain Site Access Roads (SAR), Construction Access Roads (CAR), and Maintenance Access Tracks (MAT) as permanent active travel infrastructure rather than removing them post-construction.</p></li>
+<li><p><strong>Buckinghamshire</strong>: Quainton to Calvert greenway alignment integrating with East West Rail (EWR) corridor connections.</p></li>
+<li><p><strong>West Midlands / Solihull</strong>: Engineering drawings and regional network integration connecting Birmingham Curzon Street, Birmingham Interchange, and Coventry.</p></li>
+</ul>
+</section>
+<section id="cluster-4-economic-appraisal-amat-demand-evidence-wp3" class="level3" data-number="4.4">
+<h3 data-number="4.4" class="anchored" data-anchor-id="cluster-4-economic-appraisal-amat-demand-evidence-wp3"><span class="header-section-number">4.4</span> Cluster 4: Economic Appraisal (AMAT) &amp; Demand Evidence (WP3)</h3>
+<ul>
+<li><p><strong>Rural Schemes Economic Case Benchmark</strong>: Peer-reviewed strategic business cases establishing baseline benefit-cost ratios (BCRs) and monetised health/decongestion benefits for rural active travel schemes.</p></li>
+<li><p><strong>Route Case (RC) Summaries</strong>: Granular scheme appraisal notes for key corridor sections: Balsall Common, Ladbroke, Old Oak Common, Wormleighton, and Amersham to Chalfont St Giles.</p></li>
+<li><p><strong>Empirical Baseline Count Data</strong>: Automatic counter counts from comparable greenway schemes to calibrate AMAT induced trip forecasts.</p></li>
+</ul>
+</section>
+<section id="cluster-5-cost-benchmarks-maintenance-wp3" class="level3" data-number="4.5">
+<h3 data-number="4.5" class="anchored" data-anchor-id="cluster-5-cost-benchmarks-maintenance-wp3"><span class="header-section-number">4.5</span> Cluster 5: Cost Benchmarks &amp; Maintenance (WP3)</h3>
+<ul>
+<li><p><strong>All-Sections Combined Cost Estimate (<code>23105_HS2 Cost Estimate RevC.xlsx</code>, 1.3 MB)</strong>: Detailed itemized bill of quantities across all route sections, providing civil engineering, surfacing, drainage, structure, and fencing unit costs.</p></li>
+<li><p><strong>DfT Typical Costings Guide</strong>: DfT standard per-kilometer cost benchmarks for ambitious cycling schemes.</p></li>
+<li><p><strong>Sustrans Maintenance &amp; Whole-Life Unit Costs</strong>: Annual operating and maintenance expenditure benchmarks (£/km/year) and 20-/30-year whole-life replacement cost models across surfacing options.</p></li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="data-management-pipeline-ingestion-plan" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="data-management-pipeline-ingestion-plan"><span class="header-section-number">5</span> Data Management &amp; Pipeline Ingestion Plan</h2>
+<pre class="mermaid"><code>flowchart TD
+    Archive["Incoming Assets (623 MB)"] --&gt; Extract["Automated Extraction &amp; Verification"]
+    
+    Extract --&gt; S1["Spatial Layers (Corridor, PRoW, LCWIP)"]
+    Extract --&gt; S2["Engineering Notes &amp; Haul Roads"]
+    Extract --&gt; S3["AMAT Models &amp; Route Cases"]
+    Extract --&gt; S4["Costing Benchmarks &amp; Quantities"]
+    
+    S1 --&gt; Targets["targets Pipeline"]
+    S2 --&gt; Targets
+    S3 --&gt; Targets
+    S4 --&gt; Targets
+    
+    Targets --&gt; Artifacts["Analytical Deliverables"]
+    Artifacts --&gt; PMT["PMTiles Vector Tiles"]
+    Artifacts --&gt; DUCK["DuckDB / GeoParquet"]
+    Artifacts --&gt; APP["Interactive Svelte 5 Web Map"]
+    Artifacts --&gt; BCR["AMAT Appraisal Reports"]</code></pre>
+<hr>
+</section>
+<section id="priority-meeting-discussion-topics" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="priority-meeting-discussion-topics"><span class="header-section-number">6</span> Priority Meeting Discussion Topics</h2>
+<p>For upcoming stakeholder and team meetings, the following priority agenda items are highlighted:</p>
+<ul>
+<li><p><strong>1. Haul Road / SAR Retention Window</strong>: Engage HS2 Ltd and main works civils contractors (MWCC) regarding contractor handover timetables for Site Access Roads in Warwickshire and Buckinghamshire before compound demobilization.</p></li>
+<li><p><strong>2. Alignment Harmonization</strong>: Agree on whether the Shapefile (<code>North-South Cycleway Alignment.zip</code>) or the KML (<code>Copy of North - South Cycleway 2025.kml</code>) is adopted as the definitive v2026 centerline for the pipeline and web map.</p></li>
+<li><p><strong>3. AMAT Appraisal Scenarios</strong>: Confirm whether economic appraisal will be reported as a unified whole-route corridor scheme (London to Birmingham) or modular route cases (e.g.&nbsp;Balsall Common, Ladbroke, Quainton-Calvert, Old Oak Common).</p></li>
+<li><p><strong>4. Data Sharing &amp; Licensing Protocol</strong>: Establish which layers can be published openly on the public web map (e.g.&nbsp;PRoW, NCN, LCWIPs, corridor centerline) vs proprietary HS2 contractor drawings that remain internal to the project team.</p></li>
+</ul>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+<script src="site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

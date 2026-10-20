@@ -1,0 +1,86 @@
+---
+title: "RailActive Project Documentation"
+subtitle: "HS2 Multi-Modal Active Travel Corridor Opportunity Mapping & Economic Appraisal"
+author: "Prof Robin Lovelace, Dr John Nellthorp & Project Team"
+institute: "Institute for Transport Studies (ITS), University of Leeds"
+date: "October 2026"
+---
+
+## Project Overview
+
+ 
+
+**RailActive** investigates the potential to repurpose High Speed Two (HS2) construction assets—including haul roads, access tracks, and maintenance strips—into a high-quality, segregated, multi-user active travel spine.
+
+ 
+
+The corridor stretches from London Euston / Old Oak Common through the Colne Valley, Chilterns, and rural Midlands into Birmingham Curzon Street, with wider strategic feeder links extending toward the North West.
+
+ 
+
+Key project aims include:
+
+ 
+
+- **Infrastructure Repurposing**: Identifying where temporary construction access roads and haul tracks can be permanently retained for cycling, walking, and wheeling.
+
+- **Severance Reduction**: Overcoming historical and modern transport barriers (motorways, rail corridors, rivers) to reconnect fragmented rural communities.
+
+- **Empirical Demand Modeling**: Integrating commute, school, and leisure trip generators to estimate uptake.
+
+- **Economic Benefits Appraisal**: Applying the Department for Transport's (DfT) Active Mode Appraisal Toolkit (AMAT) to quantify decongestion, health mortality, workplace absenteeism, and journey ambience benefits.
+
+ 
+
+---
+
+## System Architecture
+
+ 
+
+The RailActive analytical and web mapping platform uses a modern, cloud-native architecture combining R spatial pipelines with a serverless web frontend:
+
+ 
+
+```text
+┌────────────────────────────────────────────────────────┐
+│             Data Ingestion & Spatial Backend           │
+│   R targets Pipeline (sf, dodgr, osmextract) + Python  │
+│   Ingests: OSM, NCN, OS OpenRoads, HS2 Haul Routes,    │
+│            DfT STATS19 Collisions, Census & NTS Data   │
+└──────────────────────────┬─────────────────────────────┘
+                           │
+                           ▼
+┌────────────────────────────────────────────────────────┐
+│                   Analytical Artifacts                 │
+│         • GeoJSON / GeoParquet (spatial features)      │
+│         • DuckDB Database (high-speed SQL queries)     │
+│         • PMTiles (serverless vector map tiles)        │
+└──────────────────────────┬─────────────────────────────┘
+                           │
+                           ▼
+┌────────────────────────────────────────────────────────┐
+│                   Frontend Web Application             │
+│    Svelte 5 (Runes) + MapLibre GL + DuckDB-WASM        │
+│    Fast, client-side SQL querying and interactive map  │
+│    rendering without requiring a live backend server   │
+└────────────────────────────────────────────────────────┘
+```
+
+ 
+
+---
+
+## Documentation Guide
+
+ 
+
+Explore the core technical documentation sections:
+
+ 
+
+- [**Methodology**](methods.qmd): Detailed modeling approaches covering empirical trip purpose weighting (NTS & Active Lives Survey), network connectivity, and AMAT economic valuation.
+
+- [**Data Dictionary**](data_dictionary.qmd): Formal schema and variable definitions for all active datasets (corridor geometries, client GPX tracks, OS OpenRoads, STATS19 safety, OSM, and Sustrans NCN).
+
+- [**Data Inventory**](data_inventory.qmd): Catalog of primary project assets, engineering feasibility studies by John Grimshaw CBE, SAR retention proposals, and spatial archives.

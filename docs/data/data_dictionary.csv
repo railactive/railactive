@@ -1,0 +1,69 @@
+dataset_id,variable_name,data_type,description,source,allowed_values_or_units,notes
+north_south_corridor,id,integer,Unique identifier for each link or intervention point,Project Pipeline,Positive integer,Primary key
+north_south_corridor,name,string,Descriptive name of the route link or junction treatment,KML / Client Route Plan,Text,"e.g. 'Link 202', 'Pear Tree Farm Footpath Upgrade'"
+north_south_corridor,link_id,string,Standardized corridor link code,Client / Pipeline,"Text (e.g. '202', 'V2-CH01')",Prefixed with V2- for client re-alignments
+north_south_corridor,section,string,Corridor section identifier or regional segment name,KML Section Plan,"Text (e.g. '1'..'35', 'Northwest', 'South of London')",Defines macro corridor stage
+north_south_corridor,category,string,Functional route intervention category,ATE / Client Schema,Categorical,"e.g. 'Cycleway beside HS2', 'Traffic-free path away from highway', '20mph and traffic calmed or protected cycle lane', 'Old active travel route alignment'"
+north_south_corridor,classification,string,Engineering intervention classification,Client Specification,Categorical,"e.g. 'HS2 Haulage', 'New Greenway', 'Upgrade PROW', 'Quiet Lane', 'Local Road Quietway', 'Existing routes', 'Old active travel route alignment'"
+north_south_corridor,developer,string,Anticipated delivery organisation or authority,Client Dataset,Categorical,"e.g. 'HS2', 'Local Authority', 'National Trust', 'Sustrans', 'Canals & River Trust', 'DfT'"
+north_south_corridor,setting,string,Landscape setting,Spatial Analysis,"Categorical ('Rural', 'Urban', 'Suburban')",Derived from ONS settlement boundaries
+north_south_corridor,length_km,numeric,Length of the segment in kilometres,Spatial Calculation (BNG),km (>= 0.0),Computed using EPSG:27700 planar length
+north_south_corridor,folder,string,Thematic group or route cluster,KML Hierarchy,Text,"e.g. 'HS2 Alignment', 'Averte Verte', 'Cheshire Lanes - Swanley Bypass (v2)', 'Superseded'"
+north_south_corridor,layer_type,string,Geometry layer classification,Pipeline,"Categorical ('active_route', 'hs2_railway', 'point_treatment')",Used for frontend styling and filtering
+north_south_corridor,status,string,Lifecycle and appraisal status of the alignment,Pipeline,"Categorical ('preferred', 'alternative', 'superseded')","Preferred = primary spine; Alternative = comparative/interim route (e.g. AV Direct, Sevenoaks West); Superseded = decommissioned route"
+north_south_corridor,remarks,string,"Contextual rationale, engineering notes, and QA audit details",Client / Pipeline,Text,Detailed audit history
+custom_gpx,track_name,string,Name of the client GPX route track,Shane Snow (OS Maps),Text,"e.g. 'Pear Tree Farm footpath upgrade', 'AV Direct'"
+custom_gpx,source_file,string,Source .gpx filename from client archive,Project Archive,Text,Stored in data/gpx/
+custom_gpx,case_study,string,Designated case study corridor area,Project Specification,Text,"e.g. 'Cheshire Lanes', 'Cuckmere & Coast', 'Knole & Mote', 'AV Direct'"
+custom_gpx,link_prefix,string,Prefix applied to generated link_ids,Pipeline,"Text (e.g. 'V2-CH', 'V2-AV-CR', 'V2-AV-KM', 'V2-AV-DIR')",Ensures unique global namespace
+custom_gpx,source,string,Data derivation origin for segment,Pipeline,"Categorical ('gpx_upgrade', 'osm')",'gpx_upgrade' for new off-road paths; 'osm' for existing highway centreline
+custom_gpx,feature_type,string,Matched physical infrastructure type,Pipeline,"Categorical ('off-road', 'road', 'track', 'traffic_free')",Classified via STRtree nearest neighbour matching
+custom_gpx,highway,string,OSM highway tag or proposed footpath upgrade,OSM / Client Track,Text,"e.g. 'unclassified', 'tertiary', 'cycleway', 'bridleway', 'footpath_upgrade'"
+custom_gpx,surface,string,Pavement surface condition,OSM / Aerial Photography,"Text (e.g. 'asphalt', 'unpaved', 'gravel')",Recorded from OSM extra tags
+custom_gpx,length_km,numeric,Length of the segment in kilometres,Spatial Calculation (BNG),km (>= 0.0),Strictly continuous 2D planar length
+openroads,id,string,Unique OS OpenRoads link identifier,Ordnance Survey,URN (e.g. 'urn:os:open:roadlink:...'),OS OpenData national road identifier
+openroads,name_1,string,Primary gazetted road name,Ordnance Survey,Text,"e.g. 'Swanley Lane', 'A452 Chester Road'"
+openroads,road_classification,string,Department for Transport classification,Ordnance Survey,"Categorical ('A Road', 'B Road', 'Classified Unnumbered', 'Unclassified')",Official UK road hierarchy
+openroads,road_function,string,Functional road network hierarchy role,Ordnance Survey,"Categorical ('Motorway', 'A Road', 'B Road', 'Minor Road', 'Local Road', 'Restricted Local Access Road')",Used for filtering cycle suitability
+openroads,form_of_way,string,Physical carriageway geometry structure,Ordnance Survey,"Categorical ('Single Carriageway', 'Dual Carriageway', 'Roundabout', 'Slip Road')",Guides segregation requirements
+openroads,road_classification_number,string,Official classified route number,Ordnance Survey,"Text (e.g. 'A452', 'B4114', 'M42')",Blank for unclassified local roads
+openroads,length,numeric,Length of the road link,Ordnance Survey,metres,Metric length in BNG
+openroads,possible_haulage_basis,string,Spatial deduction flag for HS2 haulage overlap,Pipeline Deduction,"Categorical ('hs2_haulage_collinear', 'none')",Identifies local roads designated for HS2 construction logistics
+stats19,collision_index,string,Unique national collision reference number,DfT STATS19,Text (13-character string),Primary key for road casualties
+stats19,collision_year,integer,Year collision occurred,DfT STATS19,YYYY (e.g. 2023),Annual reporting period
+stats19,date,string,Date of collision,DfT STATS19,Date (YYYY-MM-DD),Standard ISO format
+stats19,time,string,Time of collision,DfT STATS19,Time (HH:MM),24-hour clock
+stats19,collision_severity,string,Maximum severity of any casualty involved,DfT STATS19,"Categorical ('Fatal', 'Serious', 'Slight')",Key road safety performance metric
+stats19,number_of_vehicles,integer,Number of motorized and non-motorized vehicles involved,DfT STATS19,Positive integer (>= 1),Measure of multi-vehicle involvement
+stats19,number_of_casualties,integer,Total casualties resulting from the collision,DfT STATS19,Positive integer (>= 1),Direct injury count
+stats19,speed_limit,integer,Posted permanent speed limit at collision site,DfT STATS19,"mph (20, 30, 40, 50, 60, 70)",High-speed rural lanes correlate with severity
+stats19,road_type,string,Road layout at collision location,DfT STATS19,"Categorical ('Single carriageway', 'Dual carriageway', 'Roundabout', 'One way street')",Identifies junction vs link risk
+stats19,light_conditions,string,Natural and artificial illumination state,DfT STATS19,"Categorical ('Daylight', 'Darkness - lights lit', 'Darkness - no lighting')",Evaluates unlit rural road risk
+stats19,weather_conditions,string,Atmospheric weather state at collision time,DfT STATS19,"Categorical ('Fine no high winds', 'Raining', 'Fog or mist', 'Snowing')",Environmental risk modifier
+stats19,road_surface_conditions,string,Pavement surface condition,DfT STATS19,"Categorical ('Dry', 'Wet or damp', 'Snow', 'Frost or ice')",Friction / skid risk factor
+stats19,urban_or_rural_area,string,DfT urban/rural classification,DfT STATS19,"Categorical ('Urban', 'Rural')",Based on settlement population thresholds
+osm,osm_id,integer/string,Unique OpenStreetMap feature identifier,OpenStreetMap,Integer,Global OSM way ID
+osm,name,string,Gazetted road or path name in OSM,OpenStreetMap,Text,"e.g. 'Stoneley Green', 'Cuckmere River Path'"
+osm,highway,string,Primary OpenStreetMap highway classification tag,OpenStreetMap,"Categorical ('cycleway', 'path', 'bridleway', 'footway', 'track', 'service', 'unclassified', 'tertiary')",Core active travel infrastructure tag
+osm,cycleway,string,Specific cycling accommodation along highway,OpenStreetMap,"Categorical ('track', 'lane', 'opposite', 'shared_busway', 'no')",Detailed cycle provision
+osm,bicycle,string,Legal access designation for bicycles,OpenStreetMap,"Categorical ('yes', 'designated', 'permissive', 'no')",Legal rights of way
+osm,foot,string,Legal access designation for pedestrians,OpenStreetMap,"Categorical ('yes', 'designated', 'permissive', 'no')",Pedestrian rights of way
+osm,surface,string,Pavement surface material and condition,OpenStreetMap,"Categorical ('asphalt', 'paved', 'concrete', 'gravel', 'unpaved', 'compacted')",Determines cycle ride quality
+osm,crossing,string,Pedestrian / cycle crossing facility type,OpenStreetMap,"Categorical ('traffic_signals', 'zebra', 'toucan', 'pegasus', 'uncontrolled')",Critical for severance assessment
+osm,lit,string,Presence of dedicated street lighting,OpenStreetMap,"Categorical ('yes', 'no')",Personal security & winter usability
+osm,maxspeed,string,Legal speed limit tag,OpenStreetMap,"Text (e.g. '30 mph', '20 mph', '60 mph')",Local speed regulation
+ncn,RouteNo,string,Designated National Cycle Network route number,Sustrans,"Text (e.g. '4', '5', '54', '55', '68')",National route corridor identifier
+ncn,Desc_,string,Traffic separation status indicator,Sustrans,"Categorical ('TrafficFree', 'OnRoad')",Primary safety attribute
+ncn,Greenway,string,Greenway facility designation flag,Sustrans,"Categorical ('Yes', 'No')",Off-road landscape greenway designation
+ncn,RouteType,string,Sustrans route facility layout typology,Sustrans,"Categorical ('Cycleway', 'Shared Use', 'Segregated', 'Road')",Technical layout
+ncn,RouteCat,string,Network hierarchy categorization tier,Sustrans,"Categorical ('Primary', 'Secondary', 'Connecting')",Strategic importance
+ncn,OpenStatus,string,Network operational status,Sustrans,"Categorical ('Open', 'Proposed', 'Under Construction')",Identifies future network developments
+ncn,Surface,string,Surface condition audit,Sustrans,"Categorical ('Sealed', 'Unsealed', 'Mixed')",Physical ridability
+ncn,Quality,string,Sustrans network audit quality rating,Sustrans,"Categorical ('Good', 'Fair', 'Poor')",Infrastructure maintenance audit
+ncn,Lighting,string,Presence of route lighting,Sustrans,"Categorical ('Lit', 'Unlit', 'Partial')",Evening & commuter utility
+ncn,RoadClass,string,Highway classification for on-road NCN links,Sustrans,"Categorical ('A', 'B', 'C', 'U')",On-road traffic exposure
+ncn,length_km,numeric,Length of the NCN link in kilometres,Spatial Calculation (BNG),km (>= 0.0),Metric planar length
+trip_attractors,TBC,TBC,Dataset specification and attribute table pending delivery from Tim / Local Planning Authorities,DfT / DfE / LPA,TBC,Schools (GIAS) and strategic housing/employment allocations
+lcwip,TBC,TBC,Dataset specification and attribute table pending delivery from Active Travel England (ATE),Active Travel England,TBC,Local Cycling and Walking Infrastructure Plans across route authorities
+osmrn,TBC,TBC,Dataset specification and attribute table pending PSGA licensing verification,Ordnance Survey (PSGA),TBC,"OS MasterMap Road Network safety attributes, average speeds, and carriageway widths"
+pavements_ngd,TBC,TBC,Dataset specification and attribute table pending PSGA licensing verification,Ordnance Survey (OS NGD),TBC,Detailed pavement and pedestrian footway network from OS NGD

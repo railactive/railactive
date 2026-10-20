@@ -1,0 +1,32 @@
+project:
+  type: website
+  output-dir: ../public/docs
+
+website:
+  title: "RailActive Documentation"
+  navbar:
+    left:
+      - text: "← Back to Map App"
+        href: "../"
+      - text: "Overview"
+        href: index.qmd
+      - text: "Methodology"
+        href: methods.qmd
+      - text: "Data Dictionary"
+        href: data_dictionary.qmd
+      - text: "Data Inventory"
+        href: data_inventory.qmd
+    right:
+      - icon: github
+        href: "https://github.com/railactive/railactive"
+        aria-label: GitHub
+
+format:
+  html:
+    theme: cosmo
+    css: styles.css
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    smooth-scroll: true
+    code-fold: true

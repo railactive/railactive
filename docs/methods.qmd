@@ -1,0 +1,146 @@
+---
+title: "Appraisal & Spatial Modeling Methodology"
+subtitle: "Travel Demand Estimation, Empirical Purpose Weighting, and AMAT Economic Valuation"
+author: "Prof Robin Lovelace & hs2cycle Team"
+institute: "Institute for Transport Studies, University of Leeds"
+date: "October 2026"
+---
+
+## Methodological Framework
+
+ 
+
+The RailActive appraisal framework integrates spatial network analysis with empirical demand modeling and the UK Department for Transport's (DfT) **Active Mode Appraisal Toolkit (AMAT)** to evaluate the economic, health, and environmental case for corridor interventions.
+
+ 
+
+The workflow comprises three interlinked analytical stages:
+
+ 
+
+- **Spatial Network Categorisation**: Ingestion and classification of civil engineering haul roads, access tracks, and intersecting rights of way.
+
+- **Empirical Demand Segmentation**: Calibrating baseline active travel uptake across utility (commuting, education, shopping) and leisure purposes using the National Travel Survey (NTS) and Active Lives Survey (ALS).
+
+- **Multi-Modal Economic Appraisal**: Quantifying 15 appraisal components across health, economy, environment, and capital costs following official TAG guidance.
+
+ 
+
+---
+
+## Travel Demand & Trip Purpose Modeling
+
+ 
+
+Traditional transport appraisal tools frequently focus solely on the commute-to-work (e.g. Census Journey to Work matrices or the Propensity to Cycle Tool). For a national or regional spine route like the HS2 corridor, this introduces a severe undercounting risk.
+
+ 
+
+### Empirical Insights from National Datasets
+
+ 
+
+Analysis of recent microdata from the UK Data Service reveals the true distribution of active travel in England:
+
+ 
+
+- **National Travel Survey (NTS, 2022–2024)**:
+
+  - **Leisure Cycling (39.7%)**: The single largest purpose for cycling, outstripping commuting (29.9%).
+
+  - **Leisure Walking (57.9%)**: Walking for leisure or exercise ("just walk") accounts for 42.5% of walking trips, whereas commuting walking represents only 6.7%.
+
+  - **Trip Distance & Duration**: Leisure cycle trips average **4.20 miles (6.76 km) and 29.9 minutes**, compared to **3.43 miles (5.52 km) and 22.9 minutes** for commuting. Leisure cyclists spend 31% more time per journey exercising.
+
+ 
+
+- **Sport England Active Lives Survey (ALS, Year 9, 2023–2024)**:
+
+  - **Participation**: 31.9% of adults cycle for leisure and sport annually, compared to 11.3% for travel.
+
+  - **Activity Volume**: Leisure accounts for **70.5% of total cycling minutes** and **61.5% of total walking minutes** across the population.
+
+ 
+
+```text
+┌────────────────────────────────────────────────────────┐
+│             Active Mode Demand Composition             │
+├─────────────────────────┬──────────────────────────────┤
+│ Cycling Trips (NTS)     │ 39.7% Leisure | 29.9% Work   │
+│ Cycling Time (ALS)      │ 70.5% Leisure | 29.5% Travel │
+│ Walking Trips (NTS)     │ 57.9% Leisure |  6.7% Work   │
+└─────────────────────────┴──────────────────────────────┘
+```
+
+ 
+
+---
+
+## Economic Benefits Appraisal (DfT AMAT)
+
+ 
+
+Economic benefits are evaluated using a concise, verified base-R implementation of AMAT ([`railactive/amat`](https://github.com/railactive/amat)).
+
+ 
+
+### Appraisal Components
+
+ 
+
+1. **Premature Death Reduction (Health)**:
+
+   - Uses the WHO Health Economic Assessment Tool (HEAT) dose-response curve adapted for TAG:
+
+   $$\text{RR} = \max\left(0.55, \exp\left(\frac{\ln(0.90)}{11.25} \times \text{MET-hours/week}\right)\right)$$
+
+   - Attributable deaths avoided are calculated across 5 age bands for males and females and valued using discounted Years of Life Lost (YLL) at £92,240 per life-year.
+
+ 
+
+2. **Workplace Absenteeism**:
+
+   - Sickness absence reduction (0.25 days per user per year) applied to employed new users, valued at average regional daily labor output (£267.36/day).
+
+ 
+
+3. **Journey Ambience & Quality**:
+
+   - Valued using the **Rule of a Half** for existing users and new switchers:
+
+   $$\text{Benefit} = \left(\text{Trips}_{\text{existing}} + \frac{\text{Trips}_{\text{new}}}{2}\right) \times \Delta\text{Rate} \times \text{Time on Scheme} \times \text{VoT}_{\text{non-work}}$$
+
+   - Upgrading from "No provision" to "Off-road segregated cycle track" yields an amenity improvement of **16.28 pence per minute**.
+
+ 
+
+4. **Decongestion & Environmental Externalities**:
+
+   - Mode-shift from private cars and taxis reduces vehicle-kilometres:
+
+   $$\text{Vehicle-km Reduced} = \text{Trips}_{\text{new}} \times \text{Trip Length} \times \text{Days} \times \left(\frac{\text{Car Divert}}{\text{Car Occupancy}} + \frac{\text{Taxi Divert}}{\text{Taxi Occupancy}}\right)$$
+
+   - Savings are calculated across 7 marginal external cost streams: highway congestion, infrastructure wear, collision risk, local air quality ($PM_{2.5}$, $NO_x$), ambient noise, greenhouse gas emissions ($CO_2e$), and indirect taxation losses.
+
+ 
+
+---
+
+## Golden Benchmark Validation
+
+ 
+
+The economic model is benchmarked against the official DfT worked example (*Clifton Road Active Mode Corridor*, May 2026 TAG release / 2023 prices):
+
+ 
+
+| Metric | Official AMAT Excel | RailActive R Model | Difference |
+| :--- | :--- | :--- | :--- |
+| **Congestion** | £78,506.72 | £78,506.72 | £0.00 |
+| **Accidents** | £8,284.88 | £8,284.88 | £0.00 |
+| **Premature Death** | £645,027.55 | £645,027.55 | £0.00 |
+| **Absenteeism** | £132,675.03 | £132,675.03 | £0.00 |
+| **Journey Ambience** | £739,062.87 | £739,062.87 | £0.00 |
+| **Present Value Benefits (PVB)** | £1,611,403.66 | £1,611,403.66 | £0.00 |
+| **Present Value Costs (PVC)** | £567,361.97 | £567,361.97 | £0.00 |
+| **Benefit-Cost Ratio (BCR)** | **2.840169** | **2.840169** | **0.00** |
