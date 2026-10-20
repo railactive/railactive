@@ -1,7 +1,12 @@
 {
   "navigationFallback": {
     "rewrite": "/index.html",
-    "exclude": ["/assets/*", "/data/*", "/*.{png,jpg,jpeg,gif,svg,ico,json,geojson}"]
+    "exclude": [
+      "/assets/*",
+      "/data/*",
+      "/docs/*",
+      "/*.{png,jpg,jpeg,gif,svg,ico,json,geojson,pmtiles,woff,woff2}"
+    ]
   },
   "globalHeaders": {
     "X-Frame-Options": "DENY",
@@ -9,6 +14,7 @@
   },
   "mimeTypes": {
     ".json": "application/json",
-    ".geojson": "application/geo+json"
+    ".geojson": "application/geo+json",
+    ".pmtiles": "application/octet-stream"
   }
 }
