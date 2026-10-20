@@ -15,6 +15,9 @@
     <div class="detail-header">
       <div class="title-wrap">
         <span class="badge-section">{segment.layer_type === 'intervention' ? 'Intervention' : `Section ${segment.section || 'N/A'}`}</span>
+        {#if segment.status}
+          <span class="badge-status status-{segment.status.toLowerCase()}">{segment.status}</span>
+        {/if}
         <h3>{segment.name || (segment.layer_type === 'intervention' ? `Point #${segment.id}` : `Segment #${segment.id}`)}</h3>
       </div>
       <button class="close-btn" onclick={onClose}>×</button>
@@ -26,6 +29,12 @@
           <span class="attr-label">{segment.layer_type === 'intervention' ? 'Point ID' : 'Link ID'}</span>
           <span class="attr-value font-mono">{segment.link_id || segment.id}</span>
         </div>
+        {#if segment.status}
+          <div class="attr-item">
+            <span class="attr-label">Status</span>
+            <span class="attr-value capitalize">{segment.status}</span>
+          </div>
+        {/if}
         {#if segment.layer_type !== 'intervention'}
           <div class="attr-item">
             <span class="attr-label">Length</span>
@@ -126,6 +135,30 @@
     color: #60a5fa;
     padding: 2px 6px;
     border-radius: 4px;
+  }
+
+  .badge-status {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 4px;
+  }
+
+  .badge-status.status-preferred {
+    background: rgba(16, 185, 129, 0.2);
+    color: #34d399;
+  }
+
+  .badge-status.status-alternative {
+    background: rgba(245, 158, 11, 0.2);
+    color: #fbbf24;
+  }
+
+  .badge-status.status-superseded {
+    background: rgba(148, 163, 184, 0.2);
+    color: #94a3b8;
   }
 
   .close-btn {
