@@ -115,17 +115,17 @@
       <span>Study Area</span>
     </button>
     <a
-      href="./data_dictionary.html"
+      href="./docs/"
       target="_blank"
       rel="noreferrer"
       class="doc-link"
-      title="View Machine-Readable Data Dictionary and Metadata Schema"
+      title="View Project Documentation, Methodology, and Data Dictionary"
     >
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
         <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
       </svg>
-      <span>Dictionary</span>
+      <span>Docs</span>
     </a>
     <button
       class="share-link"

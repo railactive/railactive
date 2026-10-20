@@ -12,6 +12,7 @@ node_modules/
 dist/
 dist-ssr/
 *.local
+.quarto/
 
 # Data files (strictly excluded from git - except minimal example dataset)
 public/data/*
@@ -24,6 +25,7 @@ public/data/*
 !public/data/openroads.pmtiles
 !public/data/ncn.pmtiles
 *.csv
+!docs/data/*.csv
 *.tsv
 *.xlsx
 *.zip

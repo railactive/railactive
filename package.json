@@ -8,6 +8,8 @@
     "example": "vite --mode example --host 0.0.0.0 --port 5173",
     "dev:example": "vite --mode example",
     "build": "vite build",
+    "docs:build": "quarto render docs",
+    "docs:preview": "quarto preview docs",
     "preview": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.json"
   },
