@@ -96,6 +96,9 @@
     const activeFeatures = rawData.features.filter(feature =>
       feature.properties.layer_type !== 'hs2_railway'
       && feature.properties.layer_type !== 'intervention'
+      && feature.properties.folder !== 'Superseded'
+      && feature.properties.status !== 'superseded'
+      && feature.properties.category !== 'Old active travel route alignment'
     );
     const developers = new Set(activeFeatures.map(feature => feature.properties.developer).filter(Boolean));
     const categories = new Set(activeFeatures.map(feature => feature.properties.category).filter(Boolean));
@@ -109,9 +112,7 @@
         ? developers
         : filters.colorBy === 'category'
           ? categories
-          : classifications),
-      'Old active travel route alignment',
-      'Superseded (reference)'
+          : classifications)
     ]);
 
     filters = {
@@ -120,6 +121,7 @@
       category: categories.has(filters.category) ? filters.category : '',
       classification: classifications.has(filters.classification) ? filters.classification : '',
       section: sections.has(filters.section) ? filters.section : '',
+      status: ['preferred', 'alternative'].includes(filters.status) ? filters.status : '',
       hiddenLegendItems: filters.hiddenLegendItems.filter(item => legendValues.has(item))
     };
   }
@@ -141,6 +143,7 @@
         category: filters.category,
         classification: filters.classification,
         section: filters.section,
+        status: filters.status,
         searchTerm: filters.searchTerm,
         colorBy: filters.colorBy,
         hiddenLegendItems: [...filters.hiddenLegendItems]
@@ -174,10 +177,16 @@
     return () => clearTimeout(timer);
   });
 
-  // Separate active travel routes from the underlying railway line
+  // Separate active travel routes from the underlying railway line and hide Superseded alignments
   let activeNetworkFeatures = $derived.by(() => {
     if (!rawData) return [];
-    return rawData.features.filter(f => f.properties.layer_type !== 'hs2_railway' && f.properties.layer_type !== 'intervention');
+    return rawData.features.filter(f =>
+      f.properties.layer_type !== 'hs2_railway'
+      && f.properties.layer_type !== 'intervention'
+      && f.properties.folder !== 'Superseded'
+      && f.properties.status !== 'superseded'
+      && f.properties.category !== 'Old active travel route alignment'
+    );
   });
 
   // Extract unique filter lists
@@ -232,6 +241,7 @@
         if (pCls !== filters.classification) return false;
       }
       if (filters.section && p.section !== filters.section) return false;
+      if (filters.status && (p.status || 'preferred') !== filters.status) return false;
       if (filters.searchTerm) {
         const term = filters.searchTerm.toLowerCase();
         const matchName = p.name && p.name.toLowerCase().includes(term);
@@ -271,7 +281,8 @@
 
     for (const f of filteredFeatures) {
       const p = f.properties;
-      if (p.folder === 'Superseded' || (p as any).status === 'superseded' || (p as any).status === 'alternative') continue;
+      if (p.folder === 'Superseded' || (p as any).status === 'superseded') continue;
+      if (filters.status !== 'alternative' && (p as any).status === 'alternative') continue;
       const km = p.length_km || 0;
       totalKm += km;
 
@@ -375,19 +386,6 @@
       }
     }
 
-    // Always include superseded links as a reference layer in grey
-    let supersededKm = 0;
-    for (const f of activeNetworkFeatures) {
-      if (f.properties.folder === 'Superseded' ||
-          (f.properties as any).status === 'superseded' ||
-          f.properties.category === 'Old active travel route alignment') {
-        supersededKm += f.properties.length_km || 0;
-      }
-    }
-    if (supersededKm > 0) {
-      items.push({ label: 'Old active travel route alignment', color: '#94a3b8', km: supersededKm });
-    }
-
     return items;
   });
 
@@ -418,6 +416,7 @@
       category: '',
       classification: '',
       section: '',
+      status: '',
       searchTerm: '',
       colorBy: 'classification',
       hiddenLegendItems: []

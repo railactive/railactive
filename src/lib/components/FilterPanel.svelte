@@ -48,6 +48,16 @@
     </select>
   </div>
 
+  <!-- Route Status Filter -->
+  <div class="form-group">
+    <label for="status-select">Alignment Status</label>
+    <select id="status-select" bind:value={filters.status}>
+      <option value="">All Active (Preferred & Alternative)</option>
+      <option value="preferred">Preferred Spine Only</option>
+      <option value="alternative">Alternative Alignments Only</option>
+    </select>
+  </div>
+
   <!-- Category Filter -->
   <div class="form-group">
     <label for="category-select">Route Category</label>

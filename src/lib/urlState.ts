@@ -10,6 +10,7 @@ const MANAGED_PARAMS = [
   'category',
   'classification',
   'section',
+  'status',
   'q',
   'color',
   'hide',
@@ -49,6 +50,7 @@ export function readUrlState(url: URL): AppUrlState {
       category: getLimitedParam(params, 'category'),
       classification: getLimitedParam(params, 'classification'),
       section: getLimitedParam(params, 'section', 50),
+      status: getLimitedParam(params, 'status', 50),
       searchTerm: getLimitedParam(params, 'q'),
       colorBy: COLOR_BY_VALUES.includes(requestedColorBy as FilterState['colorBy'])
         ? requestedColorBy as FilterState['colorBy']
@@ -77,6 +79,7 @@ export function writeUrlState(url: URL, state: AppUrlState): string {
   if (state.filters.category) nextUrl.searchParams.set('category', state.filters.category);
   if (state.filters.classification) nextUrl.searchParams.set('classification', state.filters.classification);
   if (state.filters.section) nextUrl.searchParams.set('section', state.filters.section);
+  if (state.filters.status) nextUrl.searchParams.set('status', state.filters.status);
   if (state.filters.searchTerm) nextUrl.searchParams.set('q', state.filters.searchTerm);
   if (state.filters.colorBy !== 'classification') nextUrl.searchParams.set('color', state.filters.colorBy);
   for (const item of state.filters.hiddenLegendItems) {
