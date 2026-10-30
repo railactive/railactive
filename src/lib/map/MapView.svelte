@@ -250,7 +250,7 @@
       expressions.push(['==', ['coalesce', ['get', 'category'], ''], f.category]);
     }
     if (f.classification) {
-      const cls = f.classification === 'HS2 Haulage' ? ['HS2 Haulage', 'HS2 Delivery'] : [f.classification];
+      const cls = classificationSynonyms(f.classification);
       expressions.push(['in', ['coalesce', ['get', 'classification'], ''], ['literal', cls]]);
     }
     if (f.section) {
@@ -299,9 +299,7 @@
     const length = properties.length_km ? `${Number(properties.length_km).toFixed(2)} km` : '';
     const classification = superseded
       ? 'Old active travel route alignment'
-      : properties.classification === 'HS2 Delivery'
-        ? 'HS2 Haulage'
-        : properties.classification || properties.category || 'Active Route';
+      : normalizeClassification(properties.classification) || properties.category || 'Active Route';
     const html = `
       <div class="tooltip-content">
         <div class="tooltip-title">${properties.name || `Link ${properties.link_id || properties.id}`}</div>
