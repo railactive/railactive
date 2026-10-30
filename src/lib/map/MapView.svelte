@@ -278,7 +278,11 @@
     const expressions: any[] = [
       'all',
       ['!=', ['coalesce', ['get', 'layer_type'], ''], 'hs2_railway'],
-      ['!=', ['coalesce', ['get', 'layer_type'], ''], 'intervention']
+      ['!=', ['coalesce', ['get', 'layer_type'], ''], 'intervention'],
+      ['!=', ['coalesce', ['get', 'folder'], ''], 'Superseded'],
+      ['!=', ['coalesce', ['get', 'status'], ''], 'superseded'],
+      ['!=', ['coalesce', ['get', 'category'], ''], 'Old active travel route alignment'],
+      ['!=', ['coalesce', ['get', 'classification'], ''], 'Old active travel route alignment']
     ];
 
     if (f.developer) {
@@ -293,6 +297,9 @@
     }
     if (f.section) {
       expressions.push(['==', ['coalesce', ['get', 'section'], ''], f.section]);
+    }
+    if (f.status) {
+      expressions.push(['==', ['coalesce', ['get', 'status'], 'preferred'], f.status]);
     }
 
     // Interactive Legend Layer Visibility Toggle (Exclude unchecked layers)
@@ -323,8 +330,15 @@
   function getPointFilterExpression(f: FilterState): any {
     const expressions: any[] = [
       'all',
-      ['==', '$type', 'Point']
+      ['==', '$type', 'Point'],
+      ['!=', ['coalesce', ['get', 'folder'], ''], 'Superseded'],
+      ['!=', ['coalesce', ['get', 'status'], ''], 'superseded'],
+      ['!=', ['coalesce', ['get', 'category'], ''], 'Old active travel route alignment'],
+      ['!=', ['coalesce', ['get', 'classification'], ''], 'Old active travel route alignment']
     ];
+    if (f.status) {
+      expressions.push(['==', ['coalesce', ['get', 'status'], 'preferred'], f.status]);
+    }
 
     // Interactive Legend Layer Visibility Toggle (Exclude unchecked layers)
     if (f.hiddenLegendItems && f.hiddenLegendItems.length > 0) {

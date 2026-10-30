@@ -34,6 +34,7 @@ export interface FilterState {
   category: string;
   classification: string;
   section: string;
+  status: string;
   searchTerm: string;
   colorBy: 'category' | 'classification' | 'developer' | 'kml';
   hiddenLegendItems: string[];
