@@ -36,18 +36,17 @@ export interface FilterState {
   section: string;
   status: string;
   searchTerm: string;
-  colorBy: 'category' | 'classification' | 'developer' | 'kml';
+  colorBy: 'category' | 'classification' | 'developer' | 'status' | 'kml';
   hiddenLegendItems: string[];
+  /** Show superseded alignments (only offered when colouring by status). */
+  showSuperseded: boolean;
 }
 
 export interface CyclewayStats {
   totalKm: number;
   totalSegments: number;
-  hs2Km: number;
-  greenwayKm: number;
-  categoryCounts: Record<string, { count: number; km: number }>;
-  developerCounts: Record<string, { count: number; km: number }>;
-  classificationCounts: Record<string, { count: number; km: number }>;
+  /** Km per colour group of the active colour scheme, in legend order. */
+  composition: { label: string; color: string; km: number }[];
 }
 
 export interface NcnProperties {

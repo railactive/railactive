@@ -55,7 +55,7 @@
 
 <div
   class="legend"
-  style="--ncn: {ref.ncn}; --road-haulage: {ref.roadHaulage}; --road-major: {ref.roadMajor}; --road-minor: {ref.roadMinor}; --road-local: {ref.roadLocal}; --study-area: {ref.studyArea}; --study-area-outline: {ref.studyAreaOutline};"
+  style="--ncn-off: {ref.ncnOffRoad}; --ncn-on: {ref.ncnOnRoad}; --road-haulage: {ref.roadHaulage}; --road-major: {ref.roadMajor}; --road-minor: {ref.roadMinor}; --road-local: {ref.roadLocal}; --study-area: {ref.studyArea}; --study-area-outline: {ref.studyAreaOutline};"
 >
   <div class="colorby-row">
     <label for="colorby-select">Colour by</label>
@@ -107,7 +107,7 @@
     {#if showNcn}
       <div class="sublegend">
         <div class="sublegend-item"><span class="sample ncn-sample-solid"></span>Traffic-free</div>
-        <div class="sublegend-item"><span class="sample ncn-sample-dashed"></span>On-road</div>
+        <div class="sublegend-item"><span class="sample ncn-sample-on-road"></span>On-road</div>
       </div>
     {/if}
 
@@ -311,13 +311,16 @@
     border-radius: 2px;
   }
 
-  .ncn-color-bar,
-  .ncn-sample-solid {
-    background: var(--ncn);
+  .ncn-color-bar {
+    background: linear-gradient(90deg, var(--ncn-off) 50%, var(--ncn-on) 50%);
   }
 
-  .ncn-sample-dashed {
-    background: repeating-linear-gradient(90deg, var(--ncn), var(--ncn) 3px, transparent 3px, transparent 6px);
+  .ncn-sample-solid {
+    background: var(--ncn-off);
+  }
+
+  .ncn-sample-on-road {
+    background: var(--ncn-on);
   }
 
   .openroads-color-bar {

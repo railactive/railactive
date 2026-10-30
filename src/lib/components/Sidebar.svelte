@@ -1,12 +1,17 @@
 <script lang="ts">
+  import type { ComponentProps } from 'svelte';
   import KPICards from './KPICards.svelte';
+  import Legend from './Legend.svelte';
   import FilterPanel from './FilterPanel.svelte';
   import type { FilterState, CyclewayStats } from '../types/cycleway';
+
+  type LegendProps = Omit<ComponentProps<typeof Legend>, 'colorBy'>;
 
   interface Props {
     open: boolean;
     stats: CyclewayStats;
     filters: FilterState;
+    legend: LegendProps;
     availableDevelopers: string[];
     availableCategories: string[];
     availableClassifications: string[];
@@ -18,6 +23,7 @@
     open,
     stats,
     filters = $bindable(),
+    legend,
     availableDevelopers,
     availableCategories,
     availableClassifications,
@@ -31,8 +37,11 @@
     <div class="section-title">Corridor Metrics</div>
     <KPICards {stats} />
 
-    <div class="section-title">Explorer & Filters</div>
-    <FilterPanel 
+    <div class="section-title">Map Layers</div>
+    <Legend bind:colorBy={filters.colorBy} {...legend} />
+
+    <div class="section-title">Filters</div>
+    <FilterPanel
       bind:filters={filters}
       {availableDevelopers}
       {availableCategories}
