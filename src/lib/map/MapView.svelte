@@ -11,18 +11,18 @@
   } from '../types/cycleway';
   import {
     colorExpression,
+    effectiveHiddenGroups,
     hiddenGroupExpressions,
     INTERVENTION_COLOR,
     isSuperseded,
     REFERENCE_COLORS,
-    supersededScopeExpression
+    statusFilterExpressions
   } from '../palette';
 
   const NCN_SOURCE_ID = 'ncn-data';
-  const NCN_CASING_LAYER_ID = 'ncn-casing';
   const NCN_LINE_LAYER_ID = 'ncn-lines';
   const NCN_ON_ROAD_LAYER_ID = 'ncn-on-road';
-  const NCN_LAYER_IDS = [NCN_CASING_LAYER_ID, NCN_LINE_LAYER_ID, NCN_ON_ROAD_LAYER_ID];
+  const NCN_LAYER_IDS = [NCN_LINE_LAYER_ID, NCN_ON_ROAD_LAYER_ID];
   const NCN_INTERACTIVE_LAYER_IDS = [NCN_LINE_LAYER_ID, NCN_ON_ROAD_LAYER_ID];
 
   const OPENROADS_SOURCE_ID = 'openroads-data';
@@ -98,6 +98,22 @@
   let hoverPopup: maplibregl.Popup | null = null;
   let clickPopup: maplibregl.Popup | null = null;
   let shouldFitInitialBounds = true;
+
+  // Geolocation feedback (approach from csis-dashboard)
+  let geoMessage: string | null = $state(null);
+  let geoMessageTimeout: ReturnType<typeof setTimeout> | undefined;
+
+  function showGeoMessage(message: string) {
+    geoMessage = message;
+    if (geoMessageTimeout) clearTimeout(geoMessageTimeout);
+    geoMessageTimeout = setTimeout(() => (geoMessage = null), 8000);
+  }
+
+  function handleGeolocateError(e: GeolocationPositionError) {
+    if (e.code === 1) showGeoMessage('Location access denied. Allow location for this site in your browser settings, then try again.');
+    else if (e.code === 3) showGeoMessage('Locating timed out. Please try again.');
+    else showGeoMessage('Your location could not be determined.');
+  }
 
   // High-performance raster basemap styles (clean, keyless, zero watermarks)
   const basemapStyles: Record<string, any> = {
@@ -224,7 +240,7 @@
       'all',
       ['!=', ['coalesce', ['get', 'layer_type'], ''], 'hs2_railway'],
       ['!=', ['coalesce', ['get', 'layer_type'], ''], 'intervention'],
-      supersededScopeExpression(f.status === 'superseded')
+      ...statusFilterExpressions(f)
     ];
 
     if (f.developer) {
@@ -240,12 +256,9 @@
     if (f.section) {
       expressions.push(['==', ['coalesce', ['get', 'section'], ''], f.section]);
     }
-    if (f.status && f.status !== 'superseded') {
-      expressions.push(['==', ['coalesce', ['get', 'status'], 'preferred'], f.status]);
-    }
 
     // Interactive legend: exclude unchecked colour groups
-    expressions.push(...hiddenGroupExpressions(f.colorBy, f.hiddenLegendItems ?? []));
+    expressions.push(...hiddenGroupExpressions(f.colorBy, effectiveHiddenGroups(f)));
 
     return expressions;
   }
@@ -254,11 +267,8 @@
     const expressions: any[] = [
       'all',
       ['==', '$type', 'Point'],
-      supersededScopeExpression(f.status === 'superseded')
+      ...statusFilterExpressions(f)
     ];
-    if (f.status && f.status !== 'superseded') {
-      expressions.push(['==', ['coalesce', ['get', 'status'], 'preferred'], f.status]);
-    }
 
     return expressions;
   }
@@ -563,31 +573,6 @@
       const beforeId = map.getLayer('hs2-rail-casing') ? 'hs2-rail-casing' : (map.getLayer('cycleway-casing') ? 'cycleway-casing' : undefined);
 
       map.addLayer({
-        id: NCN_CASING_LAYER_ID,
-        type: 'line',
-        source: NCN_SOURCE_ID,
-        'source-layer': 'ncn',
-        layout: {
-          'line-cap': 'round',
-          'line-join': 'round',
-          'visibility': showNcn ? 'visible' : 'none'
-        },
-        paint: {
-          'line-color': REFERENCE_COLORS.ncnCasing,
-          'line-width': [
-            'interpolate',
-            ['linear'],
-            ['zoom'],
-            5, 2.0,
-            8, 3.5,
-            12, 5.5,
-            16, 8.5
-          ],
-          'line-opacity': 0.3
-        }
-      }, beforeId);
-
-      map.addLayer({
         id: NCN_LINE_LAYER_ID,
         type: 'line',
         source: NCN_SOURCE_ID,
@@ -599,7 +584,7 @@
           'visibility': showNcn ? 'visible' : 'none'
         },
         paint: {
-          'line-color': REFERENCE_COLORS.ncn,
+          'line-color': REFERENCE_COLORS.ncnOffRoad,
           'line-width': [
             'interpolate',
             ['linear'],
@@ -609,7 +594,7 @@
             12, 3.5,
             16, 5.0
           ],
-          'line-opacity': 0.55
+          'line-opacity': 0.9
         }
       }, beforeId);
 
@@ -625,7 +610,7 @@
           'visibility': showNcn ? 'visible' : 'none'
         },
         paint: {
-          'line-color': REFERENCE_COLORS.ncn,
+          'line-color': REFERENCE_COLORS.ncnOnRoad,
           'line-width': [
             'interpolate',
             ['linear'],
@@ -635,7 +620,6 @@
             12, 3.5,
             16, 5.0
           ],
-          'line-dasharray': [3, 2],
           'line-opacity': 0.5
         }
       }, beforeId);
@@ -762,8 +746,8 @@
         attribution: 'Contains Ordnance Survey data &copy; Crown copyright and database right 2026. Licensed under the <a href="https://www.nationalarchives.gov.uk/doc/open-government-licence/" target="_blank" rel="noreferrer">Open Government Licence</a>.'
       });
 
-      const beforeId = map.getLayer(NCN_CASING_LAYER_ID)
-        ? NCN_CASING_LAYER_ID
+      const beforeId = map.getLayer(NCN_LINE_LAYER_ID)
+        ? NCN_LINE_LAYER_ID
         : (map.getLayer('hs2-rail-casing')
           ? 'hs2-rail-casing'
           : (map.getLayer('cycleway-casing') ? 'cycleway-casing' : undefined));
@@ -1194,17 +1178,19 @@
     }
 
     if (!bounds.isEmpty()) {
-      map.fitBounds(bounds, {
-        padding: {
-          left: sidebarOpen ? 380 : 80,
-          right: 80,
-          top: 80,
-          bottom: 80
-        },
-        maxZoom: 15,
-        duration: 1200
-      });
+      map.fitBounds(bounds, { padding: zoomPadding(), maxZoom: 15, duration: 1200 });
     }
+  }
+
+  /** Zoom to a searched place's bounding box: [west, south, east, north]. */
+  export function zoomToPlace(bbox: [number, number, number, number]) {
+    if (!map) return;
+    map.resize();
+    map.fitBounds([[bbox[0], bbox[1]], [bbox[2], bbox[3]]], { padding: zoomPadding(), maxZoom: 14, duration: 1200 });
+  }
+
+  function zoomPadding() {
+    return { left: sidebarOpen ? 380 : 80, right: 80, top: 80, bottom: 80 };
   }
 
   onMount(() => {
@@ -1221,6 +1207,18 @@
     (window as any)._map = map;
 
     map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'top-right');
+
+    const geolocate = new maplibregl.GeolocateControl({
+      positionOptions: { enableHighAccuracy: true },
+      trackUserLocation: false,
+      fitBoundsOptions: { maxZoom: 15 }
+    });
+    geolocate.on('error', handleGeolocateError);
+    map.addControl(geolocate, 'top-right');
+    // Geolocation only works in secure contexts (HTTPS or localhost), e.g. not via a LAN IP over HTTP
+    if (!window.isSecureContext) {
+      showGeoMessage('Location requires a secure connection. Open this page over HTTPS (or via localhost) to use the locate button.');
+    }
     map.addControl(new maplibregl.ScaleControl({ maxWidth: 120, unit: 'metric' }), 'bottom-left');
 
     map.on('load', () => {
@@ -1231,6 +1229,7 @@
   });
 
   onDestroy(() => {
+    if (geoMessageTimeout) clearTimeout(geoMessageTimeout);
     if (hoverPopup) hoverPopup.remove();
     if (clickPopup) clickPopup.remove();
     if (map) map.remove();
@@ -1284,6 +1283,7 @@
     const _cls = filters.classification;
     const _sec = filters.section;
     const _colorBy = filters.colorBy;
+    const _superseded = filters.showSuperseded;
 
     if (map && map.isStyleLoaded() && map.getLayer('cycleway-lines')) {
       const filterExpr = getActiveFilterExpression(filters);
@@ -1322,7 +1322,27 @@
 
 <div class="map-wrapper" class:sidebar-open={sidebarOpen} bind:this={mapContainer}></div>
 
+{#if geoMessage}
+  <div class="geo-message" role="status">{geoMessage}</div>
+{/if}
+
 <style>
+  .geo-message {
+    position: absolute;
+    top: 64px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 30;
+    max-width: min(420px, 90%);
+    padding: 8px 12px;
+    background: rgba(15, 23, 42, 0.95);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-panel);
+    color: var(--text-primary);
+    font-size: 12px;
+  }
+
   .map-wrapper {
     width: 100%;
     height: 100%;
@@ -1409,13 +1429,13 @@
   }
 
   :global(.badge-trafficfree) {
-    background: rgba(217, 70, 239, 0.25) !important;
-    color: #f5d0fe !important;
+    background: rgba(14, 116, 144, 0.3) !important;
+    color: #a5f3fc !important;
   }
 
   :global(.badge-onroad) {
-    background: rgba(217, 70, 239, 0.12) !important;
-    color: #f0abfc !important;
+    background: rgba(220, 38, 38, 0.2) !important;
+    color: #fecaca !important;
   }
 
   :global(.ncn-popup-card) {
@@ -1444,20 +1464,20 @@
   }
 
   :global(.ncn-type) {
-    background: #c026d3;
+    background: #0e7490;
     color: #ffffff;
   }
 
   :global(.ncn-trafficfree) {
-    background: rgba(217, 70, 239, 0.25);
-    color: #f5d0fe;
-    border: 1px solid rgba(217, 70, 239, 0.4);
+    background: rgba(14, 116, 144, 0.3);
+    color: #a5f3fc;
+    border: 1px solid rgba(14, 116, 144, 0.5);
   }
 
   :global(.ncn-onroad) {
-    background: rgba(217, 70, 239, 0.12);
-    color: #f0abfc;
-    border: 1px dashed rgba(217, 70, 239, 0.5);
+    background: rgba(220, 38, 38, 0.2);
+    color: #fecaca;
+    border: 1px solid rgba(220, 38, 38, 0.5);
   }
 
   :global(.ncn-greenway) {
@@ -1511,7 +1531,7 @@
     padding: 12px 14px !important;
     background: rgba(15, 23, 42, 0.96) !important;
     backdrop-filter: blur(16px) !important;
-    border: 1px solid rgba(217, 70, 239, 0.45) !important;
+    border: 1px solid rgba(14, 116, 144, 0.55) !important;
     border-radius: 10px !important;
     box-shadow: 0 12px 28px rgba(0, 0, 0, 0.6) !important;
   }

@@ -4,25 +4,13 @@
     onToggleSidebar: () => void;
     isExampleData: boolean;
     onCopyLink: () => Promise<void>;
-    showNcn: boolean;
-    onToggleNcn: () => void;
-    showOpenRoads: boolean;
-    onToggleOpenRoads: () => void;
-    showStudyArea?: boolean;
-    onToggleStudyArea?: () => void;
   }
 
   let { 
     sidebarOpen, 
     onToggleSidebar, 
     isExampleData = false,
-    onCopyLink,
-    showNcn,
-    onToggleNcn,
-    showOpenRoads,
-    onToggleOpenRoads,
-    showStudyArea = false,
-    onToggleStudyArea
+    onCopyLink
   }: Props = $props();
 
   let copyStatus: 'idle' | 'copied' | 'error' = $state('idle');
@@ -81,39 +69,6 @@
   </div>
 
   <div class="right-section">
-    <button
-      class="ncn-toggle-btn"
-      class:active={showNcn}
-      onclick={onToggleNcn}
-      title={showNcn ? 'Hide National Cycle Network (NCN)' : 'Show National Cycle Network (NCN)'}
-      aria-label="Toggle National Cycle Network layer"
-      aria-pressed={showNcn}
-    >
-      <span class="ncn-indicator"></span>
-      <span>NCN Layer</span>
-    </button>
-    <button
-      class="openroads-toggle-btn"
-      class:active={showOpenRoads}
-      onclick={onToggleOpenRoads}
-      title={showOpenRoads ? 'Hide Ordnance Survey OpenRoads' : 'Show Ordnance Survey OpenRoads'}
-      aria-label="Toggle Ordnance Survey OpenRoads layer"
-      aria-pressed={showOpenRoads}
-    >
-      <span class="openroads-indicator"></span>
-      <span>OpenRoads</span>
-    </button>
-    <button
-      class="studyarea-toggle-btn"
-      class:active={showStudyArea}
-      onclick={onToggleStudyArea}
-      title={showStudyArea ? 'Hide Study Area (5km Corridor Buffer)' : 'Show Study Area (5km Corridor Buffer)'}
-      aria-label="Toggle Study Area layer"
-      aria-pressed={showStudyArea}
-    >
-      <span class="studyarea-indicator"></span>
-      <span>Study Area</span>
-    </button>
     <a
       href="./docs/"
       target="_blank"
@@ -298,127 +253,6 @@
     color: #f87171;
   }
 
-  .ncn-toggle-btn {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    height: 34px;
-    padding: 0 10px;
-    background: rgba(30, 41, 59, 0.7);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: var(--radius-sm);
-    color: var(--text-secondary);
-    font-size: 12px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-
-  .ncn-toggle-btn:hover {
-    background: rgba(51, 65, 85, 0.8);
-    color: var(--text-primary);
-  }
-
-  .ncn-toggle-btn.active {
-    background: rgba(225, 29, 72, 0.18);
-    border-color: rgba(225, 29, 72, 0.6);
-    color: #fda4af;
-  }
-
-  .ncn-indicator {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #64748b;
-    transition: all 0.2s ease;
-  }
-
-  .ncn-toggle-btn.active .ncn-indicator {
-    background: #e11d48;
-    box-shadow: 0 0 6px rgba(225, 29, 72, 0.9);
-  }
-
-  .openroads-toggle-btn {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    height: 34px;
-    padding: 0 10px;
-    background: rgba(30, 41, 59, 0.7);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: var(--radius-sm);
-    color: var(--text-secondary);
-    font-size: 12px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-
-  .openroads-toggle-btn:hover {
-    background: rgba(51, 65, 85, 0.8);
-    color: var(--text-primary);
-  }
-
-  .openroads-toggle-btn.active {
-    background: rgba(59, 130, 246, 0.18);
-    border-color: rgba(59, 130, 246, 0.6);
-    color: #93c5fd;
-  }
-
-  .openroads-indicator {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #64748b;
-    transition: all 0.2s ease;
-  }
-
-  .openroads-toggle-btn.active .openroads-indicator {
-    background: #3b82f6;
-    box-shadow: 0 0 6px rgba(59, 130, 246, 0.9);
-  }
-
-  .studyarea-toggle-btn {
-    height: 34px;
-    padding: 0 10px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-sm);
-    background: rgba(255, 255, 255, 0.04);
-    color: var(--text-secondary);
-    font: inherit;
-    font-size: 11px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-
-  .studyarea-toggle-btn:hover {
-    background: rgba(255, 255, 255, 0.08);
-    color: var(--text-primary);
-  }
-
-  .studyarea-toggle-btn.active {
-    background: rgba(139, 92, 246, 0.18);
-    border-color: rgba(139, 92, 246, 0.6);
-    color: #c4b5fd;
-  }
-
-  .studyarea-indicator {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #64748b;
-    transition: all 0.2s ease;
-  }
-
-  .studyarea-toggle-btn.active .studyarea-indicator {
-    background: #a855f7;
-    box-shadow: 0 0 6px rgba(168, 85, 247, 0.9);
-  }
-
   .doc-link {
     height: 34px;
     padding: 0 10px;
@@ -460,8 +294,14 @@
       display: none;
     }
 
-    .share-link span {
+    .share-link span,
+    .doc-link span,
+    .toggle-label {
       display: none;
+    }
+
+    .right-section {
+      gap: 6px;
     }
   }
 </style>

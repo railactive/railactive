@@ -3,11 +3,19 @@
   import Header from './lib/components/Header.svelte';
   import Sidebar from './lib/components/Sidebar.svelte';
   import DetailPanel from './lib/components/DetailPanel.svelte';
-  import Legend from './lib/components/Legend.svelte';
   import BasemapControl from './lib/components/BasemapControl.svelte';
   import PasswordGate from './lib/components/PasswordGate.svelte';
+  import PlaceSearch from './lib/components/PlaceSearch.svelte';
   import MapView from './lib/map/MapView.svelte';
   import { hasValidMapHash, readUrlState, writeUrlState, type AppUrlState } from './lib/urlState';
+  import {
+    effectiveHiddenGroups,
+    groupFor,
+    groupsFor,
+    isSuperseded,
+    showsSuperseded,
+    SUPERSEDED_LABEL
+  } from './lib/palette';
   import type { 
     CyclewayFeatureCollection, 
     FilterState, 
@@ -96,9 +104,7 @@
     const activeFeatures = rawData.features.filter(feature =>
       feature.properties.layer_type !== 'hs2_railway'
       && feature.properties.layer_type !== 'intervention'
-      && feature.properties.folder !== 'Superseded'
-      && feature.properties.status !== 'superseded'
-      && feature.properties.category !== 'Old active travel route alignment'
+      && !isSuperseded(feature.properties)
     );
     const developers = new Set(activeFeatures.map(feature => feature.properties.developer).filter(Boolean));
     const categories = new Set(activeFeatures.map(feature => feature.properties.category).filter(Boolean));
@@ -107,13 +113,7 @@
       return classification === 'HS2 Delivery' ? 'HS2 Haulage' : classification || 'Existing routes';
     }));
     const sections = new Set(activeFeatures.map(feature => feature.properties.section).filter(Boolean));
-    const legendValues = new Set([
-      ...(filters.colorBy === 'developer'
-        ? developers
-        : filters.colorBy === 'category'
-          ? categories
-          : classifications)
-    ]);
+    const legendValues = new Set(groupsFor(filters.colorBy).map(group => group.label));
 
     filters = {
       ...filters,
@@ -146,7 +146,8 @@
         status: filters.status,
         searchTerm: filters.searchTerm,
         colorBy: filters.colorBy,
-        hiddenLegendItems: [...filters.hiddenLegendItems]
+        hiddenLegendItems: [...filters.hiddenLegendItems],
+        showSuperseded: filters.showSuperseded
       },
       selectedSegmentKey: selectedSegment?.link_id || (selectedSegment ? String(selectedSegment.id) : null),
       showNcn,
@@ -177,16 +178,30 @@
     return () => clearTimeout(timer);
   });
 
-  // Separate active travel routes from the underlying railway line and hide Superseded alignments
-  let activeNetworkFeatures = $derived.by(() => {
+  // Active travel routes, separated from the underlying railway line and intervention points
+  let routeFeatures = $derived.by(() => {
     if (!rawData) return [];
     return rawData.features.filter(f =>
       f.properties.layer_type !== 'hs2_railway'
       && f.properties.layer_type !== 'intervention'
-      && f.properties.folder !== 'Superseded'
-      && f.properties.status !== 'superseded'
-      && f.properties.category !== 'Old active travel route alignment'
     );
+  });
+
+  // The current network, without superseded alignments; drives the filter dropdown options
+  let activeNetworkFeatures = $derived(routeFeatures.filter(f => !isSuperseded(f.properties)));
+
+  // Superseded alignments are only in scope for the alignment-status legend, where they are
+  // an opt-in row (hidden until ticked)
+  let scopeFeatures = $derived(filters.colorBy === 'status' ? routeFeatures : activeNetworkFeatures);
+
+  // Legend groups switched off, including Superseded while unticked
+  let hiddenGroups = $derived(effectiveHiddenGroups(filters));
+
+  // A superseded link can't stay selected once superseded alignments are hidden
+  $effect(() => {
+    if (selectedSegment && isSuperseded(selectedSegment) && !showsSuperseded(filters)) {
+      selectedSegment = null;
+    }
   });
 
   // Extract unique filter lists
@@ -230,9 +245,10 @@
     });
   });
 
-  // Filtered dataset for active travel statistics
-  let filteredFeatures = $derived.by(() => {
-    return activeNetworkFeatures.filter(f => {
+  // Features matching the sidebar filters (legend visibility is applied separately so
+  // hidden legend groups keep their km and can be switched back on)
+  let matchingFeatures = $derived.by(() => {
+    return scopeFeatures.filter(f => {
       const p = f.properties;
       if (filters.developer && p.developer !== filters.developer) return false;
       if (filters.category && p.category !== filters.category) return false;
@@ -241,7 +257,7 @@
         if (pCls !== filters.classification) return false;
       }
       if (filters.section && p.section !== filters.section) return false;
-      if (filters.status && (p.status || 'preferred') !== filters.status) return false;
+      if (filters.status && !isSuperseded(p) && (p.status || 'preferred') !== filters.status) return false;
       if (filters.searchTerm) {
         const term = filters.searchTerm.toLowerCase();
         const matchName = p.name && p.name.toLowerCase().includes(term);
@@ -249,165 +265,69 @@
         const matchRemarks = p.remarks && p.remarks.toLowerCase().includes(term);
         if (!matchName && !matchId && !matchRemarks) return false;
       }
-      if (filters.hiddenLegendItems && filters.hiddenLegendItems.length > 0) {
-        const isOld = p.category === 'Old active travel route alignment' ||
-          p.classification === 'Old active travel route alignment' ||
-          p.folder === 'Superseded' ||
-          (p as any).status === 'superseded';
-        if (isOld && (filters.hiddenLegendItems.includes('Old active travel route alignment') || filters.hiddenLegendItems.includes('Superseded (reference)'))) {
-          return false;
-        }
-        if (filters.colorBy === 'category') {
-          if (filters.hiddenLegendItems.includes(p.category || 'Uncategorized')) return false;
-        } else if (filters.colorBy === 'developer') {
-          if (filters.hiddenLegendItems.includes(p.developer || 'Local Authority')) return false;
-        } else {
-          const pCls = p.classification === 'HS2 Delivery' ? 'HS2 Haulage' : (p.classification || 'Existing routes');
-          if (filters.hiddenLegendItems.includes(pCls)) return false;
-        }
-      }
       return true;
     });
   });
 
-  // Calculate live statistics for active travel routes
-  let stats: CyclewayStats = $derived.by(() => {
-    let totalKm = 0;
-    let hs2Km = 0;
-    let greenwayKm = 0;
-    const categoryCounts: Record<string, { count: number; km: number }> = {};
-    const developerCounts: Record<string, { count: number; km: number }> = {};
-    const classificationCounts: Record<string, { count: number; km: number }> = {};
+  // Matching features that count towards km totals. Alternatives would double-count the
+  // preferred spine, so they only count when selected or when colouring by status.
+  let countedFeatures = $derived(matchingFeatures.filter(f =>
+    filters.status === 'alternative' || filters.colorBy === 'status' || f.properties.status !== 'alternative'
+  ));
 
-    for (const f of filteredFeatures) {
-      const p = f.properties;
-      if (p.folder === 'Superseded' || (p as any).status === 'superseded') continue;
-      if (filters.status !== 'alternative' && (p as any).status === 'alternative') continue;
-      const km = p.length_km || 0;
-      totalKm += km;
-
-      if (p.classification === 'HS2 Delivery' || p.classification === 'HS2 Haulage' || p.classification === 'HS2 Legacy' || p.developer === 'HS2' || p.category === 'Cycleway beside HS2') {
-        hs2Km += km;
-      }
-      if (p.classification === 'New Greenway' || p.category === 'Traffic-free path away from highway') {
-        greenwayKm += km;
-      }
-
-      const cat = p.category || 'Uncategorized';
-      if (!categoryCounts[cat]) categoryCounts[cat] = { count: 0, km: 0 };
-      categoryCounts[cat].count += 1;
-      categoryCounts[cat].km += km;
-
-      const dev = p.developer || 'Local Authority';
-      if (!developerCounts[dev]) developerCounts[dev] = { count: 0, km: 0 };
-      developerCounts[dev].count += 1;
-      developerCounts[dev].km += km;
-
-      let cls = p.classification || 'Existing routes';
-      if (cls === 'HS2 Delivery') cls = 'HS2 Haulage';
-      if (!classificationCounts[cls]) classificationCounts[cls] = { count: 0, km: 0 };
-      classificationCounts[cls].count += 1;
-      classificationCounts[cls].km += km;
+  // Km per colour group, in legend order, for the given features
+  function groupKm(features: typeof activeNetworkFeatures) {
+    const kmByLabel = new Map<string, number>();
+    for (const f of features) {
+      const label = groupFor(filters.colorBy, f.properties).label;
+      kmByLabel.set(label, (kmByLabel.get(label) ?? 0) + (f.properties.length_km || 0));
     }
+    return groupsFor(filters.colorBy)
+      .map(({ label, color }) => ({ label, color, km: kmByLabel.get(label) ?? 0 }));
+  }
 
+  // Legend: every group present in the data, with km under the current filters
+  let legendItems = $derived.by(() => {
+    const present = new Set(scopeFeatures.map(f => groupFor(filters.colorBy, f.properties).label));
+    return groupKm(countedFeatures).filter(item => present.has(item.label));
+  });
+
+  // Live statistics: the visible legend groups only
+  let stats: CyclewayStats = $derived.by(() => {
+    const visible = countedFeatures.filter(f => !hiddenGroups.includes(groupFor(filters.colorBy, f.properties).label));
+    const composition = groupKm(visible).filter(item => item.km > 0);
     return {
-      totalKm,
-      totalSegments: filteredFeatures.length,
-      hs2Km,
-      greenwayKm,
-      categoryCounts,
-      developerCounts,
-      classificationCounts
+      totalKm: composition.reduce((sum, item) => sum + item.km, 0),
+      totalSegments: visible.length,
+      composition
     };
   });
 
-  // Legend items based on active colorBy with full classification set
-  let legendItems = $derived.by(() => {
-    const items: { label: string; color: string; km?: number }[] = [];
-
-    if (filters.colorBy === 'category') {
-      const colors: Record<string, string> = {
-        'Cycleway beside HS2': '#f97316', // HS2 Haulage - Orange
-        'Traffic-free path away from highway': '#10b981', // Greenway - Emerald
-        '20mph and traffic calmed or protected cycle lane': '#3b82f6', // Quietways - Royal Blue
-        'Canal tow path or new path close by canal': '#06b6d4' // Canal - Teal Blue
-      };
-      for (const [cat, color] of Object.entries(colors)) {
-        let catKm = 0;
-        for (const f of activeNetworkFeatures) {
-          if (f.properties.category === cat) catKm += f.properties.length_km || 0;
-        }
-        if (catKm > 0) {
-          items.push({ label: cat, color, km: catKm });
-        }
-      }
-    } else if (filters.colorBy === 'developer') {
-      const colors: Record<string, string> = {
-        'HS2': '#f97316',
-        'DfT': '#1d4ed8',
-        'Local Authority': '#10b981',
-        'Canals & River Trust': '#06b6d4',
-        'Sustrans': '#818cf8',
-        'Developer': '#38bdf8'
-      };
-      for (const [dev, color] of Object.entries(colors)) {
-        let devKm = 0;
-        for (const f of activeNetworkFeatures) {
-          if (f.properties.developer === dev) devKm += f.properties.length_km || 0;
-        }
-        if (devKm > 0) {
-          items.push({ label: dev, color, km: devKm });
-        }
-      }
-    } else {
-      // Default: Classification (HS2 Haulage = Orange, Greenways = Green, Existing/Upgrades = Shades of Blue)
-      const colors: Record<string, string> = {
-        'HS2 Haulage': '#f97316',
-        'New Greenway': '#10b981',
-        'Upgrade PROW': '#38bdf8',
-        'Local Road Quietway': '#3b82f6',
-        'Quiet Lane': '#1d4ed8',
-        'Existing routes': '#64748b',
-        'Town or village centre': '#818cf8',
-        'Main Road-Cycle tracks': '#4338ca',
-        'Canal Towpath Upgrade': '#06b6d4',
-        'HS2 Legacy': '#ea580c'
-      };
-      for (const [cls, color] of Object.entries(colors)) {
-        let clsKm = 0;
-        for (const f of activeNetworkFeatures) {
-          if (f.properties.folder === 'Superseded' || (f.properties as any).status === 'superseded') continue;
-          const c = f.properties.classification === 'HS2 Delivery' ? 'HS2 Haulage' : (f.properties.classification || 'Existing routes');
-          if (c === cls) clsKm += f.properties.length_km || 0;
-        }
-        if (clsKm > 0) {
-          items.push({ label: cls, color, km: clsKm });
-        }
-      }
-    }
-
-    return items;
-  });
+  // Store the legend's hidden groups, splitting out the opt-in Superseded row
+  function setHiddenGroups(hidden: string[]) {
+    filters = {
+      ...filters,
+      hiddenLegendItems: hidden.filter(label => label !== SUPERSEDED_LABEL),
+      showSuperseded: filters.colorBy === 'status' ? !hidden.includes(SUPERSEDED_LABEL) : filters.showSuperseded
+    };
+  }
 
   // Toggle individual legend item visibility (Add / Remove layer)
   function handleToggleLegendItem(label: string) {
-    const isHidden = filters.hiddenLegendItems.includes(label);
-    const updated = isHidden
-      ? filters.hiddenLegendItems.filter(l => l !== label)
-      : [...filters.hiddenLegendItems, label];
-    filters = { ...filters, hiddenLegendItems: updated };
+    setHiddenGroups(hiddenGroups.includes(label)
+      ? hiddenGroups.filter(l => l !== label)
+      : [...hiddenGroups, label]);
   }
 
   // Isolate a single legend item layer
   function handleIsolateLegendItem(label: string) {
     const allLabels = legendItems.map(i => i.label);
-    const isAlreadyIsolated = filters.hiddenLegendItems.length === allLabels.length - 1 && !filters.hiddenLegendItems.includes(label);
-    const updated = isAlreadyIsolated ? [] : allLabels.filter(l => l !== label);
-    filters = { ...filters, hiddenLegendItems: updated };
+    const isAlreadyIsolated = hiddenGroups.length === allLabels.length - 1 && !hiddenGroups.includes(label);
+    setHiddenGroups(isAlreadyIsolated ? [] : allLabels.filter(l => l !== label));
   }
 
   function handleShowAllLegendItems() {
-    filters = { ...filters, hiddenLegendItems: [] };
+    setHiddenGroups([]);
   }
 
   function handleResetFilters() {
@@ -419,7 +339,8 @@
       status: '',
       searchTerm: '',
       colorBy: 'classification',
-      hiddenLegendItems: []
+      hiddenLegendItems: [],
+      showSuperseded: false
     };
   }
 
@@ -446,12 +367,6 @@
     }, 300);
   }}
   {isExampleData}
-  {showNcn}
-  onToggleNcn={() => showNcn = !showNcn}
-  {showOpenRoads}
-  onToggleOpenRoads={() => showOpenRoads = !showOpenRoads}
-  {showStudyArea}
-  onToggleStudyArea={() => showStudyArea = !showStudyArea}
 />
 
 <main class="main-viewport">
@@ -471,6 +386,19 @@
     open={sidebarOpen}
     {stats}
     bind:filters={filters}
+    legend={{
+      items: legendItems,
+      hiddenItems: hiddenGroups,
+      onToggleItem: handleToggleLegendItem,
+      onIsolateItem: handleIsolateLegendItem,
+      onShowAll: handleShowAllLegendItems,
+      showNcn,
+      onToggleNcn: () => showNcn = !showNcn,
+      showOpenRoads,
+      onToggleOpenRoads: () => showOpenRoads = !showOpenRoads,
+      showStudyArea,
+      onToggleStudyArea: () => showStudyArea = !showStudyArea
+    }}
     {availableDevelopers}
     {availableCategories}
     {availableClassifications}
@@ -492,24 +420,12 @@
     {showStudyArea}
   />
 
-  {#if !selectedSegment}
-    <Legend 
-      title={filters.colorBy}
-      items={legendItems}
-      hiddenItems={filters.hiddenLegendItems}
-      onToggleItem={handleToggleLegendItem}
-      onIsolateItem={handleIsolateLegendItem}
-      onShowAll={handleShowAllLegendItems}
-      {showNcn}
-      onToggleNcn={() => showNcn = !showNcn}
-      {showOpenRoads}
-      onToggleOpenRoads={() => showOpenRoads = !showOpenRoads}
-      {showStudyArea}
-      onToggleStudyArea={() => showStudyArea = !showStudyArea}
-    />
-  {/if}
+  <PlaceSearch
+    {sidebarOpen}
+    onSelect={(bbox) => mapViewRef?.zoomToPlace(bbox)}
+  />
 
-  <DetailPanel 
+  <DetailPanel
     segment={selectedSegment}
     onClose={() => selectedSegment = null}
     onZoomTo={handleZoomTo}

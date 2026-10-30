@@ -3,7 +3,7 @@ import type { FilterState } from './types/cycleway';
 export const BASEMAP_IDS = ['dark', 'light', 'satellite', 'osm'] as const;
 export type BasemapId = (typeof BASEMAP_IDS)[number];
 
-const COLOR_BY_VALUES: FilterState['colorBy'][] = ['category', 'classification', 'developer', 'kml'];
+const COLOR_BY_VALUES: FilterState['colorBy'][] = ['category', 'classification', 'developer', 'status', 'kml'];
 const MANAGED_PARAMS = [
   'basemap',
   'developer',
@@ -14,6 +14,7 @@ const MANAGED_PARAMS = [
   'q',
   'color',
   'hide',
+  'superseded',
   'segment',
   'sidebar',
   'ncn',
@@ -57,10 +58,11 @@ export function readUrlState(url: URL): AppUrlState {
         : 'classification',
       hiddenLegendItems: [...new Set(
         params.getAll('hide').map(value => value.trim().slice(0, 200)).filter(Boolean)
-      )]
+      )],
+      showSuperseded: params.get('superseded') === 'true'
     },
     selectedSegmentKey: getLimitedParam(params, 'segment', 100) || null,
-    showNcn: params.get('ncn') !== 'false' && params.get('ncn') !== '0',
+    showNcn: params.get('ncn') === 'true' || params.get('ncn') === '1',
     showOpenRoads: params.get('openroads') === 'true',
     showStudyArea: params.get('studyarea') === 'true' || params.get('study_area') === 'true'
   };
@@ -85,9 +87,10 @@ export function writeUrlState(url: URL, state: AppUrlState): string {
   for (const item of state.filters.hiddenLegendItems) {
     nextUrl.searchParams.append('hide', item);
   }
+  if (state.filters.showSuperseded) nextUrl.searchParams.set('superseded', 'true');
   if (state.selectedSegmentKey) nextUrl.searchParams.set('segment', state.selectedSegmentKey);
   if (!state.sidebarOpen) nextUrl.searchParams.set('sidebar', 'closed');
-  if (!state.showNcn) nextUrl.searchParams.set('ncn', 'false');
+  if (state.showNcn) nextUrl.searchParams.set('ncn', 'true');
   if (state.showOpenRoads) nextUrl.searchParams.set('openroads', 'true');
   if (state.showStudyArea) nextUrl.searchParams.set('studyarea', 'true');
 

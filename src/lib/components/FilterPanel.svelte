@@ -37,17 +37,6 @@
     </div>
   </div>
 
-  <!-- Color Scheme Selector -->
-  <div class="form-group">
-    <label for="colorby-select">Color Map By</label>
-    <select id="colorby-select" bind:value={filters.colorBy}>
-      <option value="classification">Classification (New Greenway, HS2, PROW...)</option>
-      <option value="category">Category (Beside HS2, Traffic-free, 20mph...)</option>
-      <option value="developer">Lead Developer (HS2, DfT, LA...)</option>
-      <option value="kml">Original KML Colors</option>
-    </select>
-  </div>
-
   <!-- Route Status Filter -->
   <div class="form-group">
     <label for="status-select">Alignment Status</label>
