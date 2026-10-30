@@ -1,13 +1,15 @@
 <script lang="ts">
+  import { REFERENCE_COLORS as ref } from '../palette';
+  import type { FilterState } from '../types/cycleway';
+
   interface LegendItem {
     label: string;
     color: string;
-    count?: number;
     km?: number;
   }
 
   interface Props {
-    title: string;
+    colorBy: FilterState['colorBy'];
     items: LegendItem[];
     hiddenItems: string[];
     onToggleItem: (label: string) => void;
@@ -21,10 +23,10 @@
     onToggleStudyArea?: () => void;
   }
 
-  let { 
-    title, 
-    items, 
-    hiddenItems = [], 
+  let {
+    colorBy = $bindable(),
+    items,
+    hiddenItems = [],
     onToggleItem,
     onIsolateItem,
     onShowAll,
@@ -36,259 +38,165 @@
     onToggleStudyArea
   }: Props = $props();
 
-  let collapsed: boolean = $state(false);
-
   function isVisible(label: string) {
     return !hiddenItems.includes(label);
   }
 </script>
 
-<div class="floating-legend" class:collapsed>
-  <div class="legend-header">
-    <div class="title-wrap">
-      <span class="legend-title">{title}</span>
-      <span class="legend-badge">{items.length - hiddenItems.length}/{items.length} active</span>
+{#snippet checkbox(checked: boolean)}
+  <span class="toggle-box" class:checked>
+    {#if checked}
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+        <polyline points="20 6 9 17 4 12"></polyline>
+      </svg>
+    {/if}
+  </span>
+{/snippet}
+
+<div
+  class="legend"
+  style="--ncn: {ref.ncn}; --road-haulage: {ref.roadHaulage}; --road-major: {ref.roadMajor}; --road-minor: {ref.roadMinor}; --road-local: {ref.roadLocal}; --study-area: {ref.studyArea}; --study-area-outline: {ref.studyAreaOutline};"
+>
+  <div class="colorby-row">
+    <label for="colorby-select">Colour by</label>
+    <select id="colorby-select" bind:value={colorBy}>
+      <option value="classification">Classification</option>
+      <option value="category">Category</option>
+      <option value="developer">Lead developer</option>
+      <option value="status">Alignment status</option>
+      <option value="kml">Original KML colours</option>
+    </select>
+    {#if hiddenItems.length > 0}
+      <button class="show-all-btn" onclick={onShowAll}>Show all</button>
+    {/if}
+  </div>
+
+  <div class="legend-items">
+    {#each items as item (item.label)}
+      {@const visible = isVisible(item.label)}
+      <div class="legend-row" class:hidden-layer={!visible}>
+        <button
+          class="legend-item-btn"
+          onclick={() => onToggleItem(item.label)}
+          title={visible ? `Hide ${item.label}` : `Show ${item.label}`}
+          aria-pressed={visible}
+        >
+          {@render checkbox(visible)}
+          <span class="color-bar" style="background-color: {item.color};"></span>
+          <span class="item-label">{item.label}</span>
+          {#if item.km !== undefined}
+            <span class="item-km">{item.km.toFixed(1)} km</span>
+          {/if}
+        </button>
+        <button class="solo-btn" onclick={() => onIsolateItem(item.label)} title={`Show only ${item.label}`}>
+          only
+        </button>
+      </div>
+    {/each}
+  </div>
+
+  <div class="subheading">Reference layers</div>
+  <div class="legend-items">
+    <div class="legend-row" class:hidden-layer={!showNcn}>
+      <button class="legend-item-btn" onclick={onToggleNcn} aria-pressed={showNcn}>
+        {@render checkbox(showNcn)}
+        <span class="color-bar ncn-color-bar"></span>
+        <span class="item-label">National Cycle Network</span>
+      </button>
     </div>
-    <div class="header-actions">
-      {#if hiddenItems.length > 0}
-        <button class="reset-btn" onclick={onShowAll} title="Show all layers">All</button>
-      {/if}
-      <button class="collapse-btn" onclick={() => collapsed = !collapsed} title={collapsed ? 'Expand Legend' : 'Collapse Legend'}>
-        {collapsed ? '▲' : '▼'}
+    {#if showNcn}
+      <div class="sublegend">
+        <div class="sublegend-item"><span class="sample ncn-sample-solid"></span>Traffic-free</div>
+        <div class="sublegend-item"><span class="sample ncn-sample-dashed"></span>On-road</div>
+      </div>
+    {/if}
+
+    <div class="legend-row" class:hidden-layer={!showOpenRoads}>
+      <button class="legend-item-btn" onclick={onToggleOpenRoads} aria-pressed={showOpenRoads}>
+        {@render checkbox(showOpenRoads)}
+        <span class="color-bar openroads-color-bar"></span>
+        <span class="item-label">OS OpenRoads (10 km)</span>
+      </button>
+    </div>
+    {#if showOpenRoads}
+      <div class="sublegend">
+        <div class="sublegend-item"><span class="sample openroads-sample-haulage"></span>Possible HS2 haulage</div>
+        <div class="sublegend-item"><span class="sample openroads-sample-major"></span>Motorway / A road</div>
+        <div class="sublegend-item"><span class="sample openroads-sample-minor"></span>B road</div>
+        <div class="sublegend-item"><span class="sample openroads-sample-local"></span>Local road</div>
+      </div>
+    {/if}
+
+    <div class="legend-row" class:hidden-layer={!showStudyArea}>
+      <button class="legend-item-btn" onclick={onToggleStudyArea} aria-pressed={showStudyArea}>
+        {@render checkbox(showStudyArea)}
+        <span class="color-bar studyarea-color-bar"></span>
+        <span class="item-label">Study area (10 km)</span>
       </button>
     </div>
   </div>
-
-  {#if !collapsed}
-    <div class="legend-items">
-      {#each items as item}
-        {@const visible = isVisible(item.label)}
-        <div class="legend-row" class:hidden-layer={!visible}>
-          <!-- Toggle checkbox / click row to toggle layer -->
-          <button
-            class="legend-item-btn"
-            onclick={() => onToggleItem(item.label)}
-            title={visible ? `Hide ${item.label} layer` : `Show ${item.label} layer`}
-            aria-pressed={visible}
-          >
-            <span class="toggle-box" class:checked={visible}>
-              {#if visible}
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-                  <polyline points="20 6 9 17 4 12"></polyline>
-                </svg>
-              {/if}
-            </span>
-            <span class="color-bar" style="background-color: {item.color};"></span>
-            <span class="item-label">{item.label}</span>
-            {#if item.km !== undefined && item.km > 0}
-              <span class="item-km">{item.km.toFixed(1)} km</span>
-            {/if}
-          </button>
-
-          <!-- Solo / Isolate button -->
-          <button 
-            class="solo-btn" 
-            onclick={() => onIsolateItem(item.label)}
-            title={`Show ONLY ${item.label}`}
-          >
-            only
-          </button>
-        </div>
-      {/each}
-
-      <div class="legend-divider"></div>
-      <div class="legend-row ncn-legend-row" class:hidden-layer={!showNcn}>
-        <button
-          class="legend-item-btn"
-          onclick={onToggleNcn}
-          title={showNcn ? 'Hide National Cycle Network' : 'Show National Cycle Network (Sustrans)'}
-          aria-pressed={showNcn}
-        >
-          <span class="toggle-box" class:checked={showNcn}>
-            {#if showNcn}
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-                <polyline points="20 6 9 17 4 12"></polyline>
-              </svg>
-            {/if}
-          </span>
-          <span class="color-bar ncn-color-bar"></span>
-          <span class="item-label font-medium">NCN Network (Sustrans)</span>
-        </button>
-      </div>
-      {#if showNcn}
-        <div class="ncn-sublegend">
-          <div class="sublegend-item">
-            <span class="ncn-sample-solid"></span>
-            <span>Traffic-Free</span>
-          </div>
-          <div class="sublegend-item">
-            <span class="ncn-sample-dashed"></span>
-            <span>On-Road</span>
-          </div>
-        </div>
-      {/if}
-
-      <div class="legend-divider"></div>
-      <div class="legend-row openroads-legend-row" class:hidden-layer={!showOpenRoads}>
-        <button
-          class="legend-item-btn"
-          onclick={onToggleOpenRoads}
-          title={showOpenRoads ? 'Hide OS OpenRoads' : 'Show OS OpenRoads (10km Corridor Buffer)'}
-          aria-pressed={showOpenRoads}
-        >
-          <span class="toggle-box" class:checked={showOpenRoads}>
-            {#if showOpenRoads}
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-                <polyline points="20 6 9 17 4 12"></polyline>
-              </svg>
-            {/if}
-          </span>
-          <span class="color-bar openroads-color-bar"></span>
-          <span class="item-label font-medium">OS OpenRoads (10km)</span>
-        </button>
-      </div>
-      {#if showOpenRoads}
-        <div class="openroads-sublegend">
-          <div class="sublegend-item">
-            <span class="openroads-sample-haulage"></span>
-            <span>Possible HS2 Haulage</span>
-          </div>
-          <div class="sublegend-item">
-            <span class="openroads-sample-major"></span>
-            <span>Motorway / A Road</span>
-          </div>
-          <div class="sublegend-item">
-            <span class="openroads-sample-minor"></span>
-            <span>B / Minor Road</span>
-          </div>
-          <div class="sublegend-item">
-            <span class="openroads-sample-local"></span>
-            <span>Local Road</span>
-          </div>
-        </div>
-      {/if}
-
-      <div class="legend-divider"></div>
-      <div class="legend-row studyarea-legend-row" class:hidden-layer={!showStudyArea}>
-        <button
-          class="legend-item-btn"
-          onclick={onToggleStudyArea}
-          title={showStudyArea ? 'Hide Study Area' : 'Show RailActive Study Area (5km Corridor Buffer)'}
-          aria-pressed={showStudyArea}
-        >
-          <span class="toggle-box" class:checked={showStudyArea}>
-            {#if showStudyArea}
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-                <polyline points="20 6 9 17 4 12"></polyline>
-              </svg>
-            {/if}
-          </span>
-          <span class="color-bar studyarea-color-bar"></span>
-          <span class="item-label font-medium">Study Area (5km)</span>
-        </button>
-      </div>
-    </div>
-    <div class="legend-footer">
-      <span>Click item to toggle layer on/off &bull; Click "only" to isolate</span>
-    </div>
-  {/if}
 </div>
 
 <style>
-  .floating-legend {
-    position: absolute;
-    bottom: 24px;
-    right: 24px;
-    width: 290px;
-    background: rgba(15, 23, 42, 0.92);
-    backdrop-filter: blur(14px);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-panel);
-    z-index: 20;
-    overflow: hidden;
-    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  .legend {
+    margin-bottom: 16px;
   }
 
-  .floating-legend.collapsed {
-    width: 210px;
-  }
-
-  .legend-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 12px;
-    background: rgba(255, 255, 255, 0.03);
-    border-bottom: 1px solid var(--border-color);
-  }
-
-  .title-wrap {
+  .colorby-row {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
+    margin-bottom: 6px;
   }
 
-  .legend-title {
+  .colorby-row label {
     font-size: 11px;
-    font-weight: 700;
-    color: var(--text-primary);
-    text-transform: capitalize;
-  }
-
-  .legend-badge {
-    font-size: 9px;
-    color: var(--text-muted);
-    background: rgba(255, 255, 255, 0.06);
-    padding: 1px 5px;
-    border-radius: 4px;
-  }
-
-  .header-actions {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .reset-btn {
-    background: rgba(59, 130, 246, 0.2);
-    border: 1px solid rgba(59, 130, 246, 0.4);
-    color: #60a5fa;
-    font-size: 9px;
     font-weight: 600;
-    padding: 1px 6px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.15s ease;
+    color: var(--text-secondary);
+    white-space: nowrap;
   }
 
-  .reset-btn:hover {
-    background: rgba(59, 130, 246, 0.35);
-    color: #ffffff;
+  .colorby-row select {
+    flex: 1;
+    min-width: 0;
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    padding: 5px 8px;
+    font-size: 12px;
+    outline: none;
   }
 
-  .collapse-btn {
+  .colorby-row select:focus {
+    border-color: var(--accent-blue);
+  }
+
+  .show-all-btn {
     background: none;
     border: none;
-    color: var(--text-muted);
-    font-size: 10px;
+    color: #60a5fa;
+    font-size: 11px;
+    font-weight: 600;
     cursor: pointer;
-    padding: 2px 4px;
-    border-radius: 4px;
+    white-space: nowrap;
   }
 
-  .collapse-btn:hover {
+  .show-all-btn:hover {
     color: var(--text-primary);
-    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .subheading {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin: 10px 0 2px;
   }
 
   .legend-items {
     display: flex;
     flex-direction: column;
-    gap: 2px;
-    padding: 6px;
-    max-height: 220px;
-    overflow-y: auto;
+    gap: 1px;
   }
 
   .legend-row {
@@ -296,7 +204,6 @@
     align-items: center;
     gap: 4px;
     border-radius: var(--radius-sm);
-    transition: all 0.15s ease;
   }
 
   .legend-row:hover {
@@ -304,17 +211,16 @@
   }
 
   .legend-row.hidden-layer {
-    opacity: 0.45;
+    opacity: 0.5;
   }
 
   .legend-item-btn {
     display: flex;
     align-items: center;
-    gap: 7px;
+    gap: 8px;
     background: transparent;
     border: none;
-    padding: 4px 6px;
-    border-radius: var(--radius-sm);
+    padding: 5px 4px;
     cursor: pointer;
     text-align: left;
     flex: 1;
@@ -322,48 +228,42 @@
   }
 
   .toggle-box {
-    width: 12px;
-    height: 12px;
+    width: 13px;
+    height: 13px;
     border-radius: 3px;
-    border: 1.5px solid var(--text-muted);
+    border: 1.5px solid var(--text-secondary);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #ffffff;
     flex-shrink: 0;
-    transition: all 0.15s ease;
   }
 
   .toggle-box.checked {
-    background: var(--accent-cyan);
-    border-color: var(--accent-cyan);
+    background: var(--text-primary);
+    border-color: var(--text-primary);
     color: #0f172a;
   }
 
   .color-bar {
-    width: 10px;
-    height: 10px;
+    width: 14px;
+    height: 4px;
     border-radius: 2px;
     flex-shrink: 0;
   }
 
   .item-label {
     flex: 1;
-    font-size: 11px;
-    color: var(--text-secondary);
+    font-size: 12px;
+    color: var(--text-primary);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
 
-  .legend-row:not(.hidden-layer) .item-label {
-    color: #f1f5f9;
-  }
-
   .item-km {
-    font-size: 10px;
+    font-size: 11px;
     font-family: 'JetBrains Mono', monospace;
-    color: var(--text-muted);
+    color: var(--text-secondary);
   }
 
   .solo-btn {
@@ -371,50 +271,31 @@
     background: rgba(255, 255, 255, 0.08);
     border: 1px solid rgba(255, 255, 255, 0.12);
     color: var(--text-secondary);
-    font-size: 8px;
+    font-size: 10px;
     font-weight: 600;
-    text-transform: uppercase;
-    padding: 2px 4px;
+    padding: 1px 5px;
     border-radius: 3px;
     cursor: pointer;
     margin-right: 4px;
-    transition: all 0.15s ease;
   }
 
-  .legend-row:hover .solo-btn {
+  .legend-row:hover .solo-btn,
+  .solo-btn:focus-visible {
     opacity: 1;
   }
 
   .solo-btn:hover {
     background: var(--accent-blue);
-    color: #ffffff;
     border-color: var(--accent-blue);
+    color: #ffffff;
   }
 
-  .legend-footer {
-    padding: 4px 10px 8px 10px;
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
-    font-size: 9px;
-    color: var(--text-muted);
-    text-align: center;
-    font-style: italic;
-  }
-
-  .legend-divider {
-    height: 1px;
-    background: rgba(255, 255, 255, 0.1);
-    margin: 4px 6px;
-  }
-
-  .ncn-color-bar {
-    background: linear-gradient(90deg, #10b981, #fb7185) !important;
-  }
-
-  .ncn-sublegend {
+  .sublegend {
     display: flex;
-    gap: 12px;
-    padding: 2px 8px 6px 32px;
-    font-size: 10px;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+    padding: 0 4px 6px 47px;
+    font-size: 11px;
     color: var(--text-secondary);
   }
 
@@ -424,62 +305,46 @@
     gap: 5px;
   }
 
-  .ncn-sample-solid {
+  .sample {
     width: 14px;
     height: 3px;
-    background: #10b981;
     border-radius: 2px;
+  }
+
+  .ncn-color-bar,
+  .ncn-sample-solid {
+    background: var(--ncn);
   }
 
   .ncn-sample-dashed {
-    width: 14px;
-    height: 3px;
-    background: repeating-linear-gradient(90deg, #fb7185, #fb7185 3px, transparent 3px, transparent 6px);
+    background: repeating-linear-gradient(90deg, var(--ncn), var(--ncn) 3px, transparent 3px, transparent 6px);
   }
 
   .openroads-color-bar {
-    background: linear-gradient(90deg, #3b82f6, #94a3b8) !important;
-  }
-
-  .studyarea-color-bar {
-    background: #a855f7 !important;
-    border: 1px dashed #c084fc;
-  }
-
-  .openroads-sublegend {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    padding: 2px 8px 6px 32px;
-    font-size: 10px;
-    color: var(--text-secondary);
-  }
-
-  .openroads-sample-major {
-    width: 14px;
-    height: 3px;
-    background: #3b82f6;
-    border-radius: 2px;
+    background: linear-gradient(90deg, var(--road-major), var(--road-local));
   }
 
   .openroads-sample-haulage {
-    width: 14px;
-    height: 3px;
-    background: #f59e0b;
-    border-radius: 2px;
+    background: repeating-linear-gradient(90deg, var(--road-haulage), var(--road-haulage) 4px, transparent 4px, transparent 7px);
+  }
+
+  .openroads-sample-major {
+    background: var(--road-major);
   }
 
   .openroads-sample-minor {
-    width: 14px;
     height: 2px;
-    background: #60a5fa;
-    border-radius: 2px;
+    background: var(--road-minor);
   }
 
   .openroads-sample-local {
-    width: 14px;
     height: 1.5px;
-    background: #94a3b8;
-    border-radius: 1px;
+    background: var(--road-local);
+  }
+
+  .studyarea-color-bar {
+    height: 8px;
+    background: color-mix(in srgb, var(--study-area) 35%, transparent);
+    border: 1px dashed var(--study-area-outline);
   }
 </style>

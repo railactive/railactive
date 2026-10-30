@@ -9,6 +9,14 @@
     NcnProperties,
     OpenRoadsProperties
   } from '../types/cycleway';
+  import {
+    colorExpression,
+    hiddenGroupExpressions,
+    INTERVENTION_COLOR,
+    isSuperseded,
+    REFERENCE_COLORS,
+    supersededScopeExpression
+  } from '../palette';
 
   const NCN_SOURCE_ID = 'ncn-data';
   const NCN_CASING_LAYER_ID = 'ncn-casing';
@@ -211,78 +219,12 @@
     }
   };
 
-  function getColorExpression(colorBy: string): any {
-    const isSuperseded = [
-      'any',
-      ['==', ['coalesce', ['get', 'folder'], ''], 'Superseded'],
-      ['==', ['coalesce', ['get', 'status'], ''], 'superseded'],
-      ['==', ['coalesce', ['get', 'category'], ''], 'Old active travel route alignment']
-    ];
-
-    let baseColorExpr: any;
-    if (colorBy === 'kml') {
-      baseColorExpr = ['coalesce', ['get', 'color'], '#3b82f6'];
-    } else if (colorBy === 'category') {
-      baseColorExpr = [
-        'match',
-        ['coalesce', ['get', 'category'], ''],
-        'Cycleway beside HS2', '#f97316', // HS2 Haulage - Coral Orange
-        'Traffic-free path away from highway', '#10b981', // Greenways - Emerald Green
-        '20mph and traffic calmed or protected cycle lane', '#3b82f6', // Quietways - Royal Blue
-        'Canal tow path or new path close by canal', '#06b6d4', // Canal - Teal Blue
-        '#3b82f6' // Corridor Blue
-      ];
-    } else if (colorBy === 'developer') {
-      baseColorExpr = [
-        'match',
-        ['coalesce', ['get', 'developer'], ''],
-        'HS2', '#f97316', // HS2 Haulage - Coral Orange
-        'DfT', '#1d4ed8', // DfT - Deep Blue
-        'Local Authority', '#10b981', // LA Greenways - Emerald
-        'Canals & River Trust', '#06b6d4', // CRT - Teal Blue
-        'Sustrans', '#818cf8', // Sustrans - Indigo
-        'Developer', '#38bdf8', // Developer - Sky Blue
-        '#3b82f6'
-      ];
-    } else {
-      // Default: Classification (HS2 Haulage = Orange, Greenways = Green, Existing/Upgrades = Shades of Blue)
-      baseColorExpr = [
-        'match',
-        ['coalesce', ['get', 'classification'], ''],
-        'HS2 Haulage', '#f97316', // Vibrant Coral Orange
-        'HS2 Delivery', '#f97316', // Legacy label mapped to Orange
-        'HS2 Legacy', '#ea580c', // Darker Orange
-        'New Greenway', '#10b981', // Vibrant Emerald Green
-        'Upgrade PROW', '#38bdf8', // Light Sky Blue
-        'Local Road Quietway', '#3b82f6', // Bright Royal Blue
-        'Quiet Lane', '#1d4ed8', // Deep Cobalt Blue
-        'Existing routes', '#64748b', // Muted Slate Blue
-        'Town or village centre', '#818cf8', // Soft Indigo Blue
-        'Main Road-Cycle tracks', '#4338ca', // Dark Royal Blue
-        'Canal Towpath Upgrade', '#06b6d4', // Teal Cyan Blue
-        'Existing Footway Level Cycle Track', '#6366f1', // Indigo Blue
-        'Proposed Footway Level Cycle Track', '#a855f7', // Violet Blue
-        '#3b82f6' // Default active route: Blue
-      ];
-    }
-
-    return [
-      'case',
-      isSuperseded,
-      '#94a3b8', // Muted slate grey for superseded reference links
-      baseColorExpr
-    ];
-  }
-
   function getActiveFilterExpression(f: FilterState): any {
     const expressions: any[] = [
       'all',
       ['!=', ['coalesce', ['get', 'layer_type'], ''], 'hs2_railway'],
       ['!=', ['coalesce', ['get', 'layer_type'], ''], 'intervention'],
-      ['!=', ['coalesce', ['get', 'folder'], ''], 'Superseded'],
-      ['!=', ['coalesce', ['get', 'status'], ''], 'superseded'],
-      ['!=', ['coalesce', ['get', 'category'], ''], 'Old active travel route alignment'],
-      ['!=', ['coalesce', ['get', 'classification'], ''], 'Old active travel route alignment']
+      supersededScopeExpression(f.status === 'superseded')
     ];
 
     if (f.developer) {
@@ -298,31 +240,12 @@
     if (f.section) {
       expressions.push(['==', ['coalesce', ['get', 'section'], ''], f.section]);
     }
-    if (f.status) {
+    if (f.status && f.status !== 'superseded') {
       expressions.push(['==', ['coalesce', ['get', 'status'], 'preferred'], f.status]);
     }
 
-    // Interactive Legend Layer Visibility Toggle (Exclude unchecked layers)
-    if (f.hiddenLegendItems && f.hiddenLegendItems.length > 0) {
-      for (const item of f.hiddenLegendItems) {
-        if (item === 'Old active travel route alignment' || item === 'Superseded (reference)') {
-          expressions.push(['!=', ['coalesce', ['get', 'folder'], ''], 'Superseded']);
-          expressions.push(['!=', ['coalesce', ['get', 'status'], ''], 'superseded']);
-          expressions.push(['!=', ['coalesce', ['get', 'category'], ''], 'Old active travel route alignment']);
-          expressions.push(['!=', ['coalesce', ['get', 'classification'], ''], 'Old active travel route alignment']);
-        } else if (f.colorBy === 'category') {
-          expressions.push(['!=', ['coalesce', ['get', 'category'], ''], item]);
-        } else if (f.colorBy === 'developer') {
-          expressions.push(['!=', ['coalesce', ['get', 'developer'], ''], item]);
-        } else {
-          // classification
-          expressions.push(['!=', ['coalesce', ['get', 'classification'], ''], item]);
-          if (item === 'HS2 Haulage') {
-            expressions.push(['!=', ['coalesce', ['get', 'classification'], ''], 'HS2 Delivery']);
-          }
-        }
-      }
-    }
+    // Interactive legend: exclude unchecked colour groups
+    expressions.push(...hiddenGroupExpressions(f.colorBy, f.hiddenLegendItems ?? []));
 
     return expressions;
   }
@@ -331,31 +254,10 @@
     const expressions: any[] = [
       'all',
       ['==', '$type', 'Point'],
-      ['!=', ['coalesce', ['get', 'folder'], ''], 'Superseded'],
-      ['!=', ['coalesce', ['get', 'status'], ''], 'superseded'],
-      ['!=', ['coalesce', ['get', 'category'], ''], 'Old active travel route alignment'],
-      ['!=', ['coalesce', ['get', 'classification'], ''], 'Old active travel route alignment']
+      supersededScopeExpression(f.status === 'superseded')
     ];
-    if (f.status) {
+    if (f.status && f.status !== 'superseded') {
       expressions.push(['==', ['coalesce', ['get', 'status'], 'preferred'], f.status]);
-    }
-
-    // Interactive Legend Layer Visibility Toggle (Exclude unchecked layers)
-    if (f.hiddenLegendItems && f.hiddenLegendItems.length > 0) {
-      for (const item of f.hiddenLegendItems) {
-        if (item === 'Old active travel route alignment' || item === 'Superseded (reference)') {
-          expressions.push(['!=', ['coalesce', ['get', 'folder'], ''], 'Superseded']);
-          expressions.push(['!=', ['coalesce', ['get', 'status'], ''], 'superseded']);
-          expressions.push(['!=', ['coalesce', ['get', 'category'], ''], 'Old active travel route alignment']);
-          expressions.push(['!=', ['coalesce', ['get', 'classification'], ''], 'Old active travel route alignment']);
-        } else if (f.colorBy === 'category') {
-          expressions.push(['!=', ['coalesce', ['get', 'category'], ''], item]);
-        } else if (f.colorBy === 'developer') {
-          expressions.push(['!=', ['coalesce', ['get', 'developer'], ''], item]);
-        } else {
-          expressions.push(['!=', ['coalesce', ['get', 'classification'], ''], item]);
-        }
-      }
     }
 
     return expressions;
@@ -383,11 +285,9 @@
     hoveredId = feat.id as number;
     map.setFeatureState({ source: 'cycleway-data', id: hoveredId }, { hover: true });
 
-    const isSuperseded = properties.folder === 'Superseded' ||
-      (properties as any).status === 'superseded' ||
-      properties.category === 'Old active travel route alignment';
+    const superseded = isSuperseded(properties);
     const length = properties.length_km ? `${Number(properties.length_km).toFixed(2)} km` : '';
-    const classification = isSuperseded
+    const classification = superseded
       ? 'Old active travel route alignment'
       : properties.classification === 'HS2 Delivery'
         ? 'HS2 Haulage'
@@ -465,13 +365,11 @@
     const feat = e.features[0];
     const properties = feat.properties as CyclewaySegmentProperties;
 
-    const isSuperseded = properties.folder === 'Superseded' ||
-      (properties as any).status === 'superseded' ||
-      properties.category === 'Old active travel route alignment';
+    const superseded = isSuperseded(properties);
 
     const title = properties.name || 'Junction Treatment';
     const folder = properties.folder ? properties.folder.replace(' - Interventions', '') : 'Intervention';
-    const classification = isSuperseded ? 'Old active travel route alignment' : (properties.classification || 'Intervention Point');
+    const classification = superseded ? 'Old active travel route alignment' : (properties.classification || 'Intervention Point');
     const remarks = properties.remarks ? `<div class="tooltip-remarks">${escapeHtml(properties.remarks)}</div>` : '';
 
     const html = `
@@ -505,20 +403,18 @@
       clickPopup = null;
     }
 
-    const isSuperseded = properties.folder === 'Superseded' ||
-      (properties as any).status === 'superseded' ||
-      properties.category === 'Old active travel route alignment';
+    const superseded = isSuperseded(properties);
 
     const title = popupValue(properties.name, 'Junction Treatment');
     const folder = popupValue(properties.folder ? properties.folder.replace(' - Interventions', '') : '', 'Intervention');
-    const classification = isSuperseded ? 'Old active travel route alignment' : popupValue(properties.classification, 'Active Route Treatment');
+    const classification = superseded ? 'Old active travel route alignment' : popupValue(properties.classification, 'Active Route Treatment');
 
     const html = `
       <div class="point-popup-card">
         <div class="point-popup-header">
           <div class="point-badge-group">
-            <span class="point-badge ${isSuperseded ? 'point-superseded' : 'point-type'}">
-              ${isSuperseded ? 'Old Alignment' : 'Intervention'}
+            <span class="point-badge ${superseded ? 'point-superseded' : 'point-type'}">
+              ${superseded ? 'Old Alignment' : 'Intervention'}
             </span>
             <span class="point-badge point-sub">${folder}</span>
           </div>
@@ -677,7 +573,7 @@
           'visibility': showNcn ? 'visible' : 'none'
         },
         paint: {
-          'line-color': '#4c0519',
+          'line-color': REFERENCE_COLORS.ncnCasing,
           'line-width': [
             'interpolate',
             ['linear'],
@@ -687,7 +583,7 @@
             12, 5.5,
             16, 8.5
           ],
-          'line-opacity': 0.8
+          'line-opacity': 0.3
         }
       }, beforeId);
 
@@ -703,7 +599,7 @@
           'visibility': showNcn ? 'visible' : 'none'
         },
         paint: {
-          'line-color': '#10b981',
+          'line-color': REFERENCE_COLORS.ncn,
           'line-width': [
             'interpolate',
             ['linear'],
@@ -713,7 +609,7 @@
             12, 3.5,
             16, 5.0
           ],
-          'line-opacity': 0.95
+          'line-opacity': 0.55
         }
       }, beforeId);
 
@@ -729,7 +625,7 @@
           'visibility': showNcn ? 'visible' : 'none'
         },
         paint: {
-          'line-color': '#fb7185',
+          'line-color': REFERENCE_COLORS.ncn,
           'line-width': [
             'interpolate',
             ['linear'],
@@ -740,7 +636,7 @@
             16, 5.0
           ],
           'line-dasharray': [3, 2],
-          'line-opacity': 0.95
+          'line-opacity': 0.5
         }
       }, beforeId);
 
@@ -883,7 +779,7 @@
           'visibility': showOpenRoads ? 'visible' : 'none'
         },
         paint: {
-          'line-color': '#0f172a',
+          'line-color': REFERENCE_COLORS.roadCasing,
           'line-width': [
             'interpolate',
             ['linear'],
@@ -909,7 +805,7 @@
           'visibility': showOpenRoads ? 'visible' : 'none'
         },
         paint: {
-          'line-color': '#94a3b8',
+          'line-color': REFERENCE_COLORS.roadLocal,
           'line-width': [
             'interpolate',
             ['linear'],
@@ -935,7 +831,7 @@
           'visibility': showOpenRoads ? 'visible' : 'none'
         },
         paint: {
-          'line-color': '#f59e0b',
+          'line-color': REFERENCE_COLORS.roadHaulage,
           'line-width': [
             'interpolate',
             ['linear'],
@@ -944,6 +840,7 @@
             11, 3.5,
             14, 6.0
           ],
+          'line-dasharray': [2, 1.5],
           'line-opacity': 1
         }
       }, beforeId);
@@ -960,7 +857,7 @@
           'visibility': showOpenRoads ? 'visible' : 'none'
         },
         paint: {
-          'line-color': '#60a5fa',
+          'line-color': REFERENCE_COLORS.roadMinor,
           'line-width': [
             'interpolate',
             ['linear'],
@@ -985,7 +882,7 @@
           'visibility': showOpenRoads ? 'visible' : 'none'
         },
         paint: {
-          'line-color': '#3b82f6',
+          'line-color': REFERENCE_COLORS.roadMajor,
           'line-width': [
             'interpolate',
             ['linear'],
@@ -1029,7 +926,7 @@
       });
 
       // ==========================================
-      // STUDY AREA BOUNDARY LAYER (5km Corridor Buffer)
+      // STUDY AREA BOUNDARY LAYER (10km Corridor Buffer)
       // ==========================================
       if (!map.getSource('study-area-data')) {
         map.addSource('study-area-data', {
@@ -1045,7 +942,7 @@
             'visibility': showStudyArea ? 'visible' : 'none'
           },
           paint: {
-            'fill-color': '#8b5cf6',
+            'fill-color': REFERENCE_COLORS.studyArea,
             'fill-opacity': 0.08
           }
         });
@@ -1058,7 +955,7 @@
             'visibility': showStudyArea ? 'visible' : 'none'
           },
           paint: {
-            'line-color': '#7c3aed',
+            'line-color': REFERENCE_COLORS.studyAreaOutline,
             'line-width': [
               'interpolate',
               ['linear'],
@@ -1164,7 +1061,7 @@
           'line-join': 'round'
         },
         paint: {
-          'line-color': getColorExpression(filters.colorBy),
+          'line-color': colorExpression(filters.colorBy),
           'line-width': [
             'interpolate',
             ['linear'],
@@ -1186,9 +1083,9 @@
         filter: getPointFilterExpression(filters),
         paint: {
           'circle-radius': ['interpolate', ['linear'], ['zoom'], 6, 4, 12, 7, 16, 11],
-          'circle-color': getColorExpression(filters.colorBy),
+          'circle-color': INTERVENTION_COLOR,
           'circle-stroke-width': 1.5,
-          'circle-stroke-color': '#ffffff'
+          'circle-stroke-color': '#0f172a'
         }
       });
 
@@ -1244,6 +1141,7 @@
     const bounds = new maplibregl.LngLatBounds();
     
     for (const f of data.features) {
+      if (isSuperseded(f.properties)) continue;
       const geom = f.geometry;
       if (geom.type === 'LineString') {
         for (const c of geom.coordinates) bounds.extend(c as [number, number]);
@@ -1396,11 +1294,8 @@
         map.setFilter('cycleway-points', getPointFilterExpression(filters));
       }
       
-      const colorExpr = getColorExpression(filters.colorBy);
+      const colorExpr = colorExpression(filters.colorBy);
       map.setPaintProperty('cycleway-lines', 'line-color', colorExpr);
-      if (map.getLayer('cycleway-points')) {
-        map.setPaintProperty('cycleway-points', 'circle-color', colorExpr);
-      }
     }
   });
 
@@ -1514,13 +1409,13 @@
   }
 
   :global(.badge-trafficfree) {
-    background: rgba(16, 185, 129, 0.25) !important;
-    color: #6ee7b7 !important;
+    background: rgba(217, 70, 239, 0.25) !important;
+    color: #f5d0fe !important;
   }
 
   :global(.badge-onroad) {
-    background: rgba(251, 113, 133, 0.2) !important;
-    color: #fecdd3 !important;
+    background: rgba(217, 70, 239, 0.12) !important;
+    color: #f0abfc !important;
   }
 
   :global(.ncn-popup-card) {
@@ -1549,26 +1444,26 @@
   }
 
   :global(.ncn-type) {
-    background: #e11d48;
+    background: #c026d3;
     color: #ffffff;
   }
 
   :global(.ncn-trafficfree) {
-    background: rgba(16, 185, 129, 0.25);
-    color: #6ee7b7;
-    border: 1px solid rgba(16, 185, 129, 0.4);
+    background: rgba(217, 70, 239, 0.25);
+    color: #f5d0fe;
+    border: 1px solid rgba(217, 70, 239, 0.4);
   }
 
   :global(.ncn-onroad) {
-    background: rgba(245, 158, 11, 0.25);
-    color: #fcd34d;
-    border: 1px solid rgba(245, 158, 11, 0.4);
+    background: rgba(217, 70, 239, 0.12);
+    color: #f0abfc;
+    border: 1px dashed rgba(217, 70, 239, 0.5);
   }
 
   :global(.ncn-greenway) {
-    background: rgba(59, 130, 246, 0.25);
-    color: #93c5fd;
-    border: 1px solid rgba(59, 130, 246, 0.4);
+    background: rgba(148, 163, 184, 0.2);
+    color: #e2e8f0;
+    border: 1px solid rgba(148, 163, 184, 0.4);
   }
 
   :global(.ncn-popup-title) {
@@ -1616,14 +1511,14 @@
     padding: 12px 14px !important;
     background: rgba(15, 23, 42, 0.96) !important;
     backdrop-filter: blur(16px) !important;
-    border: 1px solid rgba(225, 29, 72, 0.45) !important;
+    border: 1px solid rgba(217, 70, 239, 0.45) !important;
     border-radius: 10px !important;
     box-shadow: 0 12px 28px rgba(0, 0, 0, 0.6) !important;
   }
 
   :global(.badge-openroads) {
-    background: rgba(59, 130, 246, 0.25) !important;
-    color: #93c5fd !important;
+    background: rgba(148, 163, 184, 0.25) !important;
+    color: #e2e8f0 !important;
   }
 
   :global(.openroads-popup-card) {
@@ -1652,14 +1547,14 @@
   }
 
   :global(.openroads-type) {
-    background: #2563eb;
+    background: #475569;
     color: #ffffff;
   }
 
   :global(.openroads-func) {
-    background: rgba(59, 130, 246, 0.25);
-    color: #93c5fd;
-    border: 1px solid rgba(59, 130, 246, 0.4);
+    background: rgba(148, 163, 184, 0.2);
+    color: #e2e8f0;
+    border: 1px solid rgba(148, 163, 184, 0.4);
   }
 
   :global(.openroads-popup-title) {
@@ -1707,7 +1602,7 @@
     padding: 12px 14px !important;
     background: rgba(15, 23, 42, 0.96) !important;
     backdrop-filter: blur(16px) !important;
-    border: 1px solid rgba(59, 130, 246, 0.45) !important;
+    border: 1px solid rgba(148, 163, 184, 0.45) !important;
     border-radius: 10px !important;
     box-shadow: 0 12px 28px rgba(0, 0, 0, 0.6) !important;
   }
