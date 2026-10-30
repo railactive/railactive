@@ -13,6 +13,7 @@
     groupFor,
     groupsFor,
     isSuperseded,
+    normalizeClassification,
     showsSuperseded,
     SUPERSEDED_LABEL
   } from './lib/palette';
@@ -108,10 +109,15 @@
     );
     const developers = new Set(activeFeatures.map(feature => feature.properties.developer).filter(Boolean));
     const categories = new Set(activeFeatures.map(feature => feature.properties.category).filter(Boolean));
-    const classifications = new Set(activeFeatures.map(feature => {
-      const classification = feature.properties.classification;
-      return classification === 'HS2 Delivery' ? 'HS2 Haulage' : classification || 'Existing routes';
-    }));
+    const classifications = new Set([
+      'Repurposed HS2 TCR',
+      'HS2 delivered greenway',
+      'Dual Use of HS2 Maintenance Access Tracks (MATs)',
+      ...activeFeatures.map(feature => {
+        const classification = feature.properties.classification;
+        return normalizeClassification(classification) || 'Existing routes';
+      })
+    ]);
     const sections = new Set(activeFeatures.map(feature => feature.properties.section).filter(Boolean));
     const legendValues = new Set(groupsFor(filters.colorBy).map(group => group.label));
 
@@ -222,11 +228,15 @@
   });
 
   let availableClassifications = $derived.by(() => {
-    const cls = new Set<string>();
+    const cls = new Set<string>([
+      'Repurposed HS2 TCR',
+      'HS2 delivered greenway',
+      'Dual Use of HS2 Maintenance Access Tracks (MATs)'
+    ]);
     for (const f of activeNetworkFeatures) {
       const c = f.properties.classification;
       if (c) {
-        cls.add(c === 'HS2 Delivery' ? 'HS2 Haulage' : c);
+        cls.add(normalizeClassification(c));
       }
     }
     return Array.from(cls).sort();
@@ -253,8 +263,8 @@
       if (filters.developer && p.developer !== filters.developer) return false;
       if (filters.category && p.category !== filters.category) return false;
       if (filters.classification) {
-        const pCls = p.classification === 'HS2 Delivery' ? 'HS2 Haulage' : p.classification;
-        if (pCls !== filters.classification) return false;
+        const pCls = normalizeClassification(p.classification);
+        if (pCls !== normalizeClassification(filters.classification)) return false;
       }
       if (filters.section && p.section !== filters.section) return false;
       if (filters.status && !isSuperseded(p) && (p.status || 'preferred') !== filters.status) return false;
@@ -286,10 +296,11 @@
       .map(({ label, color }) => ({ label, color, km: kmByLabel.get(label) ?? 0 }));
   }
 
-  // Legend: every group present in the data, with km under the current filters
+  // Legend: every group present in the data (plus alwaysShow groups), with km under the current filters
   let legendItems = $derived.by(() => {
     const present = new Set(scopeFeatures.map(f => groupFor(filters.colorBy, f.properties).label));
-    return groupKm(countedFeatures).filter(item => present.has(item.label));
+    const always = new Set(groupsFor(filters.colorBy).filter(g => g.alwaysShow).map(g => g.label));
+    return groupKm(countedFeatures).filter(item => present.has(item.label) || always.has(item.label));
   });
 
   // Live statistics: the visible legend groups only

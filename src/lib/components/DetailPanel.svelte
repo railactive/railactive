@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { CyclewaySegmentProperties } from '../types/cycleway';
+  import { normalizeClassification } from '../palette';
 
   interface Props {
     segment: CyclewaySegmentProperties | null;
@@ -47,7 +48,7 @@
         </div>
         <div class="attr-item full">
           <span class="attr-label">Classification</span>
-          <span class="attr-value">{segment.classification === 'HS2 Delivery' ? 'HS2 Haulage' : (segment.classification || (segment.layer_type === 'intervention' ? 'Intervention Point' : 'Unclassified'))}</span>
+          <span class="attr-value">{normalizeClassification(segment.classification) || (segment.layer_type === 'intervention' ? 'Intervention Point' : 'Unclassified')}</span>
         </div>
         {#if segment.folder}
           <div class="attr-item full">

@@ -13,6 +13,8 @@ export interface ColorGroup {
   color: string;
   /** Raw attribute values in this group. Omitted on the scheme's one catch-all group. */
   values?: string[];
+  /** Keep this row visible in the legend even when 0 km match in the current dataset. */
+  alwaysShow?: boolean;
 }
 
 interface ColorScheme {
@@ -21,6 +23,8 @@ interface ColorScheme {
 }
 
 const HS2_ORANGE = '#f97316';
+const HS2_GREENWAY = '#84cc16';
+const HS2_MAT = '#fb923c';
 const GREEN = '#22c55e';
 const BLUE = '#3b82f6';
 const TEAL = '#2dd4bf';
@@ -32,11 +36,74 @@ const OLD_ALIGNMENT = 'Old active travel route alignment';
 export const SUPERSEDED_LABEL = 'Superseded';
 export const INTERVENTION_COLOR = '#f8fafc';
 
+export function normalizeClassification(c?: string): string {
+  if (!c) return '';
+  if (
+    c === 'HS2 Delivery'
+    || c === 'HS2 Haulage'
+    || c === 'Repurposed HS2 temporary construction road (TCR)'
+  ) {
+    return 'Repurposed HS2 TCR';
+  }
+  if (c === 'HS2 Legacy') {
+    return 'HS2 delivered greenway';
+  }
+  if (c === 'HS2 MAT') {
+    return 'Dual Use of HS2 Maintenance Access Tracks (MATs)';
+  }
+  return c;
+}
+
+export function classificationSynonyms(c: string): string[] {
+  if (
+    c === 'Repurposed HS2 TCR'
+    || c === 'Repurposed HS2 temporary construction road (TCR)'
+    || c === 'HS2 Haulage'
+    || c === 'HS2 Delivery'
+  ) {
+    return [
+      'Repurposed HS2 TCR',
+      'Repurposed HS2 temporary construction road (TCR)',
+      'HS2 Haulage',
+      'HS2 Delivery'
+    ];
+  }
+  if (c === 'HS2 delivered greenway' || c === 'HS2 Legacy') {
+    return ['HS2 delivered greenway', 'HS2 Legacy'];
+  }
+  if (c === 'Dual Use of HS2 Maintenance Access Tracks (MATs)' || c === 'HS2 MAT') {
+    return ['Dual Use of HS2 Maintenance Access Tracks (MATs)', 'HS2 MAT'];
+  }
+  return [c];
+}
+
 const SCHEMES: Record<GroupField, ColorScheme> = {
   classification: {
     field: 'classification',
     groups: [
-      { label: 'HS2 haulage & legacy', color: HS2_ORANGE, values: ['HS2 Haulage', 'HS2 Delivery', 'HS2 Legacy'] },
+      {
+        label: 'Repurposed HS2 TCR',
+        color: HS2_ORANGE,
+        alwaysShow: true,
+        values: [
+          'Repurposed HS2 TCR',
+          'Repurposed HS2 temporary construction road (TCR)',
+          'HS2 Haulage',
+          'HS2 Delivery'
+        ]
+      },
+      {
+        label: 'HS2 delivered greenway',
+        color: HS2_GREENWAY,
+        alwaysShow: true,
+        values: ['HS2 delivered greenway', 'HS2 Legacy']
+      },
+      {
+        label: 'Dual Use of HS2 Maintenance Access Tracks (MATs)',
+        color: HS2_MAT,
+        alwaysShow: true,
+        values: ['Dual Use of HS2 Maintenance Access Tracks (MATs)', 'HS2 MAT']
+      },
       { label: 'New greenway', color: GREEN, values: ['New Greenway'] },
       { label: 'Path & towpath upgrade', color: TEAL, values: ['Upgrade PROW', 'Canal Towpath Upgrade'] },
       { label: 'Quiet roads & lanes', color: BLUE, values: ['Local Road Quietway', 'Quiet Lane', 'Town or village centre'] },
@@ -51,7 +118,28 @@ const SCHEMES: Record<GroupField, ColorScheme> = {
   category: {
     field: 'category',
     groups: [
-      { label: 'Beside HS2', color: HS2_ORANGE, values: ['Cycleway beside HS2'] },
+      {
+        label: 'Repurposed HS2 temporary construction road (TCR)',
+        color: HS2_ORANGE,
+        alwaysShow: true,
+        values: [
+          'Repurposed HS2 temporary construction road (TCR)',
+          'Repurposed HS2 TCR',
+          'Cycleway beside HS2'
+        ]
+      },
+      {
+        label: 'HS2 delivered greenway',
+        color: HS2_GREENWAY,
+        alwaysShow: true,
+        values: ['HS2 delivered greenway']
+      },
+      {
+        label: 'Dual Use of HS2 Maintenance Access Tracks (MATs)',
+        color: HS2_MAT,
+        alwaysShow: true,
+        values: ['Dual Use of HS2 Maintenance Access Tracks (MATs)']
+      },
       { label: 'Traffic-free path', color: GREEN, values: ['Traffic-free path away from highway'] },
       { label: 'Canal towpath', color: TEAL, values: ['Canal tow path or new path close by canal'] },
       { label: '20mph / protected on-road', color: BLUE, values: ['20mph and traffic calmed or protected cycle lane'] },
