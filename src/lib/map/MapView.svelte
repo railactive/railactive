@@ -10,11 +10,13 @@
     OpenRoadsProperties
   } from '../types/cycleway';
   import {
+    classificationSynonyms,
     colorExpression,
     effectiveHiddenGroups,
     hiddenGroupExpressions,
     INTERVENTION_COLOR,
     isSuperseded,
+    normalizeClassification,
     REFERENCE_COLORS,
     statusFilterExpressions
   } from '../palette';

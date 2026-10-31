@@ -4,13 +4,15 @@
     onToggleSidebar: () => void;
     isExampleData: boolean;
     onCopyLink: () => Promise<void>;
+    isNetAssign?: boolean;
   }
 
   let { 
     sidebarOpen, 
     onToggleSidebar, 
     isExampleData = false,
-    onCopyLink
+    onCopyLink,
+    isNetAssign = false
   }: Props = $props();
 
   let copyStatus: 'idle' | 'copied' | 'error' = $state('idle');
@@ -59,18 +61,32 @@
       <div class="title-group">
         <div class="title-row">
           <h1>RailActive</h1>
-          {#if isExampleData}
+          {#if isNetAssign}
+            <span class="example-badge" title="NetAssign Active Travel Demand Model">/netassign</span>
+          {:else if isExampleData}
             <span class="example-badge" title="Running with minimal open example dataset">Example Data</span>
           {/if}
         </div>
-        <span class="subtitle">North-South Active Travel Corridor</span>
+        <span class="subtitle">
+          {isNetAssign ? 'Phase 4 Active Travel Demand & Flow Model' : 'North-South Active Travel Corridor'}
+        </span>
       </div>
     </div>
   </div>
 
   <div class="right-section">
     <a
-      href="./docs/"
+      href={isNetAssign ? '/' : '/netassign'}
+      class="doc-link"
+      title={isNetAssign ? 'Switch to Corridor Alignment Explorer' : 'View NetAssign Traffic Model (South of London & Greenway Spine)'}
+    >
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+      </svg>
+      <span>{isNetAssign ? 'Corridor Map' : 'Traffic Model'}</span>
+    </a>
+    <a
+      href="/docs/"
       target="_blank"
       rel="noreferrer"
       class="doc-link"

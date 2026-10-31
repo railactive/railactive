@@ -6,6 +6,7 @@
   import BasemapControl from './lib/components/BasemapControl.svelte';
   import PasswordGate from './lib/components/PasswordGate.svelte';
   import PlaceSearch from './lib/components/PlaceSearch.svelte';
+  import NetAssignView from './lib/components/NetAssignView.svelte';
   import MapView from './lib/map/MapView.svelte';
   import { hasValidMapHash, readUrlState, writeUrlState, type AppUrlState } from './lib/urlState';
   import {
@@ -25,6 +26,7 @@
   } from './lib/types/cycleway';
 
   const initialUrl = new URL(window.location.href);
+  const isNetAssignRoute = initialUrl.pathname.startsWith('/netassign') || initialUrl.searchParams.get('view') === 'netassign';
   const initialUrlState = readUrlState(initialUrl);
   const hasInitialMapView = hasValidMapHash(initialUrl.hash);
 
@@ -53,12 +55,17 @@
     const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
     
     // Check authentication
-    const hasAuth = sessionStorage.getItem('railactive_auth') === 'granted' || pwdParam === 'railactive!' || (isLocalhost && !urlParams.has('protect'));
+    const hasAuth = isNetAssignRoute || sessionStorage.getItem('railactive_auth') === 'granted' || pwdParam === 'railactive!' || (isLocalhost && !urlParams.has('protect'));
     if (!hasAuth) {
       isAuthenticated = false;
     } else {
       isAuthenticated = true;
       sessionStorage.setItem('railactive_auth', 'granted');
+    }
+
+    if (isNetAssignRoute) {
+      loading = false;
+      return;
     }
 
     const forceExample = urlParams.get('example') === 'true' || import.meta.env.MODE === 'example';
@@ -169,12 +176,16 @@
   }
 
   async function copyShareLink() {
+    if (isNetAssignRoute) {
+      await navigator.clipboard.writeText(window.location.href);
+      return;
+    }
     await navigator.clipboard.writeText(syncUrlState());
   }
 
   $effect(() => {
     const state = currentUrlState();
-    if (!urlStateReady) return;
+    if (!urlStateReady || isNetAssignRoute) return;
 
     const timer = setTimeout(() => {
       const relativeUrl = writeUrlState(new URL(window.location.href), state);
@@ -371,15 +382,25 @@
   onCopyLink={copyShareLink}
   onToggleSidebar={() => {
     sidebarOpen = !sidebarOpen;
-    setTimeout(() => {
-      if (mapViewRef && typeof mapViewRef.fitCorridorBounds === 'function') {
-        mapViewRef.fitCorridorBounds();
-      }
-    }, 300);
+    if (!isNetAssignRoute) {
+      setTimeout(() => {
+        if (mapViewRef && typeof mapViewRef.fitCorridorBounds === 'function') {
+          mapViewRef.fitCorridorBounds();
+        }
+      }, 300);
+    }
   }}
   {isExampleData}
+  isNetAssign={isNetAssignRoute}
 />
 
+{#if isNetAssignRoute}
+  <NetAssignView
+    {sidebarOpen}
+    {basemap}
+    onChangeBasemap={(style) => (basemap = style)}
+  />
+{:else}
 <main class="main-viewport">
   {#if loading}
     <div class="loading-overlay">
@@ -449,6 +470,7 @@
     onChangeBasemap={(style) => basemap = style}
   />
 </main>
+{/if}
 
 <style>
   .main-viewport {
