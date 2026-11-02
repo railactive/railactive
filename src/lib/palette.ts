@@ -36,14 +36,18 @@ const OLD_ALIGNMENT = 'Old active travel route alignment';
 export const SUPERSEDED_LABEL = 'Superseded';
 export const INTERVENTION_COLOR = '#f8fafc';
 
+/** Display name for HS2 haul roads, formerly 'HS2 Haulage' / 'HS2 Delivery' / 'Repurposed HS2 TCR'. */
+export const HS2_TCR_LABEL = 'Repurposed HS2 temporary construction road (TCR)';
+
 export function normalizeClassification(c?: string): string {
   if (!c) return '';
   if (
     c === 'HS2 Delivery'
     || c === 'HS2 Haulage'
-    || c === 'Repurposed HS2 temporary construction road (TCR)'
+    || c === 'Repurposed HS2 TCR'
+    || c === HS2_TCR_LABEL
   ) {
-    return 'Repurposed HS2 TCR';
+    return HS2_TCR_LABEL;
   }
   if (c === 'HS2 Legacy') {
     return 'HS2 delivered greenway';
@@ -82,7 +86,7 @@ const SCHEMES: Record<GroupField, ColorScheme> = {
     field: 'classification',
     groups: [
       {
-        label: 'Repurposed HS2 TCR',
+        label: HS2_TCR_LABEL,
         color: HS2_ORANGE,
         alwaysShow: true,
         values: [
