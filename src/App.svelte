@@ -13,6 +13,7 @@
     effectiveHiddenGroups,
     groupFor,
     groupsFor,
+    HS2_TCR_LABEL,
     isSuperseded,
     normalizeClassification,
     showsSuperseded,
@@ -117,7 +118,7 @@
     const developers = new Set(activeFeatures.map(feature => feature.properties.developer).filter(Boolean));
     const categories = new Set(activeFeatures.map(feature => feature.properties.category).filter(Boolean));
     const classifications = new Set([
-      'Repurposed HS2 TCR',
+      HS2_TCR_LABEL,
       'HS2 delivered greenway',
       'Dual Use of HS2 Maintenance Access Tracks (MATs)',
       ...activeFeatures.map(feature => {
@@ -132,7 +133,9 @@
       ...filters,
       developer: developers.has(filters.developer) ? filters.developer : '',
       category: categories.has(filters.category) ? filters.category : '',
-      classification: classifications.has(filters.classification) ? filters.classification : '',
+      classification: classifications.has(normalizeClassification(filters.classification))
+        ? normalizeClassification(filters.classification)
+        : '',
       section: sections.has(filters.section) ? filters.section : '',
       status: ['preferred', 'alternative'].includes(filters.status) ? filters.status : '',
       hiddenLegendItems: filters.hiddenLegendItems.filter(item => legendValues.has(item))
@@ -240,7 +243,7 @@
 
   let availableClassifications = $derived.by(() => {
     const cls = new Set<string>([
-      'Repurposed HS2 TCR',
+      HS2_TCR_LABEL,
       'HS2 delivered greenway',
       'Dual Use of HS2 Maintenance Access Tracks (MATs)'
     ]);
