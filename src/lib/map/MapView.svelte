@@ -1140,7 +1140,10 @@
   }
 
   function fitInitialBounds() {
-    if (!shouldFitInitialBounds) return;
+    if (!shouldFitInitialBounds) {
+      map?.easeTo({ center: map.getCenter(), duration: 600 });
+      return;
+    }
     shouldFitInitialBounds = false;
     fitCorridorBounds();
   }

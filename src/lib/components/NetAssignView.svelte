@@ -533,7 +533,7 @@
       });
     }
     map.resize();
-    map.triggerRepaint();
+    map.easeTo({ center: map.getCenter(), duration: 600 });
   }
 
   function selectPreset(presetId: string) {
