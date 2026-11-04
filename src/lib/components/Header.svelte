@@ -75,16 +75,18 @@
   </div>
 
   <div class="right-section">
-    <a
-      href={isNetAssign ? '/' : '/netassign'}
-      class="doc-link"
-      title={isNetAssign ? 'Switch to Corridor Alignment Explorer' : 'View NetAssign Traffic Model (South of London & Greenway Spine)'}
-    >
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-      </svg>
-      <span>{isNetAssign ? 'Corridor Map' : 'Traffic Model'}</span>
-    </a>
+    {#if isNetAssign}
+      <a
+        href="/"
+        class="doc-link"
+        title="Return to Corridor Alignment Explorer"
+      >
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+        </svg>
+        <span>Corridor Map</span>
+      </a>
+    {/if}
     <a
       href="/docs/"
       target="_blank"

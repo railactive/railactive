@@ -30,6 +30,43 @@
   let showTourismPois: boolean = $state(true);
   let showCounters: boolean = $state(false);
   let showModelFitModal: boolean = $state(false);
+  let showAmatModal: boolean = $state(false);
+  let horizonId: string = $state('yr5');
+
+  const TEMPORAL_HORIZONS = [
+    { id: 'm3', label: 'Month 3 (Early)', routeMult: 0.58, shiftMult: 0.14, indMult: 0.19, totalShare: 0.304 },
+    { id: 'yr1', label: 'Year 1 (Opening)', routeMult: 0.87, shiftMult: 0.43, indMult: 0.52, totalShare: 0.606 },
+    { id: 'yr3', label: 'Year 3 (Ramp-Up)', routeMult: 0.99, shiftMult: 0.84, indMult: 0.91, totalShare: 0.909 },
+    { id: 'yr5', label: 'Year 5 (Mature)', routeMult: 1.00, shiftMult: 0.96, indMult: 0.99, totalShare: 0.981 },
+    { id: 'yr10', label: 'Year 10 (Equilibrium)', routeMult: 1.00, shiftMult: 1.00, indMult: 1.00, totalShare: 1.000 }
+  ];
+
+  const AMAT_PACKAGES = [
+    { id: 'P1', name: '1. Greenway Spine Only (Unbridged Barriers)', omega: 0.643, pkmB2: 100261, newTrips: 3151, pvbM: 1059.6, pvcM: 99.9, bcr: 10.61 },
+    { id: 'P2', name: '2. Spine + 42 Motorway/A-Road/Rail Bridges', omega: 0.764, pkmB2: 107024, newTrips: 4205, pvbM: 1136.0, pvcM: 113.5, bcr: 10.01 },
+    { id: 'P3', name: '3. Spine + Bridges + 20mph/Quiet-Lane Feeders', omega: 0.855, pkmB2: 117524, newTrips: 5842, pvbM: 1254.3, pvcM: 127.1, bcr: 9.87 },
+    { id: 'P4', name: '4. Full Synergy: Spine + Feeders + E-Bike Hubs', omega: 0.882, pkmB2: 130377, newTrips: 7845, pvbM: 1397.9, pvcM: 133.9, bcr: 10.44 }
+  ];
+
+  function currentHorizon() {
+    return TEMPORAL_HORIZONS.find((h) => h.id === horizonId) || TEMPORAL_HORIZONS[4];
+  }
+
+  function decomposeLinkDelta(link: Record<string, any>) {
+    const delta = Math.max(0, Number(link.cyc_delta || 0));
+    const commShare = Number(link.cyc_b || 0) > 0 ? Number(link.cyc_b_commute || 0) / Number(link.cyc_b) : 0.25;
+    const leisShare = Number(link.cyc_b || 0) > 0 ? Number(link.cyc_b_leisure_all || 0) / Number(link.cyc_b) : 0.50;
+    const utilShare = Math.max(0, 1 - commShare - leisShare);
+    const routeFrac = 0.552 * commShare + 0.285 * leisShare + 0.335 * utilShare;
+    const shiftFrac = 0.406 * commShare + 0.386 * leisShare + 0.508 * utilShare;
+    const indFrac = Math.max(0, 1 - routeFrac - shiftFrac);
+    const h = currentHorizon();
+    const route = delta * routeFrac * h.routeMult;
+    const shift = delta * shiftFrac * h.shiftMult;
+    const induced = delta * indFrac * h.indMult;
+    const fromCar = (shift + induced) * 0.338;
+    return { route, shift, induced, fromCar, totalAtHorizon: route + shift + induced };
+  }
 
   let loading: boolean = $state(true);
   let error: string | null = $state(null);
@@ -718,6 +755,28 @@
         </select>
       </div>
 
+      <!-- Temporal Ramp-Up Horizon (mshift Bass Diffusion) -->
+      <div class="control-group">
+        <div class="row-between">
+          <span class="group-label">Uptake Horizon (mshift 3-Way Ramp-Up)</span>
+          <button class="link-btn" onclick={() => (showAmatModal = true)}>
+            AMAT BCR: 10.39
+          </button>
+        </div>
+        <div class="segmented-row">
+          {#each TEMPORAL_HORIZONS as h}
+            <button
+              class="seg-btn"
+              class:active={horizonId === h.id}
+              onclick={() => (horizonId = h.id)}
+              title={h.label}
+            >
+              {h.id === 'm3' ? '3m' : h.id.replace('yr', 'Yr ')}
+            </button>
+          {/each}
+        </div>
+      </div>
+
       <!-- Overlays -->
       <div class="control-group">
         <span class="group-label">Trip Generators & Validation Overlays</span>
@@ -884,6 +943,31 @@
             </div>
           </div>
         </div>
+
+        {#if Number(selectedLink.cyc_delta || 0) > 0}
+          {@const dec = decomposeLinkDelta(selectedLink)}
+          <div class="purpose-breakdown" style="margin-top: 10px;">
+            <h4>3-Way Demand Decomposition ({currentHorizon().label})</h4>
+            <div class="purpose-rows">
+              <div class="p-row">
+                <span>1. Route Reassignment (Ambience 0.5× Only)</span>
+                <strong>+{dec.route.toFixed(1)} /day</strong>
+              </div>
+              <div class="p-row">
+                <span>2. Mode Shift (Car, Bus, Rail & Walk)</span>
+                <strong class="emerald">+{dec.shift.toFixed(1)} /day</strong>
+              </div>
+              <div class="p-row">
+                <span>3. Newly Induced Trips (Latent & Leisure)</span>
+                <strong class="amber">+{dec.induced.toFixed(1)} /day</strong>
+              </div>
+              <div class="p-row">
+                <span>Car-Driver Trips Removed (Decongestion)</span>
+                <strong>−{dec.fromCar.toFixed(1)} car/day</strong>
+              </div>
+            </div>
+          </div>
+        {/if}
       </div>
     {/if}
 
@@ -952,6 +1036,51 @@
                 <td>{exp.cycInfraR.toFixed(4)}</td>
                 <td>{exp.cycSouthR.toFixed(4)}</td>
                 <td>{exp.walkR.toFixed(4)}</td>
+              </tr>
+            {/each}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  {/if}
+
+  {#if showAmatModal}
+    <div class="modal-backdrop" role="presentation" onclick={() => (showAmatModal = false)}>
+      <div class="modal-box" role="dialog" tabindex="-1" onclick={(e) => e.stopPropagation()} onkeydown={(e) => e.key === 'Escape' && (showAmatModal = false)}>
+        <div class="inspector-header">
+          <div>
+            <span class="badge-pill emerald">mshift × AMAT TAG A5.1 Economic Appraisal</span>
+            <h3>3-Way Demand Decomposition & Bayesian Benefit–Cost Appraisal (2025 GBP, 30-Yr)</h3>
+          </div>
+          <button class="close-btn" onclick={() => (showAmatModal = false)}>×</button>
+        </div>
+        <p class="modal-desc">
+          Using <code>mshift</code> 3-way decomposition across the 805.6 km Greenway spine (+37,156 cyc-pkm/day = <strong>35.1% Route Diversion</strong> + <strong>41.4% Mode Shift</strong> + <strong>23.5% Induced Demand</strong>), pure route reassignment receives 0.5× Rule-of-a-Half Journey Ambience only, preventing a <strong>+28.9% (£72.1m)</strong> health & mortality overestimate. Bayesian 90% credible interval (N = 4,000 draws): <strong>PVB = £1,179.5m [£1,030.2m, £1,379.5m]</strong>, <strong>PVC = £113.5m</strong>, <strong>BCR = 10.39 [9.07, 12.15]</strong> (100% P(BCR &gt; 4.0)).
+        </p>
+        <table class="mini-table modal-table">
+          <thead>
+            <tr>
+              <th>Pkg</th>
+              <th>Network Package Specification</th>
+              <th>Multiplier Ω</th>
+              <th>Spine pkm/day</th>
+              <th>New Trips/day</th>
+              <th>PVB (£m)</th>
+              <th>PVC (£m)</th>
+              <th>BCR</th>
+            </tr>
+          </thead>
+          <tbody>
+            {#each AMAT_PACKAGES as pkg}
+              <tr class:highlight-row={pkg.id === 'P2' || pkg.id === 'P4'}>
+                <td><strong>{pkg.id}</strong></td>
+                <td>{pkg.name}</td>
+                <td>{pkg.omega.toFixed(3)}</td>
+                <td>{pkg.pkmB2.toLocaleString()}</td>
+                <td>+{pkg.newTrips.toLocaleString()}</td>
+                <td>£{pkg.pvbM.toFixed(1)}m</td>
+                <td>£{pkg.pvcM.toFixed(1)}m</td>
+                <td><strong>{pkg.bcr.toFixed(2)}</strong></td>
               </tr>
             {/each}
           </tbody>
