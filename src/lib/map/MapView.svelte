@@ -122,23 +122,21 @@
     light: {
       version: 8,
       sources: {
-        'carto-light': {
+        'esri-light-base': {
           type: 'raster',
-          tiles: [
-            'https://basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
-          ],
+          tiles: ['https://services.arcgisonline.com/arcgis/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}'],
           tileSize: 256,
-          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+          attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ'
+        },
+        'esri-light-labels': {
+          type: 'raster',
+          tiles: ['https://services.arcgisonline.com/arcgis/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}'],
+          tileSize: 256
         }
       },
       layers: [
-        {
-          id: 'carto-light-layer',
-          type: 'raster',
-          source: 'carto-light',
-          minzoom: 0,
-          maxzoom: 20
-        }
+        { id: 'esri-light-base-layer', type: 'raster', source: 'esri-light-base', minzoom: 0, maxzoom: 18 },
+        { id: 'esri-light-labels-layer', type: 'raster', source: 'esri-light-labels', minzoom: 0, maxzoom: 18 }
       ]
     },
     dark: {
