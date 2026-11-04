@@ -1141,7 +1141,7 @@
 
   function fitInitialBounds() {
     if (!shouldFitInitialBounds) {
-      map?.easeTo({ center: map.getCenter(), duration: 600 });
+      map?.easeTo({ zoom: map.getZoom() + 0.001, duration: 800 });
       return;
     }
     shouldFitInitialBounds = false;
