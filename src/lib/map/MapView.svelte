@@ -119,6 +119,28 @@
 
   // High-performance raster basemap styles (clean, keyless, zero watermarks)
   const basemapStyles: Record<string, any> = {
+    light: {
+      version: 8,
+      sources: {
+        'carto-light': {
+          type: 'raster',
+          tiles: [
+            'https://basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
+          ],
+          tileSize: 256,
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+        }
+      },
+      layers: [
+        {
+          id: 'carto-light-layer',
+          type: 'raster',
+          source: 'carto-light',
+          minzoom: 0,
+          maxzoom: 20
+        }
+      ]
+    },
     dark: {
       version: 8,
       sources: {
@@ -150,42 +172,6 @@
           id: 'esri-dark-labels-layer',
           type: 'raster',
           source: 'esri-dark-labels',
-          minzoom: 0,
-          maxzoom: 18
-        }
-      ]
-    },
-    light: {
-      version: 8,
-      sources: {
-        'esri-light-base': {
-          type: 'raster',
-          tiles: [
-            'https://services.arcgisonline.com/arcgis/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}'
-          ],
-          tileSize: 256,
-          attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ'
-        },
-        'esri-light-labels': {
-          type: 'raster',
-          tiles: [
-            'https://services.arcgisonline.com/arcgis/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}'
-          ],
-          tileSize: 256
-        }
-      },
-      layers: [
-        {
-          id: 'esri-light-base-layer',
-          type: 'raster',
-          source: 'esri-light-base',
-          minzoom: 0,
-          maxzoom: 18
-        },
-        {
-          id: 'esri-light-labels-layer',
-          type: 'raster',
-          source: 'esri-light-labels',
           minzoom: 0,
           maxzoom: 18
         }
@@ -420,22 +406,22 @@
     const classification = superseded ? 'Old active travel route alignment' : popupValue(properties.classification, 'Active Route Treatment');
 
     const html = `
-      <div class="point-popup-card">
-        <div class="point-popup-header">
-          <div class="point-badge-group">
-            <span class="point-badge ${superseded ? 'point-superseded' : 'point-type'}">
+      <div class="map-popup-card">
+        <div class="map-popup-header">
+          <div class="map-badge-group">
+            <span class="map-badge ${superseded ? 'warning' : 'civic'}">
               ${superseded ? 'Old Alignment' : 'Intervention'}
             </span>
-            <span class="point-badge point-sub">${folder}</span>
+            <span class="map-badge">${folder}</span>
           </div>
         </div>
-        <h4 class="point-popup-title">${title}</h4>
-        <div class="point-popup-table">
-          <div class="point-cell"><span class="k">Point ID:</span><span class="v font-mono">${properties.id}</span></div>
-          <div class="point-cell"><span class="k">Type:</span><span class="v">${title}</span></div>
-          <div class="point-cell"><span class="k">Status:</span><span class="v">${classification}</span></div>
-          <div class="point-cell full"><span class="k">Corridor Section:</span><span class="v">${folder}</span></div>
-          ${properties.remarks ? `<div class="point-cell full"><span class="k">Remarks:</span><span class="v">${escapeHtml(properties.remarks)}</span></div>` : ''}
+        <h4 class="map-popup-title">${title}</h4>
+        <div class="map-popup-table">
+          <div class="map-cell"><span class="k">Point ID:</span><span class="v font-mono">${properties.id}</span></div>
+          <div class="map-cell"><span class="k">Type:</span><span class="v">${title}</span></div>
+          <div class="map-cell"><span class="k">Status:</span><span class="v">${classification}</span></div>
+          <div class="map-cell full"><span class="k">Corridor Section:</span><span class="v">${folder}</span></div>
+          ${properties.remarks ? `<div class="map-cell full"><span class="k">Remarks:</span><span class="v">${escapeHtml(properties.remarks)}</span></div>` : ''}
         </div>
       </div>
     `;
@@ -509,24 +495,24 @@
       : 'National Cycle Network';
 
     const html = `
-      <div class="ncn-popup-card">
-        <div class="ncn-popup-header">
-          <div class="ncn-badge-group">
-            <span class="ncn-badge ncn-type">${routeType} ${routeNum}</span>
-            <span class="ncn-badge ${isTrafficFree ? 'ncn-trafficfree' : 'ncn-onroad'}">${isTrafficFree ? 'Traffic-Free' : 'On-Road'}</span>
-            ${isGreenway ? '<span class="ncn-badge ncn-greenway">Greenway</span>' : ''}
+      <div class="map-popup-card">
+        <div class="map-popup-header">
+          <div class="map-badge-group">
+            <span class="map-badge civic">${routeType} ${routeNum}</span>
+            <span class="map-badge ${isTrafficFree ? 'success' : 'danger'}">${isTrafficFree ? 'Traffic-Free' : 'On-Road'}</span>
+            ${isGreenway ? '<span class="map-badge success">Greenway</span>' : ''}
           </div>
         </div>
-        <h4 class="ncn-popup-title">${routeCategory}</h4>
-        <div class="ncn-popup-table">
-          <div class="ncn-cell"><span class="k">Traffic:</span><span class="v">${desc}</span></div>
-          <div class="ncn-cell"><span class="k">Surface:</span><span class="v">${popupValue(props.Surface, 'Unspecified')}</span></div>
-          <div class="ncn-cell"><span class="k">Quality:</span><span class="v">${popupValue(props.Quality, 'Standard')}</span></div>
-          <div class="ncn-cell"><span class="k">Lighting:</span><span class="v">${popupValue(props.Lighting, 'Not lit')}</span></div>
-          ${props.RoadClass ? `<div class="ncn-cell"><span class="k">Road Class:</span><span class="v">${popupValue(props.RoadClass, '')}</span></div>` : ''}
-          <div class="ncn-cell"><span class="k">Open Status:</span><span class="v">${popupValue(props.OpenStatus, 'Open')}</span></div>
-          <div class="ncn-cell"><span class="k">Segment ID:</span><span class="v font-mono">${popupValue(props.SegmentID, 'N/A')}</span></div>
-          <div class="ncn-cell full"><span class="k">Global ID:</span><span class="v font-mono text-xs">${popupValue(props.GlobalID, 'N/A')}</span></div>
+        <h4 class="map-popup-title">${routeCategory}</h4>
+        <div class="map-popup-table">
+          <div class="map-cell"><span class="k">Traffic:</span><span class="v">${desc}</span></div>
+          <div class="map-cell"><span class="k">Surface:</span><span class="v">${popupValue(props.Surface, 'Unspecified')}</span></div>
+          <div class="map-cell"><span class="k">Quality:</span><span class="v">${popupValue(props.Quality, 'Standard')}</span></div>
+          <div class="map-cell"><span class="k">Lighting:</span><span class="v">${popupValue(props.Lighting, 'Not lit')}</span></div>
+          ${props.RoadClass ? `<div class="map-cell"><span class="k">Road Class:</span><span class="v">${popupValue(props.RoadClass, '')}</span></div>` : ''}
+          <div class="map-cell"><span class="k">Open Status:</span><span class="v">${popupValue(props.OpenStatus, 'Open')}</span></div>
+          <div class="map-cell"><span class="k">Segment ID:</span><span class="v font-mono">${popupValue(props.SegmentID, 'N/A')}</span></div>
+          <div class="map-cell full"><span class="k">Global ID:</span><span class="v font-mono text-xs">${popupValue(props.GlobalID, 'N/A')}</span></div>
         </div>
       </div>
     `;
@@ -681,27 +667,27 @@
     const roadClass = popupValue(props.road_classification, 'Unclassified');
     const roadFunc = popupValue(props.road_function, 'Local Road');
     const haulageBasis = props.possible_haulage_basis
-      ? `<div class="openroads-cell full"><span class="k">Haulage evidence:</span><span class="v">${popupValue(props.possible_haulage_basis, '')}</span></div>`
+      ? `<div class="map-cell full"><span class="k">Haulage evidence:</span><span class="v">${popupValue(props.possible_haulage_basis, '')}</span></div>`
       : '';
     const formOfWay = popupValue(props.form_of_way, 'Single Carriageway');
     const lengthStr = props.length ? `${Math.round(Number(props.length))} m` : 'N/A';
 
     const html = `
-      <div class="openroads-popup-card">
-        <div class="openroads-popup-header">
-          <div class="openroads-badge-group">
-            <span class="openroads-badge openroads-type">${roadNum || roadClass}</span>
-            <span class="openroads-badge openroads-func">${roadFunc}</span>
+      <div class="map-popup-card">
+        <div class="map-popup-header">
+          <div class="map-badge-group">
+            <span class="map-badge civic">${roadNum || roadClass}</span>
+            <span class="map-badge">${roadFunc}</span>
           </div>
         </div>
-        <h4 class="openroads-popup-title">${name}</h4>
-        <div class="openroads-popup-table">
-          <div class="openroads-cell"><span class="k">Classification:</span><span class="v">${roadClass}</span></div>
-          <div class="openroads-cell"><span class="k">Function:</span><span class="v">${roadFunc}</span></div>
-          <div class="openroads-cell"><span class="k">Form of Way:</span><span class="v">${formOfWay}</span></div>
-          <div class="openroads-cell"><span class="k">Link Length:</span><span class="v">${lengthStr}</span></div>
+        <h4 class="map-popup-title">${name}</h4>
+        <div class="map-popup-table">
+          <div class="map-cell"><span class="k">Classification:</span><span class="v">${roadClass}</span></div>
+          <div class="map-cell"><span class="k">Function:</span><span class="v">${roadFunc}</span></div>
+          <div class="map-cell"><span class="k">Form of Way:</span><span class="v">${formOfWay}</span></div>
+          <div class="map-cell"><span class="k">Link Length:</span><span class="v">${lengthStr}</span></div>
           ${haulageBasis}
-          ${props.id ? `<div class="openroads-cell full"><span class="k">Link ID:</span><span class="v font-mono text-xs">${popupValue(props.id, '')}</span></div>` : ''}
+          ${props.id ? `<div class="map-cell full"><span class="k">Link ID:</span><span class="v font-mono text-xs">${popupValue(props.id, '')}</span></div>` : ''}
         </div>
       </div>
     `;
@@ -1020,7 +1006,7 @@
           'line-join': 'round'
         },
         paint: {
-          'line-color': '#020617',
+          'line-color': '#ffffff',
           'line-width': [
             'interpolate',
             ['linear'],
@@ -1068,8 +1054,8 @@
         paint: {
           'circle-radius': ['interpolate', ['linear'], ['zoom'], 6, 4, 12, 7, 16, 11],
           'circle-color': INTERVENTION_COLOR,
-          'circle-stroke-width': 1.5,
-          'circle-stroke-color': '#0f172a'
+          'circle-stroke-width': 2,
+          'circle-stroke-color': '#ffffff'
         }
       });
 
@@ -1197,7 +1183,7 @@
     shouldFitInitialBounds = !hasInitialMapView;
     map = new maplibregl.Map({
       container: mapContainer,
-      style: basemapStyles[basemap] || basemapStyles.dark,
+      style: basemapStyles[basemap] || basemapStyles.light,
       center: [-1.4, 52.3],
       zoom: 7.8,
       pitch: 0,
@@ -1335,7 +1321,7 @@
     z-index: 30;
     max-width: min(420px, 90%);
     padding: 8px 12px;
-    background: rgba(15, 23, 42, 0.95);
+    background: var(--bg-surface);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-sm);
     box-shadow: var(--shadow-panel);
@@ -1362,30 +1348,29 @@
   }
 
   :global(.hover-tooltip-popup .maplibregl-popup-content) {
-    background: rgba(15, 23, 42, 0.95) !important;
-    backdrop-filter: blur(8px) !important;
-    border: 1px solid rgba(255, 255, 255, 0.15) !important;
-    border-radius: 8px !important;
+    background: #ffffff !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: var(--radius-sm) !important;
     padding: 8px 10px !important;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4) !important;
+    box-shadow: var(--shadow-md) !important;
     pointer-events: none;
   }
 
   :global(.hover-tooltip-popup .maplibregl-popup-tip) {
-    border-top-color: rgba(15, 23, 42, 0.95) !important;
+    border-top-color: #ffffff !important;
   }
 
   :global(.tooltip-content) {
     display: flex;
     flex-direction: column;
-    gap: 3px;
+    gap: 2px;
     font-family: 'Inter', sans-serif;
   }
 
   :global(.tooltip-title) {
     font-size: 12px;
-    font-weight: 600;
-    color: #f8fafc;
+    font-weight: 700;
+    color: var(--text-primary);
   }
 
   :global(.tooltip-meta) {
@@ -1396,8 +1381,9 @@
   }
 
   :global(.badge-sec) {
-    background: rgba(59, 130, 246, 0.2);
-    color: #60a5fa;
+    background: #eff6ff;
+    color: var(--accent-civic);
+    border: 1px solid #bfdbfe;
     padding: 1px 4px;
     border-radius: 3px;
     font-weight: 600;
@@ -1405,324 +1391,44 @@
 
   :global(.tooltip-len) {
     font-family: 'JetBrains Mono', monospace;
-    color: #94a3b8;
+    color: var(--text-secondary);
   }
 
   :global(.tooltip-cat) {
     font-size: 10px;
-    color: #cbd5e1;
-  }
-
-  :global(.badge-preferred) {
-    background: rgba(16, 185, 129, 0.25) !important;
-    color: #34d399 !important;
-  }
-
-  :global(.badge-alternative) {
-    background: rgba(245, 158, 11, 0.25) !important;
-    color: #fbbf24 !important;
-  }
-
-  :global(.badge-superseded) {
-    background: rgba(148, 163, 184, 0.25) !important;
-    color: #94a3b8 !important;
-  }
-
-  :global(.badge-trafficfree) {
-    background: rgba(14, 116, 144, 0.3) !important;
-    color: #a5f3fc !important;
-  }
-
-  :global(.badge-onroad) {
-    background: rgba(220, 38, 38, 0.2) !important;
-    color: #fecaca !important;
-  }
-
-  :global(.ncn-popup-card) {
-    font-family: 'Inter', sans-serif;
-    color: #f8fafc;
-    min-width: 220px;
-  }
-
-  :global(.ncn-popup-header) {
-    margin-bottom: 6px;
-  }
-
-  :global(.ncn-badge-group) {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 5px;
-  }
-
-  :global(.ncn-badge) {
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    padding: 2px 6px;
-    border-radius: 4px;
-  }
-
-  :global(.ncn-type) {
-    background: #0e7490;
-    color: #ffffff;
-  }
-
-  :global(.ncn-trafficfree) {
-    background: rgba(14, 116, 144, 0.3);
-    color: #a5f3fc;
-    border: 1px solid rgba(14, 116, 144, 0.5);
-  }
-
-  :global(.ncn-onroad) {
-    background: rgba(220, 38, 38, 0.2);
-    color: #fecaca;
-    border: 1px solid rgba(220, 38, 38, 0.5);
-  }
-
-  :global(.ncn-greenway) {
-    background: rgba(148, 163, 184, 0.2);
-    color: #e2e8f0;
-    border: 1px solid rgba(148, 163, 184, 0.4);
-  }
-
-  :global(.ncn-popup-title) {
-    margin: 4px 0 8px 0;
-    font-size: 13px;
-    font-weight: 600;
-    color: #f1f5f9;
-  }
-
-  :global(.ncn-popup-table) {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    font-size: 11px;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    padding-top: 6px;
-  }
-
-  :global(.ncn-cell) {
-    display: flex;
-    justify-content: space-between;
-    gap: 8px;
-  }
-
-  :global(.ncn-cell.full) {
-    flex-direction: column;
-    gap: 1px;
-  }
-
-  :global(.ncn-cell .k) {
-    color: #94a3b8;
-  }
-
-  :global(.ncn-cell .v) {
-    color: #e2e8f0;
-    text-align: right;
-  }
-
-  :global(.ncn-cell.full .v) {
-    text-align: left;
-    word-break: break-all;
-  }
-
-  :global(.ncn-click-popup .maplibregl-popup-content) {
-    padding: 12px 14px !important;
-    background: rgba(15, 23, 42, 0.96) !important;
-    backdrop-filter: blur(16px) !important;
-    border: 1px solid rgba(14, 116, 144, 0.55) !important;
-    border-radius: 10px !important;
-    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.6) !important;
-  }
-
-  :global(.badge-openroads) {
-    background: rgba(148, 163, 184, 0.25) !important;
-    color: #e2e8f0 !important;
-  }
-
-  :global(.openroads-popup-card) {
-    font-family: 'Inter', sans-serif;
-    color: #f8fafc;
-    min-width: 220px;
-  }
-
-  :global(.openroads-popup-header) {
-    margin-bottom: 6px;
-  }
-
-  :global(.openroads-badge-group) {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 5px;
-  }
-
-  :global(.openroads-badge) {
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    padding: 2px 6px;
-    border-radius: 4px;
-  }
-
-  :global(.openroads-type) {
-    background: #475569;
-    color: #ffffff;
-  }
-
-  :global(.openroads-func) {
-    background: rgba(148, 163, 184, 0.2);
-    color: #e2e8f0;
-    border: 1px solid rgba(148, 163, 184, 0.4);
-  }
-
-  :global(.openroads-popup-title) {
-    margin: 4px 0 8px 0;
-    font-size: 13px;
-    font-weight: 600;
-    color: #f1f5f9;
-  }
-
-  :global(.openroads-popup-table) {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    font-size: 11px;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    padding-top: 6px;
-  }
-
-  :global(.openroads-cell) {
-    display: flex;
-    justify-content: space-between;
-    gap: 8px;
-  }
-
-  :global(.openroads-cell.full) {
-    flex-direction: column;
-    gap: 1px;
-  }
-
-  :global(.openroads-cell .k) {
-    color: #94a3b8;
-  }
-
-  :global(.openroads-cell .v) {
-    color: #e2e8f0;
-    text-align: right;
-  }
-
-  :global(.openroads-cell.full .v) {
-    text-align: left;
-    word-break: break-all;
-  }
-
-  :global(.openroads-click-popup .maplibregl-popup-content) {
-    padding: 12px 14px !important;
-    background: rgba(15, 23, 42, 0.96) !important;
-    backdrop-filter: blur(16px) !important;
-    border: 1px solid rgba(148, 163, 184, 0.45) !important;
-    border-radius: 10px !important;
-    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.6) !important;
-  }
-
-  :global(.point-popup-card) {
-    font-family: 'Inter', sans-serif;
-    color: #f8fafc;
-    min-width: 220px;
-  }
-
-  :global(.point-popup-header) {
-    margin-bottom: 6px;
-  }
-
-  :global(.point-badge-group) {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 5px;
-  }
-
-  :global(.point-badge) {
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    padding: 2px 6px;
-    border-radius: 4px;
-  }
-
-  :global(.point-type) {
-    background: #3b82f6;
-    color: #ffffff;
-  }
-
-  :global(.point-superseded) {
-    background: #64748b;
-    color: #f1f5f9;
-  }
-
-  :global(.point-sub) {
-    background: rgba(148, 163, 184, 0.25);
-    color: #cbd5e1;
-    border: 1px solid rgba(148, 163, 184, 0.4);
-  }
-
-  :global(.point-popup-title) {
-    margin: 4px 0 8px 0;
-    font-size: 13px;
-    font-weight: 600;
-    color: #f1f5f9;
-    text-transform: capitalize;
-  }
-
-  :global(.point-popup-table) {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    font-size: 11px;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    padding-top: 6px;
-  }
-
-  :global(.point-cell) {
-    display: flex;
-    justify-content: space-between;
-    gap: 8px;
-  }
-
-  :global(.point-cell.full) {
-    flex-direction: column;
-    gap: 1px;
-  }
-
-  :global(.point-cell .k) {
-    color: #94a3b8;
-  }
-
-  :global(.point-cell .v) {
-    color: #e2e8f0;
-    text-align: right;
-  }
-
-  :global(.point-cell.full .v) {
-    text-align: left;
-    word-break: break-all;
-  }
-
-  :global(.point-click-popup .maplibregl-popup-content) {
-    padding: 12px 14px !important;
-    background: rgba(15, 23, 42, 0.96) !important;
-    backdrop-filter: blur(16px) !important;
-    border: 1px solid rgba(59, 130, 246, 0.45) !important;
-    border-radius: 10px !important;
-    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.6) !important;
+    color: var(--text-muted);
   }
 
   :global(.tooltip-remarks) {
     font-size: 10px;
-    color: #94a3b8;
+    color: var(--text-muted);
     margin-top: 2px;
     font-style: italic;
   }
+
+  :global(.badge-preferred) {
+    background: #ecfdf5 !important;
+    color: #059669 !important;
+  }
+
+  :global(.badge-alternative) {
+    background: #fffbeb !important;
+    color: #b45309 !important;
+  }
+
+  :global(.badge-superseded) {
+    background: #f1f5f9 !important;
+    color: #64748b !important;
+  }
+
+  :global(.badge-trafficfree) {
+    background: #ecfdf5 !important;
+    color: #059669 !important;
+  }
+
+  :global(.badge-onroad) {
+    background: #fef2f2 !important;
+    color: #b91c1c !important;
+  }
+
 </style>

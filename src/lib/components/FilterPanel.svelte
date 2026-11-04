@@ -125,18 +125,19 @@
 
   input[type="text"], select {
     width: 100%;
-    background: rgba(15, 23, 42, 0.6);
-    border: 1px solid var(--border-color);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-strong);
     border-radius: var(--radius-sm);
     color: var(--text-primary);
-    padding: 8px 10px;
+    padding: 7px 10px;
     font-size: 12px;
     outline: none;
-    transition: border-color 0.15s ease;
+    transition: all 0.15s ease;
   }
 
   input[type="text"]:focus, select:focus {
-    border-color: var(--accent-blue);
+    border-color: var(--accent-civic);
+    box-shadow: 0 0 0 2px rgba(29, 78, 216, 0.12);
   }
 
   .clear-btn {
@@ -151,19 +152,20 @@
 
   .reset-btn {
     margin-top: 4px;
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--bg-surface);
     border: 1px solid var(--border-color);
     color: var(--text-secondary);
     padding: 7px;
     border-radius: var(--radius-sm);
     font-size: 11px;
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
     transition: all 0.15s ease;
   }
 
   .reset-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--bg-secondary);
     color: var(--text-primary);
+    border-color: var(--border-strong);
   }
 </style>

@@ -224,23 +224,24 @@
     width: 100%;
     height: 36px;
     padding: 0 32px 0 32px;
-    background: rgba(15, 23, 42, 0.92);
-    backdrop-filter: blur(12px);
+    background: var(--bg-surface);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-sm);
-    box-shadow: var(--shadow-panel);
+    box-shadow: var(--shadow-md);
     color: var(--text-primary);
     font: inherit;
     font-size: 12px;
     outline: none;
+    transition: all 0.15s ease;
   }
 
   input::placeholder {
-    color: var(--text-secondary);
+    color: var(--text-muted);
   }
 
   input:focus {
-    border-color: var(--accent-blue);
+    border-color: var(--accent-civic);
+    box-shadow: 0 0 0 2px rgba(29, 78, 216, 0.12);
   }
 
   .clear-btn {
@@ -248,7 +249,7 @@
     right: 8px;
     background: none;
     border: none;
-    color: var(--text-secondary);
+    color: var(--text-muted);
     font-size: 16px;
     cursor: pointer;
   }
@@ -262,8 +263,8 @@
     right: 10px;
     width: 14px;
     height: 14px;
-    border: 2px solid rgba(255, 255, 255, 0.15);
-    border-top-color: var(--accent-blue);
+    border: 2px solid var(--border-color);
+    border-top-color: var(--accent-civic);
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
   }
@@ -276,9 +277,8 @@
     list-style: none;
     margin-top: 4px;
     padding: 4px;
-    background: rgba(15, 23, 42, 0.96);
-    backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
     border-radius: var(--radius-sm);
     box-shadow: var(--shadow-panel);
   }
@@ -294,7 +294,7 @@
 
   .results li:hover,
   .results li.active {
-    background: rgba(59, 130, 246, 0.18);
+    background: var(--bg-secondary);
   }
 
   .name {
@@ -316,8 +316,9 @@
     padding: 7px 10px;
     font-size: 11px;
     color: var(--text-secondary);
-    background: rgba(15, 23, 42, 0.96);
+    background: var(--bg-surface);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-md);
   }
 </style>

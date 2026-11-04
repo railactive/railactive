@@ -1,6 +1,6 @@
 import type { FilterState } from './types/cycleway';
 
-export const BASEMAP_IDS = ['dark', 'light', 'satellite', 'osm'] as const;
+export const BASEMAP_IDS = ['light', 'dark', 'satellite', 'osm'] as const;
 export type BasemapId = (typeof BASEMAP_IDS)[number];
 
 const COLOR_BY_VALUES: FilterState['colorBy'][] = ['category', 'classification', 'developer', 'status', 'kml'];
@@ -44,7 +44,7 @@ export function readUrlState(url: URL): AppUrlState {
   return {
     basemap: BASEMAP_IDS.includes(requestedBasemap as BasemapId)
       ? requestedBasemap as BasemapId
-      : 'dark',
+      : 'light',
     sidebarOpen: params.get('sidebar') !== 'closed',
     filters: {
       developer: getLimitedParam(params, 'developer'),
@@ -76,7 +76,7 @@ export function writeUrlState(url: URL, state: AppUrlState): string {
   }
   nextUrl.searchParams.delete('pwd');
 
-  if (state.basemap !== 'dark') nextUrl.searchParams.set('basemap', state.basemap);
+  if (state.basemap !== 'light') nextUrl.searchParams.set('basemap', state.basemap);
   if (state.filters.developer) nextUrl.searchParams.set('developer', state.filters.developer);
   if (state.filters.category) nextUrl.searchParams.set('category', state.filters.category);
   if (state.filters.classification) nextUrl.searchParams.set('classification', state.filters.classification);

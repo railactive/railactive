@@ -159,8 +159,8 @@
   .colorby-row select {
     flex: 1;
     min-width: 0;
-    background: rgba(15, 23, 42, 0.6);
-    border: 1px solid var(--border-color);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-strong);
     border-radius: var(--radius-sm);
     color: var(--text-primary);
     padding: 5px 8px;
@@ -169,13 +169,13 @@
   }
 
   .colorby-row select:focus {
-    border-color: var(--accent-blue);
+    border-color: var(--accent-civic);
   }
 
   .show-all-btn {
     background: none;
     border: none;
-    color: #60a5fa;
+    color: var(--accent-civic);
     font-size: 11px;
     font-weight: 600;
     cursor: pointer;
@@ -183,7 +183,8 @@
   }
 
   .show-all-btn:hover {
-    color: var(--text-primary);
+    color: var(--accent-civic-hover);
+    text-decoration: underline;
   }
 
   .subheading {
@@ -207,7 +208,7 @@
   }
 
   .legend-row:hover {
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--bg-secondary);
   }
 
   .legend-row.hidden-layer {
@@ -231,7 +232,8 @@
     width: 13px;
     height: 13px;
     border-radius: 3px;
-    border: 1.5px solid var(--text-secondary);
+    border: 1.5px solid var(--border-strong);
+    background: var(--bg-surface);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -239,9 +241,9 @@
   }
 
   .toggle-box.checked {
-    background: var(--text-primary);
-    border-color: var(--text-primary);
-    color: #0f172a;
+    background: var(--accent-civic);
+    border-color: var(--accent-civic);
+    color: #ffffff;
   }
 
   .color-bar {
@@ -268,8 +270,8 @@
 
   .solo-btn {
     opacity: 0;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
     color: var(--text-secondary);
     font-size: 10px;
     font-weight: 600;
@@ -277,6 +279,7 @@
     border-radius: 3px;
     cursor: pointer;
     margin-right: 4px;
+    box-shadow: var(--shadow-sm);
   }
 
   .legend-row:hover .solo-btn,
@@ -285,8 +288,8 @@
   }
 
   .solo-btn:hover {
-    background: var(--accent-blue);
-    border-color: var(--accent-blue);
+    background: var(--accent-civic);
+    border-color: var(--accent-civic);
     color: #ffffff;
   }
 
