@@ -1283,24 +1283,31 @@
     }
   });
 
-  // Reactive update for basemap
+  // Reactive update for basemap (skip redundant setStyle on initial mount)
+  let appliedBasemap = '';
   $effect(() => {
-    if (map && basemapStyles[basemap]) {
-      const currentCenter = map.getCenter();
-      const currentZoom = map.getZoom();
-      const currentPitch = map.getPitch();
-      const currentBearing = map.getBearing();
-
-      map.setStyle(basemapStyles[basemap], { diff: false });
-      map.once('style.load', () => {
-        if (map) {
-          map.setCenter(currentCenter);
-          map.setZoom(currentZoom);
-          map.setPitch(currentPitch);
-          map.setBearing(currentBearing);
-        }
-      });
+    if (!map || !basemapStyles[basemap]) return;
+    if (!appliedBasemap) {
+      appliedBasemap = basemap;
+      return;
     }
+    if (appliedBasemap === basemap) return;
+    appliedBasemap = basemap;
+
+    const currentCenter = map.getCenter();
+    const currentZoom = map.getZoom();
+    const currentPitch = map.getPitch();
+    const currentBearing = map.getBearing();
+
+    map.setStyle(basemapStyles[basemap], { diff: false });
+    map.once('style.load', () => {
+      if (map) {
+        map.setCenter(currentCenter);
+        map.setZoom(currentZoom);
+        map.setPitch(currentPitch);
+        map.setBearing(currentBearing);
+      }
+    });
   });
 </script>
 
