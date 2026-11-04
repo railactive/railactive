@@ -479,35 +479,6 @@
     width: 100%;
     height: calc(100vh - 56px);
     overflow: hidden;
-  }
-
-  .loading-overlay, .error-overlay {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: rgba(15, 23, 42, 0.95);
-    border: 1px solid var(--border-color);
-    padding: 24px 32px;
-    border-radius: var(--radius-md);
-    z-index: 50;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-    box-shadow: var(--shadow-lg);
-  }
-
-  .spinner {
-    width: 32px;
-    height: 32px;
-    border: 3px solid rgba(255, 255, 255, 0.1);
-    border-top-color: var(--accent-cyan);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-  }
-
-  @keyframes spin {
-    to { transform: rotate(360deg); }
+    background: var(--bg-primary);
   }
 </style>

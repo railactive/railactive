@@ -22,19 +22,19 @@ interface ColorScheme {
   groups: ColorGroup[];
 }
 
-const HS2_ORANGE = '#f97316';
-const HS2_GREENWAY = '#84cc16';
-const HS2_MAT = '#fb923c';
-const GREEN = '#22c55e';
-const BLUE = '#3b82f6';
-const TEAL = '#2dd4bf';
-const YELLOW = '#eab308';
-const GREY = '#94a3b8';
+const HS2_ORANGE = '#c2410c';
+const HS2_GREENWAY = '#15803d';
+const HS2_MAT = '#d97706';
+const GREEN = '#047857';
+const BLUE = '#1d4ed8';
+const TEAL = '#0f766e';
+const YELLOW = '#b45309';
+const GREY = '#64748b';
 
-const SUPERSEDED_COLOR = '#64748b';
+const SUPERSEDED_COLOR = '#94a3b8';
 const OLD_ALIGNMENT = 'Old active travel route alignment';
 export const SUPERSEDED_LABEL = 'Superseded';
-export const INTERVENTION_COLOR = '#f8fafc';
+export const INTERVENTION_COLOR = '#0f766e';
 
 export function normalizeClassification(c?: string): string {
   if (!c) return '';
@@ -170,16 +170,16 @@ const SCHEMES: Record<GroupField, ColorScheme> = {
 
 /** Reference (context) layers: kept off the route hues so they never read as proposed routes. */
 export const REFERENCE_COLORS = {
-  // NCN: dark blue-green traffic-free, dark red on-road
-  ncnOffRoad: '#0e7490',
+  // NCN: traffic-free pine/teal, on-road crimson
+  ncnOffRoad: '#0f766e',
   ncnOnRoad: '#b91c1c',
-  roadHaulage: '#f8fafc',
-  roadMajor: '#cbd5e1',
-  roadMinor: '#94a3b8',
-  roadLocal: '#64748b',
-  roadCasing: '#0f172a',
-  studyArea: '#8b5cf6',
-  studyAreaOutline: '#7c3aed'
+  roadHaulage: '#c2410c',
+  roadMajor: '#475569',
+  roadMinor: '#64748b',
+  roadLocal: '#94a3b8',
+  roadCasing: '#ffffff',
+  studyArea: '#4f46e5',
+  studyAreaOutline: '#4338ca'
 };
 
 export function isSuperseded(props: CyclewaySegmentProperties): boolean {

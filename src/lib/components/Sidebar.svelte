@@ -60,9 +60,9 @@
     bottom: 0;
     width: 340px;
     max-width: calc(100vw - 32px);
-    background: rgba(15, 23, 42, 0.95);
-    backdrop-filter: blur(16px);
+    background: var(--bg-surface);
     border-right: 1px solid var(--border-color);
+    box-shadow: 2px 0 12px rgba(15, 23, 42, 0.04);
     z-index: 20;
     transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     display: flex;
@@ -87,6 +87,9 @@
     text-transform: uppercase;
     letter-spacing: 0.05em;
     color: var(--text-muted);
-    margin-bottom: 8px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 4px;
+    margin-bottom: 10px;
+    margin-top: 4px;
   }
 </style>

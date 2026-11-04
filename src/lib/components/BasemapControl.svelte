@@ -10,8 +10,8 @@
   let menuOpen: boolean = $state(false);
 
   const basemapOptions = [
-    { id: 'dark', label: 'Dark Canvas', description: 'Muted dark cartography' },
     { id: 'light', label: 'Light Canvas', description: 'Clean light background' },
+    { id: 'dark', label: 'Dark Canvas', description: 'Muted dark cartography' },
     { id: 'satellite', label: 'Satellite', description: 'High-res satellite imagery' },
     { id: 'osm', label: 'OpenStreetMap', description: 'Standard street & terrain' }
   ];
@@ -21,11 +21,9 @@
 
 <div class="basemap-control-wrapper" class:sidebar-open={sidebarOpen}>
   {#if menuOpen}
-    <!-- Click backdrop -->
     <div class="backdrop" onclick={() => menuOpen = false} aria-hidden="true"></div>
 
-    <!-- Popup Menu -->
-    <div class="basemap-menu" role="menu">
+    <div class="basemap-menu panel-card" role="menu">
       <div class="menu-title">Select Basemap</div>
       {#each basemapOptions as opt}
         <button
@@ -48,16 +46,15 @@
     </div>
   {/if}
 
-  <!-- Toggle Button -->
   <button
-    class="basemap-btn"
+    class="outline-btn basemap-btn"
     class:active={menuOpen}
     onclick={() => menuOpen = !menuOpen}
     title="Change Basemap Style"
     aria-label="Change Basemap Style"
     aria-expanded={menuOpen}
   >
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
       <polyline points="2 17 12 22 22 17"></polyline>
       <polyline points="2 12 12 17 22 12"></polyline>
@@ -88,38 +85,21 @@
   .basemap-btn {
     position: relative;
     z-index: 25;
-    display: flex;
-    align-items: center;
-    gap: 7px;
     height: 36px;
     padding: 0 12px;
-    background: rgba(15, 23, 42, 0.92);
-    backdrop-filter: blur(12px);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-sm);
-    color: var(--text-primary);
     font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    box-shadow: var(--shadow-panel);
-    transition: all 0.15s ease;
-  }
-
-  .basemap-btn:hover {
-    background: rgba(30, 41, 59, 0.95);
-    border-color: var(--accent-cyan);
-    color: #ffffff;
+    box-shadow: var(--shadow-md);
   }
 
   .basemap-btn.active {
-    border-color: var(--accent-cyan);
-    background: rgba(6, 182, 212, 0.15);
-    color: #38bdf8;
+    border-color: var(--accent-civic);
+    background: #eff6ff;
+    color: var(--accent-civic);
   }
 
   .btn-text {
     font-size: 12px;
-    letter-spacing: -0.01em;
+    font-weight: 600;
   }
 
   .basemap-menu {
@@ -128,11 +108,6 @@
     left: 0;
     z-index: 25;
     width: 220px;
-    background: rgba(15, 23, 42, 0.95);
-    backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: var(--radius-md);
-    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.5);
     padding: 6px;
     display: flex;
     flex-direction: column;
@@ -158,7 +133,7 @@
     letter-spacing: 0.05em;
     color: var(--text-muted);
     padding: 6px 8px 4px 8px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    border-bottom: 1px solid var(--border-color);
     margin-bottom: 4px;
   }
 
@@ -177,31 +152,29 @@
   }
 
   .menu-item:hover {
-    background: rgba(255, 255, 255, 0.06);
+    background: var(--bg-secondary);
   }
 
   .menu-item.active {
-    background: rgba(6, 182, 212, 0.12);
-    border-color: rgba(6, 182, 212, 0.35);
+    background: #eff6ff;
+    border-color: #bfdbfe;
   }
 
   .radio-indicator {
     width: 12px;
     height: 12px;
     border-radius: 50%;
-    border: 1.5px solid var(--text-muted);
+    border: 1.5px solid var(--border-strong);
+    background: var(--bg-surface);
     margin-top: 2px;
     flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     transition: all 0.15s ease;
   }
 
   .menu-item.active .radio-indicator {
-    border-color: var(--accent-cyan);
-    background: var(--accent-cyan);
-    box-shadow: 0 0 6px rgba(6, 182, 212, 0.6);
+    border-color: var(--accent-civic);
+    background: var(--accent-civic);
+    box-shadow: 0 0 0 2px rgba(29, 78, 216, 0.15);
   }
 
   .opt-text {
@@ -217,7 +190,7 @@
   }
 
   .menu-item.active .opt-label {
-    color: #38bdf8;
+    color: var(--accent-civic);
   }
 
   .opt-desc {
