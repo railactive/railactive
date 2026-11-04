@@ -532,6 +532,8 @@
         }
       });
     }
+    map.resize();
+    map.triggerRepaint();
   }
 
   function selectPreset(presetId: string) {
