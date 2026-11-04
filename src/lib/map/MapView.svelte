@@ -1097,7 +1097,9 @@
         loadOpenRoadsSourceAndLayers();
       }
 
+      map.resize();
       fitInitialBounds();
+      map.triggerRepaint();
     } catch (err) {
       console.error('Error in setupMapLayers:', err);
     }
