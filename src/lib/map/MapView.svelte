@@ -259,12 +259,10 @@
     return expressions;
   }
 
+  let styleReady = false;
+
   function ensureLayers() {
-    if (!map || !data) return;
-    if (!map.isStyleLoaded()) {
-      map.once('style.load', setupMapLayers);
-      return;
-    }
+    if (!map || !data || !styleReady) return;
     setupMapLayers();
   }
 
@@ -1211,10 +1209,14 @@
     map.addControl(new maplibregl.ScaleControl({ maxWidth: 120, unit: 'metric' }), 'bottom-left');
 
     map.on('load', () => {
+      styleReady = true;
       ensureLayers();
     });
 
-    map.on('style.load', setupMapLayers);
+    map.on('style.load', () => {
+      styleReady = true;
+      setupMapLayers();
+    });
   });
 
   onDestroy(() => {
@@ -1304,8 +1306,10 @@
     const currentPitch = map.getPitch();
     const currentBearing = map.getBearing();
 
+    styleReady = false;
     map.setStyle(basemapStyles[basemap], { diff: false });
     map.once('style.load', () => {
+      styleReady = true;
       if (map) {
         map.setCenter(currentCenter);
         map.setZoom(currentZoom);

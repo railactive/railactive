@@ -593,7 +593,7 @@
       offset: 10
     });
 
-    map.on('load', () => {
+    map.on('style.load', () => {
       addDataLayers();
 
       const interactiveLayers = ['netassign-gw-lines', 'netassign-bg-lines'];
