@@ -11,7 +11,8 @@
     "build:all": "quarto render docs && vite build",
     "docs:build": "quarto render docs",
     "docs:preview": "quarto preview docs",
-    "deploy": "npx @azure/static-web-apps-cli deploy ./dist --env production",
+    "deploy": "npx @azure/static-web-apps-cli deploy ./dist --env production --app-name railactive-app --resource-group uol-a011-prd-uks-wkld027-rg",
+    "deploy:dev": "npx @azure/static-web-apps-cli deploy ./dist --env dev --app-name railactive-app --resource-group uol-a011-prd-uks-wkld027-rg",
     "preview": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.json"
   },
