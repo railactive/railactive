@@ -3,9 +3,7 @@
   import Header from './lib/components/Header.svelte';
   import Sidebar from './lib/components/Sidebar.svelte';
   import DetailPanel from './lib/components/DetailPanel.svelte';
-  import BasemapControl from './lib/components/BasemapControl.svelte';
   import PasswordGate from './lib/components/PasswordGate.svelte';
-  import PlaceSearch from './lib/components/PlaceSearch.svelte';
   import NetAssignView from './lib/components/NetAssignView.svelte';
   import MapView from './lib/map/MapView.svelte';
   import { hasValidMapHash, readUrlState, writeUrlState, type AppUrlState } from './lib/urlState';
@@ -42,6 +40,7 @@
   let showNcn: boolean = $state(initialUrlState.showNcn);
   let showOpenRoads: boolean = $state(initialUrlState.showOpenRoads);
   let showStudyArea: boolean = $state(initialUrlState.showStudyArea);
+  let showPlaceNames: boolean = $state(initialUrlState.showPlaceNames);
   let urlStateReady: boolean = $state(false);
 
   let mapViewRef: any = $state(null);
@@ -116,15 +115,12 @@
     );
     const developers = new Set(activeFeatures.map(feature => feature.properties.developer).filter(Boolean));
     const categories = new Set(activeFeatures.map(feature => feature.properties.category).filter(Boolean));
-    const classifications = new Set([
-      'Repurposed HS2 TCR',
-      'HS2 delivered greenway',
-      'Dual Use of HS2 Maintenance Access Tracks (MATs)',
-      ...activeFeatures.map(feature => {
+    const classifications = new Set(
+      activeFeatures.map(feature => {
         const classification = feature.properties.classification;
         return normalizeClassification(classification) || 'Existing routes';
       })
-    ]);
+    );
     const sections = new Set(activeFeatures.map(feature => feature.properties.section).filter(Boolean));
     const legendValues = new Set(groupsFor(filters.colorBy).map(group => group.label));
 
@@ -165,7 +161,8 @@
       selectedSegmentKey: selectedSegment?.link_id || (selectedSegment ? String(selectedSegment.id) : null),
       showNcn,
       showOpenRoads,
-      showStudyArea
+      showStudyArea,
+      showPlaceNames
     };
   }
 
@@ -239,11 +236,7 @@
   });
 
   let availableClassifications = $derived.by(() => {
-    const cls = new Set<string>([
-      'Repurposed HS2 TCR',
-      'HS2 delivered greenway',
-      'Dual Use of HS2 Maintenance Access Tracks (MATs)'
-    ]);
+    const cls = new Set<string>();
     for (const f of activeNetworkFeatures) {
       const c = f.properties.classification;
       if (c) {
@@ -392,6 +385,11 @@
   }}
   {isExampleData}
   isNetAssign={isNetAssignRoute}
+  {basemap}
+  {showPlaceNames}
+  onChangeBasemap={(style) => basemap = style}
+  onTogglePlaceNames={() => showPlaceNames = !showPlaceNames}
+  onSelectPlace={(bbox) => mapViewRef?.zoomToPlace(bbox)}
 />
 
 {#if isNetAssignRoute}
@@ -450,24 +448,13 @@
     {showNcn}
     {showOpenRoads}
     {showStudyArea}
-  />
-
-  <PlaceSearch
-    {sidebarOpen}
-    onSelect={(bbox) => mapViewRef?.zoomToPlace(bbox)}
+    {showPlaceNames}
   />
 
   <DetailPanel
     segment={selectedSegment}
     onClose={() => selectedSegment = null}
     onZoomTo={handleZoomTo}
-  />
-
-  <!-- Bottom-Left Basemap Switcher mirroring Counterflow Dashboard -->
-  <BasemapControl 
-    {basemap}
-    {sidebarOpen}
-    onChangeBasemap={(style) => basemap = style}
   />
 </main>
 {/if}

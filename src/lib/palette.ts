@@ -101,7 +101,6 @@ const SCHEMES: Record<GroupField, ColorScheme> = {
       {
         label: 'Dual Use of HS2 Maintenance Access Tracks (MATs)',
         color: HS2_MAT,
-        alwaysShow: true,
         values: ['Dual Use of HS2 Maintenance Access Tracks (MATs)', 'HS2 MAT']
       },
       { label: 'New greenway', color: GREEN, values: ['New Greenway'] },
@@ -137,7 +136,6 @@ const SCHEMES: Record<GroupField, ColorScheme> = {
       {
         label: 'Dual Use of HS2 Maintenance Access Tracks (MATs)',
         color: HS2_MAT,
-        alwaysShow: true,
         values: ['Dual Use of HS2 Maintenance Access Tracks (MATs)']
       },
       { label: 'Traffic-free path', color: GREEN, values: ['Traffic-free path away from highway'] },

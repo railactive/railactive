@@ -1,10 +1,18 @@
 <script lang="ts">
+  import BasemapControl from './BasemapControl.svelte';
+  import PlaceSearch from './PlaceSearch.svelte';
+
   interface Props {
     sidebarOpen: boolean;
     onToggleSidebar: () => void;
     isExampleData: boolean;
     onCopyLink: () => Promise<void>;
     isNetAssign?: boolean;
+    basemap?: string;
+    showPlaceNames?: boolean;
+    onChangeBasemap?: (style: string) => void;
+    onTogglePlaceNames?: () => void;
+    onSelectPlace?: (bbox: [number, number, number, number], name: string) => void;
   }
 
   let { 
@@ -12,7 +20,12 @@
     onToggleSidebar, 
     isExampleData = false,
     onCopyLink,
-    isNetAssign = false
+    isNetAssign = false,
+    basemap = 'light',
+    showPlaceNames = true,
+    onChangeBasemap = () => {},
+    onTogglePlaceNames = () => {},
+    onSelectPlace = () => {}
   }: Props = $props();
 
   let copyStatus: 'idle' | 'copied' | 'error' = $state('idle');
@@ -75,6 +88,18 @@
     </div>
   </div>
 
+  {#if !isNetAssign}
+    <div class="center-section">
+      <PlaceSearch onSelect={onSelectPlace} />
+      <BasemapControl
+        {basemap}
+        {showPlaceNames}
+        {onChangeBasemap}
+        {onTogglePlaceNames}
+      />
+    </div>
+  {/if}
+
   <div class="right-section">
     {#if isNetAssign}
       <a href="/" class="outline-btn nav-btn" title="Return to Corridor Alignment Explorer">
@@ -112,17 +137,6 @@
       </svg>
       <span>{copyStatus === 'copied' ? 'Copied' : copyStatus === 'error' ? 'Failed' : 'Share'}</span>
     </button>
-    <a 
-      href="https://github.com/railactive/railactive" 
-      target="_blank" 
-      rel="noreferrer" 
-      class="github-link"
-      title="View on GitHub"
-    >
-      <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor">
-        <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
-      </svg>
-    </a>
   </div>
 </header>
 
@@ -139,13 +153,27 @@
     z-index: 30;
   }
 
-  .left-section, .right-section, .brand, .title-row {
+  .left-section, .center-section, .right-section, .brand, .title-row {
     display: flex;
     align-items: center;
   }
 
   .left-section {
     gap: 12px;
+    flex-shrink: 0;
+  }
+
+  .center-section {
+    gap: 8px;
+    flex: 1;
+    justify-content: center;
+    padding: 0 16px;
+    min-width: 0;
+  }
+
+  .right-section {
+    gap: 8px;
+    flex-shrink: 0;
   }
 
   .toggle-btn {
@@ -212,10 +240,6 @@
     line-height: 1.1;
   }
 
-  .right-section {
-    gap: 8px;
-  }
-
   .nav-btn {
     height: 34px;
     padding: 0 10px;
@@ -234,24 +258,17 @@
     border-color: var(--accent-rose);
   }
 
-  .github-link {
-    color: var(--text-muted);
-    display: flex;
-    align-items: center;
-    padding: 6px;
-    border-radius: var(--radius-sm);
-    transition: color 0.15s ease;
-  }
-
-  .github-link:hover {
-    color: var(--text-primary);
+  @media (max-width: 960px) {
+    .subtitle, .toggle-label {
+      display: none;
+    }
   }
 
   @media (max-width: 540px) {
     .app-header {
       padding: 0 10px;
     }
-    .subtitle, .toggle-label, .nav-btn span {
+    .nav-btn span {
       display: none;
     }
   }

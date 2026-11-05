@@ -1,6 +1,6 @@
 import type { FilterState } from './types/cycleway';
 
-export const BASEMAP_IDS = ['light', 'dark', 'satellite', 'osm'] as const;
+export const BASEMAP_IDS = ['light', 'dark', 'satellite', 'opencyclemap', 'osm'] as const;
 export type BasemapId = (typeof BASEMAP_IDS)[number];
 
 const COLOR_BY_VALUES: FilterState['colorBy'][] = ['category', 'classification', 'developer', 'status', 'kml'];
@@ -19,7 +19,8 @@ const MANAGED_PARAMS = [
   'sidebar',
   'ncn',
   'openroads',
-  'studyarea'
+  'studyarea',
+  'labels'
 ];
 
 export interface AppUrlState {
@@ -30,6 +31,7 @@ export interface AppUrlState {
   showNcn: boolean;
   showOpenRoads: boolean;
   showStudyArea: boolean;
+  showPlaceNames: boolean;
 }
 
 function getLimitedParam(params: URLSearchParams, key: string, maxLength = 200): string {
@@ -64,7 +66,8 @@ export function readUrlState(url: URL): AppUrlState {
     selectedSegmentKey: getLimitedParam(params, 'segment', 100) || null,
     showNcn: params.get('ncn') === 'true' || params.get('ncn') === '1',
     showOpenRoads: params.get('openroads') === 'true',
-    showStudyArea: params.get('studyarea') === 'true' || params.get('study_area') === 'true'
+    showStudyArea: params.get('studyarea') === 'true' || params.get('study_area') === 'true',
+    showPlaceNames: params.get('labels') !== '0' && params.get('labels') !== 'false'
   };
 }
 
@@ -93,6 +96,7 @@ export function writeUrlState(url: URL, state: AppUrlState): string {
   if (state.showNcn) nextUrl.searchParams.set('ncn', 'true');
   if (state.showOpenRoads) nextUrl.searchParams.set('openroads', 'true');
   if (state.showStudyArea) nextUrl.searchParams.set('studyarea', 'true');
+  if (!state.showPlaceNames) nextUrl.searchParams.set('labels', '0');
 
   return `${nextUrl.pathname}${nextUrl.search}${nextUrl.hash}`;
 }

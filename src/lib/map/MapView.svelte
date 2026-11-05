@@ -76,6 +76,7 @@
     openRoadsPmtilesUrl?: string;
     showStudyArea?: boolean;
     studyAreaGeojsonUrl?: string;
+    showPlaceNames?: boolean;
   }
 
   let {
@@ -91,7 +92,8 @@
     showOpenRoads,
     openRoadsPmtilesUrl = './data/openroads.pmtiles',
     showStudyArea = false,
-    studyAreaGeojsonUrl = './data/study_area.geojson'
+    studyAreaGeojsonUrl = './data/study_area.geojson',
+    showPlaceNames = true
   }: Props = $props();
 
   let mapContainer: HTMLDivElement;
@@ -117,106 +119,97 @@
     else showGeoMessage('Your location could not be determined.');
   }
 
-  // High-performance raster basemap styles (clean, keyless, zero watermarks)
+  // Split label-free base cartography + top-level place-name overlay (keyless, zero watermarks)
   const basemapStyles: Record<string, any> = {
     light: {
       version: 8,
       sources: {
-        'esri-light-base': {
+        'basemap-base': {
           type: 'raster',
           tiles: ['https://services.arcgisonline.com/arcgis/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}'],
           tileSize: 256,
+          maxzoom: 16,
           attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ'
         },
-        'esri-light-labels': {
+        'basemap-labels': {
           type: 'raster',
           tiles: ['https://services.arcgisonline.com/arcgis/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}'],
-          tileSize: 256
+          tileSize: 256,
+          maxzoom: 16
         }
       },
       layers: [
-        { id: 'esri-light-base-layer', type: 'raster', source: 'esri-light-base', minzoom: 0, maxzoom: 18 },
-        { id: 'esri-light-labels-layer', type: 'raster', source: 'esri-light-labels', minzoom: 0, maxzoom: 18 }
+        { id: 'basemap-base-layer', type: 'raster', source: 'basemap-base', minzoom: 0, maxzoom: 22 }
       ]
     },
     dark: {
       version: 8,
       sources: {
-        'esri-dark-base': {
+        'basemap-base': {
           type: 'raster',
-          tiles: [
-            'https://services.arcgisonline.com/arcgis/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}'
-          ],
+          tiles: ['https://services.arcgisonline.com/arcgis/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}'],
           tileSize: 256,
+          maxzoom: 16,
           attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ'
         },
-        'esri-dark-labels': {
+        'basemap-labels': {
           type: 'raster',
-          tiles: [
-            'https://services.arcgisonline.com/arcgis/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}'
-          ],
-          tileSize: 256
+          tiles: ['https://services.arcgisonline.com/arcgis/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}'],
+          tileSize: 256,
+          maxzoom: 16
         }
       },
       layers: [
-        {
-          id: 'esri-dark-base-layer',
-          type: 'raster',
-          source: 'esri-dark-base',
-          minzoom: 0,
-          maxzoom: 18
-        },
-        {
-          id: 'esri-dark-labels-layer',
-          type: 'raster',
-          source: 'esri-dark-labels',
-          minzoom: 0,
-          maxzoom: 18
-        }
+        { id: 'basemap-base-layer', type: 'raster', source: 'basemap-base', minzoom: 0, maxzoom: 22 }
       ]
     },
     satellite: {
       version: 8,
       sources: {
-        'esri-sat': {
+        'basemap-base': {
           type: 'raster',
-          tiles: [
-            'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
-          ],
+          tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
           tileSize: 256,
-          attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+          attribution: 'Tiles &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community'
+        },
+        'basemap-labels': {
+          type: 'raster',
+          tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}'],
+          tileSize: 256
         }
       },
       layers: [
-        {
-          id: 'esri-sat-layer',
+        { id: 'basemap-base-layer', type: 'raster', source: 'basemap-base', minzoom: 0, maxzoom: 19 }
+      ]
+    },
+    opencyclemap: {
+      version: 8,
+      sources: {
+        'basemap-base': {
           type: 'raster',
-          source: 'esri-sat',
-          minzoom: 0,
-          maxzoom: 19
+          tiles: ['https://tile.thunderforest.com/cycle/{z}/{x}/{y}@2x.png?apikey=e26a96d14f5e41d78dd4842ac12f458c'],
+          tileSize: 256,
+          attribution: 'Maps &copy; <a href="https://www.thunderforest.com" target="_blank" rel="noopener noreferrer">Thunderforest</a>, Data &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap contributors</a> &middot; <a href="https://www.opencyclemap.org/docs/" target="_blank" rel="noopener noreferrer">see legend</a>'
         }
+      },
+      layers: [
+        { id: 'basemap-bg', type: 'background', paint: { 'background-color': '#f4f4f4' } },
+        { id: 'basemap-base-layer', type: 'raster', source: 'basemap-base', minzoom: 0, maxzoom: 22, paint: { 'raster-opacity': 0.72 } }
       ]
     },
     osm: {
       version: 8,
       sources: {
-        'osm-base': {
+        'basemap-base': {
           type: 'raster',
-          tiles: [
-            'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
-          ],
+          tiles: ['https://tile.thunderforest.com/outdoors/{z}/{x}/{y}@2x.png?apikey=e26a96d14f5e41d78dd4842ac12f458c'],
           tileSize: 256,
-          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          attribution: 'Maps &copy; <a href="https://www.thunderforest.com" target="_blank" rel="noopener noreferrer">Thunderforest</a>, Data &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap contributors</a> &middot; <a href="https://www.opencyclemap.org/docs/" target="_blank" rel="noopener noreferrer">see legend</a>'
         }
       },
       layers: [
-        {
-          id: 'osm-base-layer',
-          type: 'raster',
-          source: 'osm-base',
-          minzoom: 0,
-          maxzoom: 19
-        }
+        { id: 'basemap-bg', type: 'background', paint: { 'background-color': '#f4f4f4' } },
+        { id: 'basemap-base-layer', type: 'raster', source: 'basemap-base', minzoom: 0, maxzoom: 22, paint: { 'raster-opacity': 0.78 } }
       ]
     }
   };
@@ -885,10 +878,12 @@
     }
 
     try {
+      const pathVersion = data.version || data.metadata?.version || 'v0.3.0';
       map.addSource('cycleway-data', {
         type: 'geojson',
         data: data as any,
-        generateId: true
+        generateId: true,
+        attribution: `North-South path file version ${pathVersion}`
       });
 
       // ==========================================
@@ -1054,6 +1049,20 @@
           'circle-stroke-color': '#ffffff'
         }
       });
+
+      // 4. Top-level Place Names Overlay Layer (sits above route lines, toggled via showPlaceNames)
+      if (map.getSource('basemap-labels') && !map.getLayer('basemap-labels-layer')) {
+        map.addLayer({
+          id: 'basemap-labels-layer',
+          type: 'raster',
+          source: 'basemap-labels',
+          minzoom: 0,
+          maxzoom: 20,
+          layout: {
+            visibility: showPlaceNames ? 'visible' : 'none'
+          }
+        });
+      }
 
       // Hover Popup Initialization
       if (!hoverPopup) {
@@ -1249,12 +1258,21 @@
   // Watch Study Area visibility reactively
   $effect(() => {
     const studyVisible = showStudyArea ? 'visible' : 'none';
-    if (!map || !map.isStyleLoaded()) return;
+    if (!map || !styleReady) return;
     if (map.getLayer('study-area-fill')) {
       map.setLayoutProperty('study-area-fill', 'visibility', studyVisible);
     }
     if (map.getLayer('study-area-line')) {
       map.setLayoutProperty('study-area-line', 'visibility', studyVisible);
+    }
+  });
+
+  // Watch Place Names visibility reactively
+  $effect(() => {
+    const labelsVisible = showPlaceNames ? 'visible' : 'none';
+    if (!map || !styleReady) return;
+    if (map.getLayer('basemap-labels-layer')) {
+      map.setLayoutProperty('basemap-labels-layer', 'visibility', labelsVisible);
     }
   });
 
@@ -1352,7 +1370,7 @@
   }
 
   .map-wrapper :global(.maplibregl-ctrl-bottom-left) {
-    bottom: 54px;
+    bottom: 14px;
     left: 14px;
     transition: left 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   }

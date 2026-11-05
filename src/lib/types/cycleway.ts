@@ -26,6 +26,13 @@ export interface CyclewayFeature {
 
 export interface CyclewayFeatureCollection {
   type: 'FeatureCollection';
+  version?: string;
+  generated_at?: string;
+  metadata?: {
+    version?: string;
+    generated_at?: string;
+    release_url?: string;
+  };
   features: CyclewayFeature[];
 }
 

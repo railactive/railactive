@@ -4,7 +4,6 @@
   // and an England viewbox, then filtered on the address `state`.
 
   interface Props {
-    sidebarOpen: boolean;
     onSelect: (bbox: [number, number, number, number], name: string) => void;
   }
 
@@ -14,7 +13,7 @@
     bbox: [number, number, number, number];
   }
 
-  let { sidebarOpen, onSelect }: Props = $props();
+  let { onSelect }: Props = $props();
 
   // left, top, right, bottom
   const ENGLAND_VIEWBOX = '-6.42,55.82,1.77,49.86';
@@ -132,7 +131,7 @@
   }
 </script>
 
-<div class="place-search" class:sidebar-open={sidebarOpen}>
+<div class="place-search">
   <div class="input-wrap">
     <svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
       <circle cx="11" cy="11" r="7"></circle>
@@ -184,24 +183,14 @@
 
 <style>
   .place-search {
-    position: absolute;
-    top: 16px;
-    left: 16px;
+    position: relative;
     width: 300px;
-    max-width: calc(100vw - 96px);
-    z-index: 25;
-    transition: left 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    flex: 0 1 300px;
+    min-width: 160px;
   }
 
-  /* Fit the space between the sidebar and the zoom controls */
-  .place-search.sidebar-open {
-    left: 360px;
-    max-width: calc(100vw - 424px);
-  }
-
-  /* On phones the open sidebar covers the map, so there is nowhere to put the box */
-  @media (max-width: 600px) {
-    .place-search.sidebar-open {
+  @media (max-width: 720px) {
+    .place-search {
       display: none;
     }
   }
@@ -222,12 +211,11 @@
 
   input {
     width: 100%;
-    height: 36px;
-    padding: 0 32px 0 32px;
-    background: var(--bg-surface);
-    border: 1px solid var(--border-color);
+    height: 34px;
+    padding: 0 22px 0 30px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-strong);
     border-radius: var(--radius-sm);
-    box-shadow: var(--shadow-md);
     color: var(--text-primary);
     font: inherit;
     font-size: 12px;
@@ -240,6 +228,7 @@
   }
 
   input:focus {
+    background: var(--bg-surface);
     border-color: var(--accent-civic);
     box-shadow: 0 0 0 2px rgba(29, 78, 216, 0.12);
   }
@@ -274,8 +263,12 @@
   }
 
   .results {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    z-index: 50;
     list-style: none;
-    margin-top: 4px;
     padding: 4px;
     background: var(--bg-surface);
     border: 1px solid var(--border-color);
@@ -312,7 +305,11 @@
   }
 
   .status {
-    margin-top: 4px;
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    z-index: 50;
     padding: 7px 10px;
     font-size: 11px;
     color: var(--text-secondary);
