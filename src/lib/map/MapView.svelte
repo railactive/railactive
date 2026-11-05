@@ -77,6 +77,7 @@
     showStudyArea?: boolean;
     studyAreaGeojsonUrl?: string;
     showPlaceNames?: boolean;
+    printMode?: 'legend' | 'clean' | null;
   }
 
   let {
@@ -93,7 +94,8 @@
     openRoadsPmtilesUrl = './data/openroads.pmtiles',
     showStudyArea = false,
     studyAreaGeojsonUrl = './data/study_area.geojson',
-    showPlaceNames = true
+    showPlaceNames = true,
+    printMode = null
   }: Props = $props();
 
   let mapContainer: HTMLDivElement;
@@ -1135,7 +1137,7 @@
     if (!bounds.isEmpty()) {
       map.fitBounds(bounds, {
         padding: {
-          left: sidebarOpen ? 360 : 40,
+          left: (sidebarOpen && !printMode) ? 360 : (printMode === 'legend' ? 300 : 40),
           right: 40,
           top: 40,
           bottom: 40
@@ -1185,8 +1187,19 @@
     map.fitBounds([[bbox[0], bbox[1]], [bbox[2], bbox[3]]], { padding: zoomPadding(), maxZoom: 14, duration: 1200 });
   }
 
+  export function exportMapCanvasPng(filename = 'railactive-map.png'): string | null {
+    if (!map) return null;
+    map.triggerRepaint();
+    const dataUrl = map.getCanvas().toDataURL('image/png');
+    const a = document.createElement('a');
+    a.href = dataUrl;
+    a.download = filename;
+    a.click();
+    return dataUrl;
+  }
+
   function zoomPadding() {
-    return { left: sidebarOpen ? 380 : 80, right: 80, top: 80, bottom: 80 };
+    return { left: (sidebarOpen && !printMode) ? 380 : 80, right: 80, top: 80, bottom: 80 };
   }
 
   onMount(() => {
@@ -1197,7 +1210,8 @@
       center: [-1.4, 52.3],
       zoom: 7.8,
       pitch: 0,
-      hash: 'map'
+      hash: 'map',
+      preserveDrawingBuffer: true
     });
 
     (window as any)._map = map;
@@ -1336,11 +1350,25 @@
       }
     });
   });
+
+  // Resize MapLibre canvas when toggling print mode (header height changes)
+  $effect(() => {
+    const _mode = printMode;
+    if (!map) return;
+    requestAnimationFrame(() => {
+      map?.resize();
+    });
+  });
 </script>
 
-<div class="map-wrapper" class:sidebar-open={sidebarOpen} bind:this={mapContainer}></div>
+<div
+  class="map-wrapper"
+  class:sidebar-open={sidebarOpen && !printMode}
+  class:print-mode={Boolean(printMode)}
+  bind:this={mapContainer}
+></div>
 
-{#if geoMessage}
+{#if geoMessage && !printMode}
   <div class="geo-message" role="status">{geoMessage}</div>
 {/if}
 
@@ -1377,6 +1405,24 @@
 
   .map-wrapper.sidebar-open :global(.maplibregl-ctrl-bottom-left) {
     left: 350px;
+  }
+
+  .map-wrapper.print-mode :global(.maplibregl-ctrl-top-right) {
+    display: none !important;
+  }
+
+  .map-wrapper.print-mode :global(.maplibregl-ctrl-bottom-left) {
+    left: 14px !important;
+  }
+
+  @media print {
+    .map-wrapper :global(.maplibregl-ctrl-top-right) {
+      display: none !important;
+    }
+
+    .map-wrapper :global(.maplibregl-ctrl-bottom-left) {
+      left: 14px !important;
+    }
   }
 
   :global(.hover-tooltip-popup .maplibregl-popup-content) {
