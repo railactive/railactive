@@ -5,8 +5,9 @@
   import DetailPanel from './lib/components/DetailPanel.svelte';
   import PasswordGate from './lib/components/PasswordGate.svelte';
   import NetAssignView from './lib/components/NetAssignView.svelte';
+  import PrintLegend from './lib/components/PrintLegend.svelte';
   import MapView from './lib/map/MapView.svelte';
-  import { hasValidMapHash, readUrlState, writeUrlState, type AppUrlState } from './lib/urlState';
+  import { hasValidMapHash, readUrlState, writeUrlState, type AppUrlState, type PrintMode } from './lib/urlState';
   import {
     effectiveHiddenGroups,
     groupFor,
@@ -41,6 +42,7 @@
   let showOpenRoads: boolean = $state(initialUrlState.showOpenRoads);
   let showStudyArea: boolean = $state(initialUrlState.showStudyArea);
   let showPlaceNames: boolean = $state(initialUrlState.showPlaceNames);
+  let printMode: PrintMode = $state(initialUrlState.printMode);
   let urlStateReady: boolean = $state(false);
 
   let mapViewRef: any = $state(null);
@@ -162,7 +164,8 @@
       showNcn,
       showOpenRoads,
       showStudyArea,
-      showPlaceNames
+      showPlaceNames,
+      printMode
     };
   }
 
@@ -364,33 +367,56 @@
       mapViewRef.zoomToSegment(id);
     }
   }
+
+  function handleKeydown(event: KeyboardEvent) {
+    if (isNetAssignRoute) return;
+    const target = event.target as HTMLElement | null;
+    const isInput = target && (
+      target.tagName === 'INPUT'
+      || target.tagName === 'SELECT'
+      || target.tagName === 'TEXTAREA'
+      || target.isContentEditable
+    );
+    if (event.key === 'Escape' && printMode) {
+      printMode = null;
+    } else if (!isInput && !event.ctrlKey && !event.metaKey && !event.altKey && (event.key === 'p' || event.key === 'P')) {
+      printMode = printMode === null ? 'legend' : (printMode === 'legend' ? 'clean' : null);
+    }
+  }
 </script>
+
+<svelte:window onkeydown={handleKeydown} />
 
 {#if !isAuthenticated}
   <PasswordGate onAuthenticated={() => isAuthenticated = true} />
 {/if}
 
-<Header 
-  {sidebarOpen} 
-  onCopyLink={copyShareLink}
-  onToggleSidebar={() => {
-    sidebarOpen = !sidebarOpen;
-    if (!isNetAssignRoute) {
-      setTimeout(() => {
-        if (mapViewRef && typeof mapViewRef.fitCorridorBounds === 'function') {
-          mapViewRef.fitCorridorBounds();
+{#if !printMode}
+  <div class="header-shell">
+    <Header 
+      {sidebarOpen} 
+      onCopyLink={copyShareLink}
+      onToggleSidebar={() => {
+        sidebarOpen = !sidebarOpen;
+        if (!isNetAssignRoute) {
+          setTimeout(() => {
+            if (mapViewRef && typeof mapViewRef.fitCorridorBounds === 'function') {
+              mapViewRef.fitCorridorBounds();
+            }
+          }, 300);
         }
-      }, 300);
-    }
-  }}
-  {isExampleData}
-  isNetAssign={isNetAssignRoute}
-  {basemap}
-  {showPlaceNames}
-  onChangeBasemap={(style) => basemap = style}
-  onTogglePlaceNames={() => showPlaceNames = !showPlaceNames}
-  onSelectPlace={(bbox) => mapViewRef?.zoomToPlace(bbox)}
-/>
+      }}
+      {isExampleData}
+      isNetAssign={isNetAssignRoute}
+      {basemap}
+      {showPlaceNames}
+      onChangeBasemap={(style) => basemap = style}
+      onTogglePlaceNames={() => showPlaceNames = !showPlaceNames}
+      onSelectPlace={(bbox) => mapViewRef?.zoomToPlace(bbox)}
+      onEnterPrintView={() => (printMode = 'legend')}
+    />
+  </div>
+{/if}
 
 {#if isNetAssignRoute}
   <NetAssignView
@@ -399,7 +425,7 @@
     onChangeBasemap={(style) => (basemap = style)}
   />
 {:else}
-<main class="main-viewport">
+<main class="main-viewport" class:print-active={Boolean(printMode)}>
   {#if loading}
     <div class="loading-overlay">
       <div class="spinner"></div>
@@ -412,29 +438,97 @@
     </div>
   {/if}
 
-  <Sidebar 
-    open={sidebarOpen}
-    {stats}
-    bind:filters={filters}
-    legend={{
-      items: legendItems,
-      hiddenItems: hiddenGroups,
-      onToggleItem: handleToggleLegendItem,
-      onIsolateItem: handleIsolateLegendItem,
-      onShowAll: handleShowAllLegendItems,
-      showNcn,
-      onToggleNcn: () => showNcn = !showNcn,
-      showOpenRoads,
-      onToggleOpenRoads: () => showOpenRoads = !showOpenRoads,
-      showStudyArea,
-      onToggleStudyArea: () => showStudyArea = !showStudyArea
-    }}
-    {availableDevelopers}
-    {availableCategories}
-    {availableClassifications}
-    {availableSections}
-    onResetFilters={handleResetFilters}
-  />
+  {#if !printMode}
+    <div class="sidebar-shell">
+      <Sidebar 
+        open={sidebarOpen}
+        {stats}
+        bind:filters={filters}
+        legend={{
+          items: legendItems,
+          hiddenItems: hiddenGroups,
+          onToggleItem: handleToggleLegendItem,
+          onIsolateItem: handleIsolateLegendItem,
+          onShowAll: handleShowAllLegendItems,
+          showNcn,
+          onToggleNcn: () => showNcn = !showNcn,
+          showOpenRoads,
+          onToggleOpenRoads: () => showOpenRoads = !showOpenRoads,
+          showStudyArea,
+          onToggleStudyArea: () => showStudyArea = !showStudyArea
+        }}
+        {availableDevelopers}
+        {availableCategories}
+        {availableClassifications}
+        {availableSections}
+        onResetFilters={handleResetFilters}
+      />
+    </div>
+  {/if}
+
+  {#if !loading && !error && printMode !== 'clean'}
+    <div class="print-legend-shell" class:visible-on-screen={printMode === 'legend'}>
+      <PrintLegend
+        colorBy={filters.colorBy}
+        {filters}
+        items={legendItems}
+        hiddenItems={hiddenGroups}
+        {stats}
+        {showNcn}
+        {showOpenRoads}
+        {showStudyArea}
+      />
+    </div>
+  {/if}
+
+  {#if printMode}
+    <div class="print-hover-zone" role="region" aria-label="Print view controls">
+      <div class="print-hover-toolbar">
+        <button
+          type="button"
+          class="print-pill-btn"
+          class:active={printMode === 'legend'}
+          onclick={() => (printMode = 'legend')}
+          title="Publication view with compact read-only legend (?print=true)"
+        >
+          Legend
+        </button>
+        <button
+          type="button"
+          class="print-pill-btn"
+          class:active={printMode === 'clean'}
+          onclick={() => (printMode = 'clean')}
+          title="Pure map canvas without overlays (?print=clean)"
+        >
+          Clean
+        </button>
+        <button
+          type="button"
+          class="print-pill-btn"
+          onclick={() => mapViewRef?.exportMapCanvasPng()}
+          title="Download WebGL map canvas as PNG"
+        >
+          PNG
+        </button>
+        <button
+          type="button"
+          class="print-pill-btn"
+          onclick={() => window.print()}
+          title="Open browser print / Save as PDF"
+        >
+          Print
+        </button>
+        <button
+          type="button"
+          class="print-pill-btn exit"
+          onclick={() => (printMode = null)}
+          title="Exit print view (Esc)"
+        >
+          Exit (Esc)
+        </button>
+      </div>
+    </div>
+  {/if}
 
   <MapView 
     bind:this={mapViewRef}
@@ -449,13 +543,18 @@
     {showOpenRoads}
     {showStudyArea}
     {showPlaceNames}
+    {printMode}
   />
 
-  <DetailPanel
-    segment={selectedSegment}
-    onClose={() => selectedSegment = null}
-    onZoomTo={handleZoomTo}
-  />
+  {#if !printMode}
+    <div class="detail-shell">
+      <DetailPanel
+        segment={selectedSegment}
+        onClose={() => selectedSegment = null}
+        onZoomTo={handleZoomTo}
+      />
+    </div>
+  {/if}
 </main>
 {/if}
 
@@ -467,5 +566,94 @@
     height: calc(100vh - 56px);
     overflow: hidden;
     background: var(--bg-primary);
+  }
+
+  .main-viewport.print-active {
+    height: 100vh;
+  }
+
+  .print-legend-shell {
+    display: none;
+  }
+
+  .print-legend-shell.visible-on-screen {
+    display: block;
+  }
+
+  .print-hover-zone {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 12px 14px 28px 28px;
+    z-index: 40;
+  }
+
+  .print-hover-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--border-strong);
+    border-radius: 9999px;
+    padding: 4px;
+    box-shadow: var(--shadow-md);
+    opacity: 0;
+    transform: translateY(-4px);
+    transition: opacity 0.18s ease, transform 0.18s ease;
+  }
+
+  .print-hover-zone:hover .print-hover-toolbar,
+  .print-hover-toolbar:focus-within {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .print-pill-btn {
+    background: transparent;
+    border: none;
+    border-radius: 9999px;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
+  }
+
+  .print-pill-btn:hover {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+  }
+
+  .print-pill-btn.active {
+    background: var(--accent-civic);
+    color: #ffffff;
+  }
+
+  .print-pill-btn.exit {
+    color: var(--accent-rose);
+  }
+
+  .print-pill-btn.exit:hover {
+    background: #fef2f2;
+    color: #b91c1c;
+  }
+
+  @media print {
+    .header-shell,
+    .sidebar-shell,
+    .detail-shell,
+    .print-hover-zone {
+      display: none !important;
+    }
+
+    .main-viewport {
+      height: 100vh !important;
+    }
+
+    .print-legend-shell {
+      display: block !important;
+    }
   }
 </style>
