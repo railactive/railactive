@@ -21,6 +21,7 @@
     REFERENCE_COLORS,
     statusFilterExpressions
   } from '../palette';
+  import { mapButtonsHtml } from '../components/MapButtons.svelte';
 
   const NCN_SOURCE_ID = 'ncn-data';
   const NCN_LINE_LAYER_ID = 'ncn-lines';
@@ -70,7 +71,7 @@
     sidebarOpen: boolean;
     hasInitialMapView: boolean;
     selectedSegment: CyclewaySegmentProperties | null;
-    onSelectSegment: (segment: CyclewaySegmentProperties | null) => void;
+    onSelectSegment: (segment: CyclewaySegmentProperties | null, center?: [number, number] | null) => void;
     showNcn?: boolean;
     ncnPmtilesUrl?: string;
     showOpenRoads: boolean;
@@ -306,7 +307,10 @@
 
   function handleCyclewayClick(e: maplibregl.MapLayerMouseEvent) {
     if (e.features && e.features.length > 0) {
-      onSelectSegment(e.features[0].properties as CyclewaySegmentProperties);
+      onSelectSegment(
+        e.features[0].properties as CyclewaySegmentProperties,
+        [e.lngLat.lng, e.lngLat.lat]
+      );
     }
   }
 
@@ -415,6 +419,7 @@
           <div class="map-cell full"><span class="k">Corridor Section:</span><span class="v">${folder}</span></div>
           ${properties.remarks ? `<div class="map-cell full"><span class="k">Remarks:</span><span class="v">${escapeHtml(properties.remarks)}</span></div>` : ''}
         </div>
+        ${mapButtonsHtml(e.lngLat.lng, e.lngLat.lat)}
       </div>
     `;
 
@@ -428,7 +433,7 @@
       .setHTML(html)
       .addTo(map);
 
-    onSelectSegment(properties);
+    onSelectSegment(properties, [e.lngLat.lng, e.lngLat.lat]);
   }
 
   function handleNcnMouseMove(e: maplibregl.MapLayerMouseEvent) {
@@ -506,6 +511,7 @@
           <div class="map-cell"><span class="k">Segment ID:</span><span class="v font-mono">${popupValue(props.SegmentID, 'N/A')}</span></div>
           <div class="map-cell full"><span class="k">Global ID:</span><span class="v font-mono text-xs">${popupValue(props.GlobalID, 'N/A')}</span></div>
         </div>
+        ${mapButtonsHtml(e.lngLat.lng, e.lngLat.lat)}
       </div>
     `;
 
@@ -681,6 +687,7 @@
           ${haulageBasis}
           ${props.id ? `<div class="map-cell full"><span class="k">Link ID:</span><span class="v font-mono text-xs">${popupValue(props.id, '')}</span></div>` : ''}
         </div>
+        ${mapButtonsHtml(e.lngLat.lng, e.lngLat.lat)}
       </div>
     `;
 

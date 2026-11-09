@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
   import maplibregl from 'maplibre-gl';
+  import MapButtons from './MapButtons.svelte';
 
   interface Props {
     sidebarOpen: boolean;
@@ -635,7 +636,10 @@
         map!.on('click', lyr, (e) => {
           if (!e.features || e.features.length === 0) return;
           selectedCounter = null;
-          selectedLink = { ...e.features[0].properties };
+          selectedLink = {
+            ...e.features[0].properties,
+            _center: [e.lngLat.lng, e.lngLat.lat] as [number, number]
+          };
         });
       }
 
@@ -662,7 +666,10 @@
       map!.on('click', 'netassign-counters', (e) => {
         if (!e.features || e.features.length === 0) return;
         selectedLink = null;
-        selectedCounter = { ...e.features[0].properties };
+        selectedCounter = {
+          ...e.features[0].properties,
+          _center: [e.lngLat.lng, e.lngLat.lat] as [number, number]
+        };
       });
     });
   });
@@ -978,6 +985,8 @@
             </div>
           </div>
         {/if}
+
+        <MapButtons center={selectedLink._center} />
       </div>
     {/if}
 
@@ -1005,6 +1014,8 @@
             <strong>{Number(selectedCounter.modelled_greenway || 0).toFixed(1)} /day</strong>
           </div>
         </div>
+
+        <MapButtons center={selectedCounter._center} />
       </div>
     {/if}
   </div>
