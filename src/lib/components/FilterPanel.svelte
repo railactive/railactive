@@ -49,7 +49,7 @@
 
   <!-- Category Filter -->
   <div class="form-group">
-    <label for="category-select">Route Category</label>
+    <label for="category-select">Delivery Category</label>
     <select id="category-select" bind:value={filters.category}>
       <option value="">All Categories ({availableCategories.length})</option>
       {#each availableCategories as cat}

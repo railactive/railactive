@@ -63,7 +63,7 @@
       <option value="classification">Infrastructure type</option>
       <option value="infrastructure_type_detailed">Infrastructure type (detailed)</option>
       <option value="detailed_classification">Detailed classification</option>
-      <option value="category">Category</option>
+      <option value="category">Delivery category</option>
       <option value="developer">Lead developer</option>
       <option value="status">Alignment status</option>
       <option value="kml">Original KML colours</option>
