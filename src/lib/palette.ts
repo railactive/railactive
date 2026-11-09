@@ -23,9 +23,10 @@ interface ColorScheme {
 }
 
 const HS2_ORANGE = '#c2410c';
-const HS2_GREENWAY = '#15803d';
+const HS2_GREENWAY = '#0f766e';
 const HS2_MAT = '#d97706';
-const GREEN = '#047857';
+const GREEN = '#14532d';
+const LIGHT_GREEN = '#22c55e';
 const BLUE = '#1d4ed8';
 const TEAL = '#0f766e';
 const PURPLE = '#7c3aed';
@@ -143,7 +144,7 @@ const SCHEMES: Record<Exclude<ColorBy, 'kml'>, ColorScheme> = {
         ]
       },
       { label: 'New greenway', color: GREEN, values: ['New Greenway', 'New greenway'] },
-      { label: 'Path & towpath upgrades', color: TEAL, values: ['Upgrade PROW', 'Canal Towpath Upgrade', 'Canal towpath upgrade'] },
+      { label: 'Path & towpath upgrades', color: LIGHT_GREEN, values: ['Upgrade PROW', 'Canal Towpath Upgrade', 'Canal towpath upgrade'] },
       { label: 'Quiet roads & lanes', color: BLUE, values: ['Local Road Quietway', 'Local road quietway', 'Quiet Lane', 'Quiet lane', 'Town or village centre'] },
       {
         label: 'Cycle tracks',
@@ -193,7 +194,7 @@ const SCHEMES: Record<Exclude<ColorBy, 'kml'>, ColorScheme> = {
         ]
       },
       { label: 'New greenway', color: GREEN, values: ['New Greenway', 'New greenway'] },
-      { label: 'Path & towpath upgrades', color: TEAL, values: ['Upgrade PROW', 'Canal Towpath Upgrade', 'Canal towpath upgrade'] },
+      { label: 'Path & towpath upgrades', color: LIGHT_GREEN, values: ['Upgrade PROW', 'Canal Towpath Upgrade', 'Canal towpath upgrade'] },
       { label: 'Quiet roads & lanes', color: BLUE, values: ['Local Road Quietway', 'Local road quietway', 'Quiet Lane', 'Quiet lane', 'Town or village centre'] },
       {
         label: 'Cycle tracks',
@@ -243,7 +244,7 @@ const SCHEMES: Record<Exclude<ColorBy, 'kml'>, ColorScheme> = {
         ]
       },
       { label: 'New greenway', color: GREEN, values: ['New Greenway', 'New greenway'] },
-      { label: 'Path & towpath upgrades', color: TEAL, values: ['Upgrade PROW', 'Canal Towpath Upgrade', 'Canal towpath upgrade'] },
+      { label: 'Path & towpath upgrades', color: LIGHT_GREEN, values: ['Upgrade PROW', 'Canal Towpath Upgrade', 'Canal towpath upgrade'] },
       { label: 'Quiet roads & lanes', color: BLUE, values: ['Local Road Quietway', 'Local road quietway', 'Quiet Lane', 'Quiet lane', 'Town or village centre'] },
       {
         label: 'Cycle tracks',
@@ -278,7 +279,7 @@ const SCHEMES: Record<Exclude<ColorBy, 'kml'>, ColorScheme> = {
         ]
       },
       { label: 'Traffic-free path', color: GREEN, values: ['Traffic-free path away from highway'] },
-      { label: 'Canal towpath', color: TEAL, values: ['Canal tow path or new path close by canal'] },
+      { label: 'Canal towpath', color: LIGHT_GREEN, values: ['Canal tow path or new path close by canal'] },
       { label: '20mph / protected on-road', color: BLUE, values: ['20mph and traffic calmed or protected cycle lane'] },
       { label: 'Other', color: GREY }
     ]
