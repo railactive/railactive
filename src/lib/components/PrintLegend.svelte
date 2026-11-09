@@ -34,7 +34,7 @@
     classification: 'By infrastructure type',
     infrastructure_type_detailed: 'By infrastructure type (detailed)',
     detailed_classification: 'By detailed classification',
-    category: 'By route category',
+    category: 'By delivery category',
     developer: 'By lead developer',
     status: 'By alignment status',
     kml: 'By KML source colour'

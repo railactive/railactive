@@ -45,7 +45,7 @@
           </div>
         {/if}
         <div class="attr-item full">
-          <span class="attr-label">Category</span>
+          <span class="attr-label">Delivery category</span>
           <span class="attr-value">{segment.category || (segment.layer_type === 'intervention' ? 'Active Route Treatment' : 'Uncategorized')}</span>
         </div>
         <div class="attr-item full">
