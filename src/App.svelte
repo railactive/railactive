@@ -6,6 +6,7 @@
   import PasswordGate from './lib/components/PasswordGate.svelte';
   import NetAssignView from './lib/components/NetAssignView.svelte';
   import PrintLegend from './lib/components/PrintLegend.svelte';
+  import { featureCenter } from './lib/components/MapButtons.svelte';
   import MapView from './lib/map/MapView.svelte';
   import { hasValidMapHash, readUrlState, writeUrlState, type AppUrlState, type PrintMode } from './lib/urlState';
   import {
@@ -41,6 +42,13 @@
   let sidebarOpen: boolean = $state(initialUrlState.sidebarOpen);
   let basemap: string = $state(initialUrlState.basemap);
   let selectedSegment: CyclewaySegmentProperties | null = $state(null);
+  let clickedSegmentCenter: [number, number] | null = $state(null);
+  let selectedSegmentCenter = $derived.by(() => {
+    if (!selectedSegment) return null;
+    if (clickedSegmentCenter) return clickedSegmentCenter;
+    const match = rawData?.features.find(f => f.properties.id === selectedSegment?.id);
+    return match ? featureCenter(match.geometry) : null;
+  });
   let showNcn: boolean = $state(initialUrlState.showNcn);
   let showOpenRoads: boolean = $state(initialUrlState.showOpenRoads);
   let showStudyArea: boolean = $state(initialUrlState.showStudyArea);
@@ -547,7 +555,10 @@
     {sidebarOpen}
     {hasInitialMapView}
     {selectedSegment}
-    onSelectSegment={(seg) => selectedSegment = seg}
+    onSelectSegment={(seg, center = null) => {
+      selectedSegment = seg;
+      clickedSegmentCenter = center;
+    }}
     {showNcn}
     {showOpenRoads}
     {showStudyArea}
@@ -559,7 +570,11 @@
     <div class="detail-shell">
       <DetailPanel
         segment={selectedSegment}
-        onClose={() => selectedSegment = null}
+        center={selectedSegmentCenter}
+        onClose={() => {
+          selectedSegment = null;
+          clickedSegmentCenter = null;
+        }}
         onZoomTo={handleZoomTo}
       />
     </div>

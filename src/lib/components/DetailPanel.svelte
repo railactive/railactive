@@ -1,14 +1,16 @@
 <script lang="ts">
   import type { CyclewaySegmentProperties } from '../types/cycleway';
   import { formatStatusLabel, normalizeClassification } from '../palette';
+  import MapButtons from './MapButtons.svelte';
 
   interface Props {
     segment: CyclewaySegmentProperties | null;
+    center?: [number, number] | null;
     onClose: () => void;
     onZoomTo: (id: number) => void;
   }
 
-  let { segment, onClose, onZoomTo }: Props = $props();
+  let { segment, center = null, onClose, onZoomTo }: Props = $props();
 </script>
 
 {#if segment}
@@ -83,6 +85,8 @@
         </svg>
         {segment.layer_type === 'intervention' ? 'Zoom to Point' : 'Zoom to Segment'}
       </button>
+
+      <MapButtons {center} />
     </div>
   </div>
 {/if}
