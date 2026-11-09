@@ -82,9 +82,9 @@
         rawData = await resp.json();
         isExampleData = true;
       } else {
-        // Try production dataset first
+        // Try production dataset first (bypass browser cache so updated local GeoJSON is always loaded)
         try {
-          const resp = await fetch('./data/north_south_cycleway.json');
+          const resp = await fetch('./data/north_south_cycleway.json?v=0.4.0-av', { cache: 'no-cache' });
           if (resp.ok) {
             rawData = await resp.json();
             isExampleData = false;
