@@ -12,8 +12,11 @@
     effectiveHiddenGroups,
     groupFor,
     groupsFor,
+    isPending,
     isSuperseded,
     normalizeClassification,
+    PENDING_LABEL,
+    showsPending,
     showsSuperseded,
     SUPERSEDED_LABEL
   } from './lib/palette';
@@ -114,6 +117,7 @@
       feature.properties.layer_type !== 'hs2_railway'
       && feature.properties.layer_type !== 'intervention'
       && !isSuperseded(feature.properties)
+      && !isPending(feature.properties)
     );
     const developers = new Set(activeFeatures.map(feature => feature.properties.developer).filter(Boolean));
     const categories = new Set(activeFeatures.map(feature => feature.properties.category).filter(Boolean));
@@ -158,7 +162,8 @@
         searchTerm: filters.searchTerm,
         colorBy: filters.colorBy,
         hiddenLegendItems: [...filters.hiddenLegendItems],
-        showSuperseded: filters.showSuperseded
+        showSuperseded: filters.showSuperseded,
+        showPending: filters.showPending
       },
       selectedSegmentKey: selectedSegment?.link_id || (selectedSegment ? String(selectedSegment.id) : null),
       showNcn,
@@ -204,19 +209,21 @@
     );
   });
 
-  // The current network, without superseded alignments; drives the filter dropdown options
-  let activeNetworkFeatures = $derived(routeFeatures.filter(f => !isSuperseded(f.properties)));
+  // The current network, without superseded or pending alignments; drives the filter dropdown options
+  let activeNetworkFeatures = $derived(routeFeatures.filter(f => !isSuperseded(f.properties) && !isPending(f.properties)));
 
-  // Superseded alignments are only in scope for the alignment-status legend, where they are
-  // an opt-in row (hidden until ticked)
+  // Superseded and pending alignments are only in scope for the alignment-status legend, where they are
+  // opt-in rows (hidden until ticked)
   let scopeFeatures = $derived(filters.colorBy === 'status' ? routeFeatures : activeNetworkFeatures);
 
-  // Legend groups switched off, including Superseded while unticked
+  // Legend groups switched off, including Superseded and Pending while unticked
   let hiddenGroups = $derived(effectiveHiddenGroups(filters));
 
-  // A superseded link can't stay selected once superseded alignments are hidden
+  // A superseded or pending link can't stay selected once its opt-in layer is hidden
   $effect(() => {
     if (selectedSegment && isSuperseded(selectedSegment) && !showsSuperseded(filters)) {
+      selectedSegment = null;
+    } else if (selectedSegment && isPending(selectedSegment) && !showsPending(filters)) {
       selectedSegment = null;
     }
   });
@@ -274,7 +281,7 @@
         if (pCls !== normalizeClassification(filters.classification)) return false;
       }
       if (filters.section && p.section !== filters.section) return false;
-      if (filters.status && !isSuperseded(p) && (p.status || 'preferred') !== filters.status) return false;
+      if (filters.status && !isSuperseded(p) && !isPending(p) && (p.status || 'preferred') !== filters.status) return false;
       if (filters.searchTerm) {
         const term = filters.searchTerm.toLowerCase();
         const matchName = p.name && p.name.toLowerCase().includes(term);
@@ -321,12 +328,13 @@
     };
   });
 
-  // Store the legend's hidden groups, splitting out the opt-in Superseded row
+  // Store the legend's hidden groups, splitting out the opt-in Superseded and Pending rows
   function setHiddenGroups(hidden: string[]) {
     filters = {
       ...filters,
-      hiddenLegendItems: hidden.filter(label => label !== SUPERSEDED_LABEL),
-      showSuperseded: filters.colorBy === 'status' ? !hidden.includes(SUPERSEDED_LABEL) : filters.showSuperseded
+      hiddenLegendItems: hidden.filter(label => label !== SUPERSEDED_LABEL && label !== PENDING_LABEL),
+      showSuperseded: filters.colorBy === 'status' ? !hidden.includes(SUPERSEDED_LABEL) : filters.showSuperseded,
+      showPending: filters.colorBy === 'status' ? !hidden.includes(PENDING_LABEL) : filters.showPending
     };
   }
 
@@ -358,7 +366,8 @@
       searchTerm: '',
       colorBy: 'classification',
       hiddenLegendItems: [],
-      showSuperseded: false
+      showSuperseded: false,
+      showPending: false
     };
   }
 

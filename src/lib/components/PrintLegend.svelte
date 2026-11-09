@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { INTERVENTION_COLOR, REFERENCE_COLORS as ref } from '../palette';
+  import { formatStatusLabel, INTERVENTION_COLOR, REFERENCE_COLORS as ref } from '../palette';
   import type { CyclewayStats, FilterState } from '../types/cycleway';
 
   interface LegendItem {
@@ -31,7 +31,9 @@
   }: Props = $props();
 
   const schemeLabels: Record<FilterState['colorBy'], string> = {
-    classification: 'By route classification',
+    classification: 'By infrastructure type',
+    infrastructure_type_detailed: 'By infrastructure type (detailed)',
+    detailed_classification: 'By detailed classification',
     category: 'By route category',
     developer: 'By lead developer',
     status: 'By alignment status',
@@ -48,7 +50,7 @@
     if (filters.developer) badges.push(filters.developer);
     if (filters.classification) badges.push(filters.classification);
     if (filters.category) badges.push(filters.category);
-    if (filters.status) badges.push(filters.status);
+    if (filters.status) badges.push(formatStatusLabel(filters.status));
     if (filters.searchTerm) badges.push(`"${filters.searchTerm}"`);
     return badges;
   });
@@ -64,7 +66,7 @@
       <span class="print-brand-tag">RailActive</span>
       <span class="print-total-km">{stats.totalKm.toFixed(1)} km</span>
     </div>
-    <h2 class="print-title">North-South Active Travel Corridor</h2>
+    <h2 class="print-title">North-South Greenway</h2>
     <div class="print-subtitle">{schemeLabels[colorBy]} &middot; {stats.totalSegments} segments</div>
 
     {#if activeFilterBadges.length > 0}

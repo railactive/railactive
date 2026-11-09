@@ -4,7 +4,7 @@ export const BASEMAP_IDS = ['light', 'dark', 'satellite', 'opencyclemap', 'osm']
 export type BasemapId = (typeof BASEMAP_IDS)[number];
 export type PrintMode = 'legend' | 'clean' | null;
 
-const COLOR_BY_VALUES: FilterState['colorBy'][] = ['category', 'classification', 'developer', 'status', 'kml'];
+const COLOR_BY_VALUES: FilterState['colorBy'][] = ['category', 'classification', 'infrastructure_type_detailed', 'detailed_classification', 'developer', 'status', 'kml'];
 const MANAGED_PARAMS = [
   'basemap',
   'developer',
@@ -16,6 +16,7 @@ const MANAGED_PARAMS = [
   'color',
   'hide',
   'superseded',
+  'pending',
   'segment',
   'sidebar',
   'ncn',
@@ -80,7 +81,8 @@ export function readUrlState(url: URL): AppUrlState {
       hiddenLegendItems: [...new Set(
         params.getAll('hide').map(value => value.trim().slice(0, 200)).filter(Boolean)
       )],
-      showSuperseded: params.get('superseded') === 'true'
+      showSuperseded: params.get('superseded') === 'true',
+      showPending: params.get('pending') === 'true'
     },
     selectedSegmentKey: getLimitedParam(params, 'segment', 100) || null,
     showNcn: params.get('ncn') === 'true' || params.get('ncn') === '1',
@@ -111,6 +113,7 @@ export function writeUrlState(url: URL, state: AppUrlState): string {
     nextUrl.searchParams.append('hide', item);
   }
   if (state.filters.showSuperseded) nextUrl.searchParams.set('superseded', 'true');
+  if (state.filters.showPending) nextUrl.searchParams.set('pending', 'true');
   if (state.selectedSegmentKey) nextUrl.searchParams.set('segment', state.selectedSegmentKey);
   if (!state.sidebarOpen) nextUrl.searchParams.set('sidebar', 'closed');
   if (state.showNcn) nextUrl.searchParams.set('ncn', 'true');

@@ -1,7 +1,7 @@
-# RailActive — North–South Active Travel Corridor Web Application
+# RailActive — North-South Greenway Web Application
 
 An interactive, cloud-native web mapping application for exploring and
-visualizing the **North–South Active Travel Corridor** and opportunities to
+visualizing the **North-South Greenway** and opportunities to
 repurpose High Speed 2 (HS2) infrastructure for active travel, including
 walking, wheeling, and cycling.
 

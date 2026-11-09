@@ -74,7 +74,7 @@ knitr::kable(overview_display, caption = "Table 1: RailActive Dataset Inventory 
 
  
 
-### North-South Active Travel Corridor (v1 / v2)
+### North-South Greenway (v1 / v2)
 
  
 
@@ -89,7 +89,7 @@ corridor_vars <- dict |>
   filter(dataset_id == "north_south_corridor") |>
   select(`Variable` = variable_name, `Type` = data_type, `Description` = description, `Values / Units` = allowed_values_or_units, `Notes` = notes)
 
-knitr::kable(corridor_vars, caption = "Table 2: North-South Active Travel Corridor Variable Dictionary")
+knitr::kable(corridor_vars, caption = "Table 2: North-South Greenway Variable Dictionary")
 ```
 
  

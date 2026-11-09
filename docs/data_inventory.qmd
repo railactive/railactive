@@ -191,7 +191,7 @@ For upcoming stakeholder and team meetings, the following priority agenda items 
 
 - **1. Haul Road / SAR Retention Window**: Engage HS2 Ltd and main works civils contractors (MWCC) regarding contractor handover timetables for Site Access Roads in Warwickshire and Buckinghamshire before compound demobilization.
 
-- **2. Alignment Harmonization**: Agree on whether the Shapefile (`North-South Cycleway Alignment.zip`) or the KML (`Copy of North - South Cycleway 2025.kml`) is adopted as the definitive v2026 centerline for the pipeline and web map.
+- **2. Alignment Harmonization**: Agree on whether the Shapefile (`North-South Greenway Alignment.zip`) or the KML (`Copy of North - South Cycleway 2025.kml`) is adopted as the definitive v2026 centerline for the pipeline and web map.
 
 - **3. AMAT Appraisal Scenarios**: Confirm whether economic appraisal will be reported as a unified whole-route corridor scheme (London to Birmingham) or modular route cases (e.g. Balsall Common, Ladbroke, Quainton-Calvert, Old Oak Common).
 
