@@ -13,6 +13,7 @@
     classificationSynonyms,
     colorExpression,
     effectiveHiddenGroups,
+    formatStatusLabel,
     hiddenGroupExpressions,
     INTERVENTION_COLOR,
     isSuperseded,
@@ -284,7 +285,7 @@
         <div class="tooltip-title">${properties.name || `Link ${properties.link_id || properties.id}`}</div>
         <div class="tooltip-meta">
           <span class="badge-sec">${properties.section || 'Corridor'}</span>
-          ${properties.status ? `<span class="badge-sec badge-${properties.status.toLowerCase()}">${properties.status}</span>` : ''}
+          ${properties.status ? `<span class="badge-sec badge-${properties.status.toLowerCase()}">${formatStatusLabel(properties.status)}</span>` : ''}
           <span class="tooltip-len">${length}</span>
         </div>
         <div class="tooltip-cat">${classification}</div>
@@ -364,7 +365,7 @@
         <div class="tooltip-title">${escapeHtml(title)}</div>
         <div class="tooltip-meta">
           <span class="badge-sec">${escapeHtml(folder)}</span>
-          ${properties.status ? `<span class="badge-sec badge-${properties.status.toLowerCase()}">${properties.status}</span>` : ''}
+          ${properties.status ? `<span class="badge-sec badge-${properties.status.toLowerCase()}">${formatStatusLabel(properties.status)}</span>` : ''}
           <span class="tooltip-len">ID: ${properties.id}</span>
         </div>
         <div class="tooltip-cat">${escapeHtml(classification)}</div>
@@ -880,12 +881,12 @@
     }
 
     try {
-      const pathVersion = data.version || data.metadata?.version || 'v0.3.0';
+      const pathVersion = data.version || data.metadata?.version || 'v0.4.0';
       map.addSource('cycleway-data', {
         type: 'geojson',
         data: data as any,
         generateId: true,
-        attribution: `North-South path file version ${pathVersion}`
+        attribution: `North-South Greenway file version ${pathVersion}`
       });
 
       // ==========================================
@@ -940,7 +941,7 @@
         id: 'hs2-rail-casing',
         type: 'line',
         source: 'cycleway-data',
-        filter: ['==', ['coalesce', ['get', 'layer_type'], ''], 'hs2_railway'],
+        filter: ['all', ['==', ['coalesce', ['get', 'layer_type'], ''], 'hs2_railway'], ['!=', ['coalesce', ['get', 'status'], ''], 'pending']],
         layout: {
           'line-cap': 'butt',
           'line-join': 'miter'
@@ -964,7 +965,7 @@
         id: 'hs2-rail-ties',
         type: 'line',
         source: 'cycleway-data',
-        filter: ['==', ['coalesce', ['get', 'layer_type'], ''], 'hs2_railway'],
+        filter: ['all', ['==', ['coalesce', ['get', 'layer_type'], ''], 'hs2_railway'], ['!=', ['coalesce', ['get', 'status'], ''], 'pending']],
         layout: {
           'line-cap': 'butt',
           'line-join': 'miter'
@@ -1497,6 +1498,11 @@
   :global(.badge-superseded) {
     background: #f1f5f9 !important;
     color: #64748b !important;
+  }
+
+  :global(.badge-pending) {
+    background: #faf5ff !important;
+    color: #9333ea !important;
   }
 
   :global(.badge-trafficfree) {

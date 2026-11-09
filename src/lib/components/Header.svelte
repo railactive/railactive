@@ -84,7 +84,7 @@
           {/if}
         </div>
         <span class="subtitle">
-          {isNetAssign ? 'Phase 4 Active Travel Demand & Flow Model' : 'North-South Active Travel Corridor'}
+          {isNetAssign ? 'Phase 4 Active Travel Demand & Flow Model' : 'North-South Greenway'}
         </span>
       </div>
     </div>

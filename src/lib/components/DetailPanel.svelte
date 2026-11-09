@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { CyclewaySegmentProperties } from '../types/cycleway';
-  import { normalizeClassification } from '../palette';
+  import { formatStatusLabel, normalizeClassification } from '../palette';
 
   interface Props {
     segment: CyclewaySegmentProperties | null;
@@ -18,7 +18,7 @@
         <div class="badge-row">
           <span class="badge-section">{segment.layer_type === 'intervention' ? 'Intervention' : `Section ${segment.section || 'N/A'}`}</span>
           {#if segment.status}
-            <span class="badge-status status-{segment.status.toLowerCase()}">{segment.status}</span>
+            <span class="badge-status status-{segment.status.toLowerCase()}">{formatStatusLabel(segment.status)}</span>
           {/if}
         </div>
         <h3>{segment.name || (segment.layer_type === 'intervention' ? `Point #${segment.id}` : `Segment #${segment.id}`)}</h3>
@@ -35,7 +35,7 @@
         {#if segment.status}
           <div class="attr-item">
             <span class="attr-label">Status</span>
-            <span class="attr-value capitalize">{segment.status}</span>
+            <span class="attr-value capitalize">{formatStatusLabel(segment.status)}</span>
           </div>
         {/if}
         {#if segment.layer_type !== 'intervention'}
@@ -167,6 +167,12 @@
     background: var(--bg-secondary);
     color: var(--text-muted);
     border: 1px solid var(--border-color);
+  }
+
+  .badge-status.status-pending {
+    background: #faf5ff;
+    color: #9333ea;
+    border: 1px solid #e9d5ff;
   }
 
   .close-btn {
