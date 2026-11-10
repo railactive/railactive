@@ -13,6 +13,7 @@
     classificationSynonyms,
     colorExpression,
     effectiveHiddenGroups,
+    formatStatusLabel,
     hiddenGroupExpressions,
     INTERVENTION_COLOR,
     isSuperseded,
@@ -20,6 +21,7 @@
     REFERENCE_COLORS,
     statusFilterExpressions
   } from '../palette';
+  import { mapButtonsHtml } from '../components/MapButtons.svelte';
 
   const NCN_SOURCE_ID = 'ncn-data';
   const NCN_LINE_LAYER_ID = 'ncn-lines';
@@ -69,7 +71,7 @@
     sidebarOpen: boolean;
     hasInitialMapView: boolean;
     selectedSegment: CyclewaySegmentProperties | null;
-    onSelectSegment: (segment: CyclewaySegmentProperties | null) => void;
+    onSelectSegment: (segment: CyclewaySegmentProperties | null, center?: [number, number] | null) => void;
     showNcn?: boolean;
     ncnPmtilesUrl?: string;
     showOpenRoads: boolean;
@@ -77,6 +79,7 @@
     showStudyArea?: boolean;
     studyAreaGeojsonUrl?: string;
     showPlaceNames?: boolean;
+    printMode?: 'legend' | 'clean' | null;
   }
 
   let {
@@ -92,8 +95,9 @@
     showOpenRoads,
     openRoadsPmtilesUrl = './data/openroads.pmtiles',
     showStudyArea = false,
-    studyAreaGeojsonUrl = './data/study_area.geojson',
-    showPlaceNames = true
+    studyAreaGeojsonUrl = './data/study_area.geojson?v=0.4.1',
+    showPlaceNames = true,
+    printMode = null
   }: Props = $props();
 
   let mapContainer: HTMLDivElement;
@@ -282,7 +286,7 @@
         <div class="tooltip-title">${properties.name || `Link ${properties.link_id || properties.id}`}</div>
         <div class="tooltip-meta">
           <span class="badge-sec">${properties.section || 'Corridor'}</span>
-          ${properties.status ? `<span class="badge-sec badge-${properties.status.toLowerCase()}">${properties.status}</span>` : ''}
+          ${properties.status ? `<span class="badge-sec badge-${properties.status.toLowerCase()}">${formatStatusLabel(properties.status)}</span>` : ''}
           <span class="tooltip-len">${length}</span>
         </div>
         <div class="tooltip-cat">${classification}</div>
@@ -303,7 +307,10 @@
 
   function handleCyclewayClick(e: maplibregl.MapLayerMouseEvent) {
     if (e.features && e.features.length > 0) {
-      onSelectSegment(e.features[0].properties as CyclewaySegmentProperties);
+      onSelectSegment(
+        e.features[0].properties as CyclewaySegmentProperties,
+        [e.lngLat.lng, e.lngLat.lat]
+      );
     }
   }
 
@@ -362,7 +369,7 @@
         <div class="tooltip-title">${escapeHtml(title)}</div>
         <div class="tooltip-meta">
           <span class="badge-sec">${escapeHtml(folder)}</span>
-          ${properties.status ? `<span class="badge-sec badge-${properties.status.toLowerCase()}">${properties.status}</span>` : ''}
+          ${properties.status ? `<span class="badge-sec badge-${properties.status.toLowerCase()}">${formatStatusLabel(properties.status)}</span>` : ''}
           <span class="tooltip-len">ID: ${properties.id}</span>
         </div>
         <div class="tooltip-cat">${escapeHtml(classification)}</div>
@@ -412,6 +419,7 @@
           <div class="map-cell full"><span class="k">Corridor Section:</span><span class="v">${folder}</span></div>
           ${properties.remarks ? `<div class="map-cell full"><span class="k">Remarks:</span><span class="v">${escapeHtml(properties.remarks)}</span></div>` : ''}
         </div>
+        ${mapButtonsHtml(e.lngLat.lng, e.lngLat.lat)}
       </div>
     `;
 
@@ -425,7 +433,7 @@
       .setHTML(html)
       .addTo(map);
 
-    onSelectSegment(properties);
+    onSelectSegment(properties, [e.lngLat.lng, e.lngLat.lat]);
   }
 
   function handleNcnMouseMove(e: maplibregl.MapLayerMouseEvent) {
@@ -503,6 +511,7 @@
           <div class="map-cell"><span class="k">Segment ID:</span><span class="v font-mono">${popupValue(props.SegmentID, 'N/A')}</span></div>
           <div class="map-cell full"><span class="k">Global ID:</span><span class="v font-mono text-xs">${popupValue(props.GlobalID, 'N/A')}</span></div>
         </div>
+        ${mapButtonsHtml(e.lngLat.lng, e.lngLat.lat)}
       </div>
     `;
 
@@ -678,6 +687,7 @@
           ${haulageBasis}
           ${props.id ? `<div class="map-cell full"><span class="k">Link ID:</span><span class="v font-mono text-xs">${popupValue(props.id, '')}</span></div>` : ''}
         </div>
+        ${mapButtonsHtml(e.lngLat.lng, e.lngLat.lat)}
       </div>
     `;
 
@@ -878,12 +888,12 @@
     }
 
     try {
-      const pathVersion = data.version || data.metadata?.version || 'v0.3.0';
+      const pathVersion = data.version || data.metadata?.version || 'v0.4.0';
       map.addSource('cycleway-data', {
         type: 'geojson',
         data: data as any,
         generateId: true,
-        attribution: `North-South path file version ${pathVersion}`
+        attribution: `North-South Greenway file version ${pathVersion}`
       });
 
       // ==========================================
@@ -938,7 +948,7 @@
         id: 'hs2-rail-casing',
         type: 'line',
         source: 'cycleway-data',
-        filter: ['==', ['coalesce', ['get', 'layer_type'], ''], 'hs2_railway'],
+        filter: ['all', ['==', ['coalesce', ['get', 'layer_type'], ''], 'hs2_railway'], ['!=', ['coalesce', ['get', 'status'], ''], 'pending']],
         layout: {
           'line-cap': 'butt',
           'line-join': 'miter'
@@ -962,7 +972,7 @@
         id: 'hs2-rail-ties',
         type: 'line',
         source: 'cycleway-data',
-        filter: ['==', ['coalesce', ['get', 'layer_type'], ''], 'hs2_railway'],
+        filter: ['all', ['==', ['coalesce', ['get', 'layer_type'], ''], 'hs2_railway'], ['!=', ['coalesce', ['get', 'status'], ''], 'pending']],
         layout: {
           'line-cap': 'butt',
           'line-join': 'miter'
@@ -1135,7 +1145,7 @@
     if (!bounds.isEmpty()) {
       map.fitBounds(bounds, {
         padding: {
-          left: sidebarOpen ? 360 : 40,
+          left: (sidebarOpen && !printMode) ? 360 : (printMode === 'legend' ? 300 : 40),
           right: 40,
           top: 40,
           bottom: 40
@@ -1185,8 +1195,19 @@
     map.fitBounds([[bbox[0], bbox[1]], [bbox[2], bbox[3]]], { padding: zoomPadding(), maxZoom: 14, duration: 1200 });
   }
 
+  export function exportMapCanvasPng(filename = 'railactive-map.png'): string | null {
+    if (!map) return null;
+    map.triggerRepaint();
+    const dataUrl = map.getCanvas().toDataURL('image/png');
+    const a = document.createElement('a');
+    a.href = dataUrl;
+    a.download = filename;
+    a.click();
+    return dataUrl;
+  }
+
   function zoomPadding() {
-    return { left: sidebarOpen ? 380 : 80, right: 80, top: 80, bottom: 80 };
+    return { left: (sidebarOpen && !printMode) ? 380 : 80, right: 80, top: 80, bottom: 80 };
   }
 
   onMount(() => {
@@ -1197,7 +1218,8 @@
       center: [-1.4, 52.3],
       zoom: 7.8,
       pitch: 0,
-      hash: 'map'
+      hash: 'map',
+      preserveDrawingBuffer: true
     });
 
     (window as any)._map = map;
@@ -1336,11 +1358,25 @@
       }
     });
   });
+
+  // Resize MapLibre canvas when toggling print mode (header height changes)
+  $effect(() => {
+    const _mode = printMode;
+    if (!map) return;
+    requestAnimationFrame(() => {
+      map?.resize();
+    });
+  });
 </script>
 
-<div class="map-wrapper" class:sidebar-open={sidebarOpen} bind:this={mapContainer}></div>
+<div
+  class="map-wrapper"
+  class:sidebar-open={sidebarOpen && !printMode}
+  class:print-mode={Boolean(printMode)}
+  bind:this={mapContainer}
+></div>
 
-{#if geoMessage}
+{#if geoMessage && !printMode}
   <div class="geo-message" role="status">{geoMessage}</div>
 {/if}
 
@@ -1377,6 +1413,24 @@
 
   .map-wrapper.sidebar-open :global(.maplibregl-ctrl-bottom-left) {
     left: 350px;
+  }
+
+  .map-wrapper.print-mode :global(.maplibregl-ctrl-top-right) {
+    display: none !important;
+  }
+
+  .map-wrapper.print-mode :global(.maplibregl-ctrl-bottom-left) {
+    left: 14px !important;
+  }
+
+  @media print {
+    .map-wrapper :global(.maplibregl-ctrl-top-right) {
+      display: none !important;
+    }
+
+    .map-wrapper :global(.maplibregl-ctrl-bottom-left) {
+      left: 14px !important;
+    }
   }
 
   :global(.hover-tooltip-popup .maplibregl-popup-content) {
@@ -1451,6 +1505,11 @@
   :global(.badge-superseded) {
     background: #f1f5f9 !important;
     color: #64748b !important;
+  }
+
+  :global(.badge-pending) {
+    background: #faf5ff !important;
+    color: #9333ea !important;
   }
 
   :global(.badge-trafficfree) {

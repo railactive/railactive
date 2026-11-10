@@ -1,14 +1,16 @@
 <script lang="ts">
   import type { CyclewaySegmentProperties } from '../types/cycleway';
-  import { normalizeClassification } from '../palette';
+  import { formatStatusLabel, normalizeClassification } from '../palette';
+  import MapButtons from './MapButtons.svelte';
 
   interface Props {
     segment: CyclewaySegmentProperties | null;
+    center?: [number, number] | null;
     onClose: () => void;
     onZoomTo: (id: number) => void;
   }
 
-  let { segment, onClose, onZoomTo }: Props = $props();
+  let { segment, center = null, onClose, onZoomTo }: Props = $props();
 </script>
 
 {#if segment}
@@ -18,7 +20,7 @@
         <div class="badge-row">
           <span class="badge-section">{segment.layer_type === 'intervention' ? 'Intervention' : `Section ${segment.section || 'N/A'}`}</span>
           {#if segment.status}
-            <span class="badge-status status-{segment.status.toLowerCase()}">{segment.status}</span>
+            <span class="badge-status status-{segment.status.toLowerCase()}">{formatStatusLabel(segment.status)}</span>
           {/if}
         </div>
         <h3>{segment.name || (segment.layer_type === 'intervention' ? `Point #${segment.id}` : `Segment #${segment.id}`)}</h3>
@@ -35,7 +37,7 @@
         {#if segment.status}
           <div class="attr-item">
             <span class="attr-label">Status</span>
-            <span class="attr-value capitalize">{segment.status}</span>
+            <span class="attr-value capitalize">{formatStatusLabel(segment.status)}</span>
           </div>
         {/if}
         {#if segment.layer_type !== 'intervention'}
@@ -45,7 +47,7 @@
           </div>
         {/if}
         <div class="attr-item full">
-          <span class="attr-label">Category</span>
+          <span class="attr-label">Delivery category</span>
           <span class="attr-value">{segment.category || (segment.layer_type === 'intervention' ? 'Active Route Treatment' : 'Uncategorized')}</span>
         </div>
         <div class="attr-item full">
@@ -83,6 +85,8 @@
         </svg>
         {segment.layer_type === 'intervention' ? 'Zoom to Point' : 'Zoom to Segment'}
       </button>
+
+      <MapButtons {center} />
     </div>
   </div>
 {/if}
@@ -167,6 +171,12 @@
     background: var(--bg-secondary);
     color: var(--text-muted);
     border: 1px solid var(--border-color);
+  }
+
+  .badge-status.status-pending {
+    background: #faf5ff;
+    color: #9333ea;
+    border: 1px solid #e9d5ff;
   }
 
   .close-btn {
