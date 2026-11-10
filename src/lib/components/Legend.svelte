@@ -71,7 +71,9 @@
       <option value="category">Delivery category</option>
       <option value="developer">Lead developer</option>
       <option value="status">Alignment status</option>
-      <option value="kml">Original KML colours</option>
+      {#if showDetailedColorOptions}
+        <option value="kml">Original KML colours</option>
+      {/if}
     </select>
     {#if hiddenItems.length > 0}
       <button class="show-all-btn" onclick={onShowAll}>Show all</button>
