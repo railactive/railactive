@@ -15,6 +15,7 @@
     hiddenItems: string[];
     stats: CyclewayStats;
     showHs2Railway?: boolean;
+    hs2RailwayKm?: number;
     showNcn: boolean;
     showOpenRoads: boolean;
     showStudyArea: boolean;
@@ -27,6 +28,7 @@
     hiddenItems = [],
     stats,
     showHs2Railway = true,
+    hs2RailwayKm = 0,
     showNcn = false,
     showOpenRoads = false,
     showStudyArea = false
@@ -110,6 +112,9 @@
       <div class="print-row">
         <span class="swatch-hs2"></span>
         <span class="row-label">HS2 railway alignment</span>
+        {#if hs2RailwayKm > 0}
+          <span class="row-km">{hs2RailwayKm.toFixed(1)} km</span>
+        {/if}
       </div>
     {/if}
     <div class="print-row">
@@ -121,6 +126,7 @@
       <div class="print-row">
         <span class="swatch-studyarea"></span>
         <span class="row-label">Study area (10 km buffer)</span>
+        <span class="row-km">12,009 km²</span>
       </div>
     {/if}
 
@@ -128,6 +134,7 @@
       <div class="print-row">
         <span class="swatch-ncn"></span>
         <span class="row-label">NCN (traffic-free / on-road)</span>
+        <span class="row-km">19,752 km</span>
       </div>
     {/if}
 
@@ -139,6 +146,7 @@
       <div class="print-row">
         <span class="swatch-roads"></span>
         <span class="row-label">OS OpenRoads (10 km)</span>
+        <span class="row-km">39,356 km</span>
       </div>
     {/if}
   </div>
