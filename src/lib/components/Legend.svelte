@@ -18,6 +18,8 @@
     onToggleItem: (label: string) => void;
     onIsolateItem: (label: string) => void;
     onShowAll: () => void;
+    showHs2Railway?: boolean;
+    onToggleHs2Railway?: () => void;
     showNcn: boolean;
     onToggleNcn: () => void;
     showOpenRoads: boolean;
@@ -33,6 +35,8 @@
     onToggleItem,
     onIsolateItem,
     onShowAll,
+    showHs2Railway = true,
+    onToggleHs2Railway,
     showNcn,
     onToggleNcn,
     showOpenRoads,
@@ -106,6 +110,14 @@
 
   <div class="subheading">Reference layers</div>
   <div class="legend-items">
+    <div class="legend-row" class:hidden-layer={!showHs2Railway}>
+      <button class="legend-item-btn" onclick={onToggleHs2Railway} aria-pressed={showHs2Railway}>
+        {@render checkbox(showHs2Railway)}
+        <span class="color-bar hs2-color-bar"></span>
+        <span class="item-label">HS2 railway alignment</span>
+      </button>
+    </div>
+
     <div class="legend-row" class:hidden-layer={!showNcn}>
       <button class="legend-item-btn" onclick={onToggleNcn} aria-pressed={showNcn}>
         {@render checkbox(showNcn)}
@@ -325,6 +337,18 @@
 
   .ncn-color-bar {
     background: linear-gradient(90deg, var(--ncn-off) 50%, var(--ncn-on) 50%);
+  }
+
+  .hs2-color-bar {
+    border-radius: 1px;
+    background: repeating-linear-gradient(
+      90deg,
+      #000000 0px,
+      #000000 3px,
+      #ffffff 3px,
+      #ffffff 5px
+    );
+    border: 1px solid #000000;
   }
 
   .ncn-sample-solid {
