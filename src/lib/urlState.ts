@@ -4,7 +4,7 @@ export const BASEMAP_IDS = ['light', 'dark', 'satellite', 'opencyclemap', 'osm']
 export type BasemapId = (typeof BASEMAP_IDS)[number];
 export type PrintMode = 'legend' | 'clean' | null;
 
-const PROD_COLOR_BY_VALUES: FilterState['colorBy'][] = ['category', 'classification', 'developer', 'status', 'kml'];
+const PROD_COLOR_BY_VALUES: FilterState['colorBy'][] = ['category', 'classification', 'developer', 'status'];
 const DEV_COLOR_BY_VALUES: FilterState['colorBy'][] = ['category', 'classification', 'infrastructure_type_detailed', 'detailed_classification', 'developer', 'status', 'kml'];
 
 export function isDevEnvironment(): boolean {
