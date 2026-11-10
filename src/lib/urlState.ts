@@ -4,7 +4,19 @@ export const BASEMAP_IDS = ['light', 'dark', 'satellite', 'opencyclemap', 'osm']
 export type BasemapId = (typeof BASEMAP_IDS)[number];
 export type PrintMode = 'legend' | 'clean' | null;
 
-const COLOR_BY_VALUES: FilterState['colorBy'][] = ['category', 'classification', 'infrastructure_type_detailed', 'detailed_classification', 'developer', 'status', 'kml'];
+const PROD_COLOR_BY_VALUES: FilterState['colorBy'][] = ['category', 'classification', 'developer', 'status', 'kml'];
+const DEV_COLOR_BY_VALUES: FilterState['colorBy'][] = ['category', 'classification', 'infrastructure_type_detailed', 'detailed_classification', 'developer', 'status', 'kml'];
+
+export function isDevEnvironment(): boolean {
+  if (typeof window !== 'undefined') {
+    const host = window.location.hostname.toLowerCase();
+    if (host === 'localhost' || host === '127.0.0.1' || host.includes('-dev.')) {
+      return true;
+    }
+    return import.meta.env.MODE === 'dev';
+  }
+  return import.meta.env.DEV || import.meta.env.MODE === 'dev';
+}
 const MANAGED_PARAMS = [
   'basemap',
   'developer',
@@ -63,6 +75,8 @@ export function readUrlState(url: URL): AppUrlState {
     printMode = 'legend';
   }
 
+  const allowedColorByValues = isDevEnvironment() ? DEV_COLOR_BY_VALUES : PROD_COLOR_BY_VALUES;
+
   return {
     basemap: BASEMAP_IDS.includes(requestedBasemap as BasemapId)
       ? requestedBasemap as BasemapId
@@ -75,7 +89,7 @@ export function readUrlState(url: URL): AppUrlState {
       section: getLimitedParam(params, 'section', 50),
       status: getLimitedParam(params, 'status', 50),
       searchTerm: getLimitedParam(params, 'q'),
-      colorBy: COLOR_BY_VALUES.includes(requestedColorBy as FilterState['colorBy'])
+      colorBy: allowedColorByValues.includes(requestedColorBy as FilterState['colorBy'])
         ? requestedColorBy as FilterState['colorBy']
         : 'classification',
       hiddenLegendItems: [...new Set(
