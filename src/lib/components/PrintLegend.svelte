@@ -14,6 +14,7 @@
     items: LegendItem[];
     hiddenItems: string[];
     stats: CyclewayStats;
+    showHs2Railway?: boolean;
     showNcn: boolean;
     showOpenRoads: boolean;
     showStudyArea: boolean;
@@ -25,6 +26,7 @@
     items,
     hiddenItems = [],
     stats,
+    showHs2Railway = true,
     showNcn = false,
     showOpenRoads = false,
     showStudyArea = false
@@ -104,10 +106,12 @@
   <div class="print-divider"></div>
 
   <div class="print-ref-list">
-    <div class="print-row">
-      <span class="swatch-hs2"></span>
-      <span class="row-label">HS2 railway alignment</span>
-    </div>
+    {#if showHs2Railway}
+      <div class="print-row">
+        <span class="swatch-hs2"></span>
+        <span class="row-label">HS2 railway alignment</span>
+      </div>
+    {/if}
     <div class="print-row">
       <span class="swatch-point"></span>
       <span class="row-label">Junction / intervention point</span>

@@ -72,6 +72,7 @@
     hasInitialMapView: boolean;
     selectedSegment: CyclewaySegmentProperties | null;
     onSelectSegment: (segment: CyclewaySegmentProperties | null, center?: [number, number] | null) => void;
+    showHs2Railway?: boolean;
     showNcn?: boolean;
     ncnPmtilesUrl?: string;
     showOpenRoads: boolean;
@@ -90,6 +91,7 @@
     hasInitialMapView,
     selectedSegment,
     onSelectSegment,
+    showHs2Railway = true,
     showNcn = false,
     ncnPmtilesUrl = './data/ncn.pmtiles',
     showOpenRoads,
@@ -957,7 +959,8 @@
         filter: ['all', ['==', ['coalesce', ['get', 'layer_type'], ''], 'hs2_railway'], ['!=', ['coalesce', ['get', 'status'], ''], 'pending']],
         layout: {
           'line-cap': 'butt',
-          'line-join': 'miter'
+          'line-join': 'miter',
+          'visibility': showHs2Railway ? 'visible' : 'none'
         },
         paint: {
           'line-color': '#000000',
@@ -981,7 +984,8 @@
         filter: ['all', ['==', ['coalesce', ['get', 'layer_type'], ''], 'hs2_railway'], ['!=', ['coalesce', ['get', 'status'], ''], 'pending']],
         layout: {
           'line-cap': 'butt',
-          'line-join': 'miter'
+          'line-join': 'miter',
+          'visibility': showHs2Railway ? 'visible' : 'none'
         },
         paint: {
           'line-color': '#ffffff',
@@ -1294,6 +1298,22 @@
     if (map.getLayer('study-area-line')) {
       map.setLayoutProperty('study-area-line', 'visibility', studyVisible);
     }
+  });
+
+  // Watch HS2 Railway alignment visibility reactively
+  $effect(() => {
+    const hs2Visible = showHs2Railway ? 'visible' : 'none';
+    if (!map) return;
+    if (map.getLayer('hs2-rail-casing')) {
+      map.setLayoutProperty('hs2-rail-casing', 'visibility', hs2Visible);
+    }
+    if (map.getLayer('hs2-rail-ties')) {
+      map.setLayoutProperty('hs2-rail-ties', 'visibility', hs2Visible);
+    }
+    if (!showHs2Railway) {
+      hoverPopup?.remove();
+    }
+    map.triggerRepaint();
   });
 
   // Watch Place Names visibility reactively

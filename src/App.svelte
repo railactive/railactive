@@ -47,6 +47,7 @@
     const match = rawData?.features.find(f => f.properties.id === selectedSegment?.id);
     return match ? featureCenter(match.geometry) : null;
   });
+  let showHs2Railway: boolean = $state(initialUrlState.showHs2Railway);
   let showNcn: boolean = $state(initialUrlState.showNcn);
   let showOpenRoads: boolean = $state(initialUrlState.showOpenRoads);
   let showStudyArea: boolean = $state(initialUrlState.showStudyArea);
@@ -167,6 +168,7 @@
         showPending: filters.showPending
       },
       selectedSegmentKey: selectedSegment?.link_id || (selectedSegment ? String(selectedSegment.id) : null),
+      showHs2Railway,
       showNcn,
       showOpenRoads,
       showStudyArea,
@@ -445,6 +447,8 @@
           onToggleItem: handleToggleLegendItem,
           onIsolateItem: handleIsolateLegendItem,
           onShowAll: handleShowAllLegendItems,
+          showHs2Railway,
+          onToggleHs2Railway: () => showHs2Railway = !showHs2Railway,
           showNcn,
           onToggleNcn: () => showNcn = !showNcn,
           showOpenRoads,
@@ -469,6 +473,7 @@
         items={legendItems}
         hiddenItems={hiddenGroups}
         {stats}
+        {showHs2Railway}
         {showNcn}
         {showOpenRoads}
         {showStudyArea}
@@ -537,6 +542,7 @@
       selectedSegment = seg;
       clickedSegmentCenter = center;
     }}
+    {showHs2Railway}
     {showNcn}
     {showOpenRoads}
     {showStudyArea}
