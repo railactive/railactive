@@ -7,7 +7,7 @@
   import PrintLegend from './lib/components/PrintLegend.svelte';
   import { featureCenter } from './lib/components/MapButtons.svelte';
   import MapView from './lib/map/MapView.svelte';
-  import { hasValidMapHash, readUrlState, writeUrlState, type AppUrlState, type PrintMode } from './lib/urlState';
+  import { hasValidMapHash, isMobileViewport, readUrlState, writeUrlState, type AppUrlState, type PrintMode } from './lib/urlState';
   import {
     effectiveHiddenGroups,
     groupFor,
@@ -379,6 +379,9 @@
   }
 
   function handleZoomTo(id: number) {
+    if (isMobileViewport()) {
+      sidebarOpen = false;
+    }
     if (mapViewRef && typeof mapViewRef.zoomToSegment === 'function') {
       mapViewRef.zoomToSegment(id);
     }
@@ -413,18 +416,23 @@
       onCopyLink={copyShareLink}
       onToggleSidebar={() => {
         sidebarOpen = !sidebarOpen;
-        setTimeout(() => {
-          if (mapViewRef && typeof mapViewRef.fitCorridorBounds === 'function') {
-            mapViewRef.fitCorridorBounds();
-          }
-        }, 300);
+        if (!isMobileViewport()) {
+          setTimeout(() => {
+            if (mapViewRef && typeof mapViewRef.fitCorridorBounds === 'function') {
+              mapViewRef.fitCorridorBounds();
+            }
+          }, 300);
+        }
       }}
       {isExampleData}
       {basemap}
       {showPlaceNames}
       onChangeBasemap={(style) => basemap = style}
       onTogglePlaceNames={() => showPlaceNames = !showPlaceNames}
-      onSelectPlace={(bbox) => mapViewRef?.zoomToPlace(bbox)}
+      onSelectPlace={(bbox) => {
+        if (isMobileViewport()) sidebarOpen = false;
+        mapViewRef?.zoomToPlace(bbox);
+      }}
       onEnterPrintView={() => (printMode = 'legend')}
     />
   </div>
@@ -447,6 +455,7 @@
     <div class="sidebar-shell">
       <Sidebar 
         open={sidebarOpen}
+        onClose={() => (sidebarOpen = false)}
         {stats}
         bind:filters={filters}
         legend={{
@@ -578,15 +587,18 @@
 <style>
   .main-viewport {
     flex: 1;
+    min-height: 0;
     position: relative;
     width: 100%;
     height: calc(100vh - 56px);
+    height: calc(100dvh - 56px);
     overflow: hidden;
     background: var(--bg-primary);
   }
 
   .main-viewport.print-active {
     height: 100vh;
+    height: 100dvh;
   }
 
   .print-legend-shell {
@@ -624,6 +636,13 @@
   .print-hover-toolbar:focus-within {
     opacity: 1;
     transform: translateY(0);
+  }
+
+  @media (hover: none), (max-width: 767px) {
+    .print-hover-toolbar {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   .print-pill-btn {

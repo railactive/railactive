@@ -47,11 +47,14 @@ body, html {
 }
 
 #app {
-  width: 100vw;
+  width: 100%;
+  max-width: 100vw;
   height: 100vh;
+  height: 100dvh;
   position: relative;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 /* Scrollbars */
@@ -183,7 +186,7 @@ body, html {
 .map-popup-card {
   font-family: 'Inter', sans-serif;
   color: var(--text-primary);
-  min-width: 210px;
+  min-width: min(210px, calc(100vw - 56px));
 }
 
 .map-popup-header {

@@ -22,6 +22,7 @@
     statusFilterExpressions
   } from '../palette';
   import { mapButtonsHtml } from '../components/MapButtons.svelte';
+  import { isMobileViewport } from '../urlState';
 
   const NCN_SOURCE_ID = 'ncn-data';
   const NCN_LINE_LAYER_ID = 'ncn-lines';
@@ -266,8 +267,12 @@
     setupMapLayers();
   }
 
+  function isTouchOnlyDevice(): boolean {
+    return typeof window !== 'undefined' && window.matchMedia('(hover: none)').matches;
+  }
+
   function handleCyclewayMouseMove(e: maplibregl.MapLayerMouseEvent) {
-    if (!map || !e.features || e.features.length === 0) return;
+    if (!map || !e.features || e.features.length === 0 || isTouchOnlyDevice()) return;
     map.getCanvas().style.cursor = 'pointer';
 
     const feat = e.features[0];
@@ -318,7 +323,7 @@
   }
 
   function handleRailwayMouseMove(e: maplibregl.MapLayerMouseEvent) {
-    if (!map || !e.features || e.features.length === 0) return;
+    if (!map || !e.features || e.features.length === 0 || isTouchOnlyDevice()) return;
     map.getCanvas().style.cursor = 'pointer';
     const properties = e.features[0].properties as Record<string, string>;
     const html = `
@@ -354,7 +359,7 @@
   }
 
   function handlePointMouseMove(e: maplibregl.MapLayerMouseEvent) {
-    if (!map || !e.features || e.features.length === 0) return;
+    if (!map || !e.features || e.features.length === 0 || isTouchOnlyDevice()) return;
     map.getCanvas().style.cursor = 'pointer';
 
     const feat = e.features[0];
@@ -429,7 +434,7 @@
     clickPopup = new maplibregl.Popup({
       closeButton: true,
       closeOnClick: true,
-      maxWidth: '320px',
+      maxWidth: 'min(320px, calc(100vw - 24px))',
       className: 'point-click-popup'
     })
       .setLngLat(e.lngLat)
@@ -440,7 +445,7 @@
   }
 
   function handleNcnMouseMove(e: maplibregl.MapLayerMouseEvent) {
-    if (!map || !e.features || e.features.length === 0) return;
+    if (!map || !e.features || e.features.length === 0 || isTouchOnlyDevice()) return;
     map.getCanvas().style.cursor = 'pointer';
     const props = e.features[0].properties as NcnProperties;
     const routeNum = props.RouteNo === undefined ? '' : `Route ${popupValue(props.RouteNo, '')}`;
@@ -521,7 +526,7 @@
     clickPopup = new maplibregl.Popup({
       closeButton: true,
       closeOnClick: true,
-      maxWidth: '320px',
+      maxWidth: 'min(320px, calc(100vw - 24px))',
       className: 'ncn-click-popup'
     })
       .setLngLat(e.lngLat)
@@ -625,7 +630,7 @@
   }
 
   function handleOpenRoadsMouseMove(e: maplibregl.MapLayerMouseEvent) {
-    if (!map || !e.features || e.features.length === 0) return;
+    if (!map || !e.features || e.features.length === 0 || isTouchOnlyDevice()) return;
     map.getCanvas().style.cursor = 'pointer';
     const props = e.features[0].properties as OpenRoadsProperties;
     const name = props.name_1 || props.road_classification_number || 'Unnamed Road';
@@ -697,7 +702,7 @@
     clickPopup = new maplibregl.Popup({
       closeButton: true,
       closeOnClick: true,
-      maxWidth: '320px',
+      maxWidth: 'min(320px, calc(100vw - 24px))',
       className: 'openroads-click-popup'
     })
       .setLngLat(e.lngLat)
@@ -1153,13 +1158,16 @@
     }
 
     if (!bounds.isEmpty()) {
+      const isMobile = isMobileViewport();
       map.fitBounds(bounds, {
-        padding: {
-          left: (sidebarOpen && !printMode) ? 360 : (printMode === 'legend' ? 300 : 40),
-          right: 40,
-          top: 40,
-          bottom: 40
-        },
+        padding: isMobile
+          ? { left: 24, right: 24, top: 24, bottom: 36 }
+          : {
+              left: (sidebarOpen && !printMode) ? 360 : (printMode === 'legend' ? 300 : 40),
+              right: 40,
+              top: 40,
+              bottom: 40
+            },
         maxZoom: 12,
         duration: 800
       });
@@ -1217,6 +1225,14 @@
   }
 
   function zoomPadding() {
+    if (isMobileViewport()) {
+      return {
+        left: 32,
+        right: 32,
+        top: 32,
+        bottom: selectedSegment ? 220 : 48
+      };
+    }
     return { left: (sidebarOpen && !printMode) ? 380 : 80, right: 80, top: 80, bottom: 80 };
   }
 
@@ -1444,6 +1460,23 @@
 
   .map-wrapper.sidebar-open :global(.maplibregl-ctrl-bottom-left) {
     left: 350px;
+  }
+
+  @media (max-width: 767px) {
+    .map-wrapper :global(.maplibregl-ctrl-bottom-left) {
+      bottom: 10px;
+      left: 10px;
+    }
+
+    .map-wrapper.sidebar-open :global(.maplibregl-ctrl-bottom-left) {
+      left: 10px;
+    }
+
+    .map-wrapper :global(.maplibregl-ctrl-attrib) {
+      font-size: 10px;
+      line-height: 1.25;
+      background: rgba(255, 255, 255, 0.85);
+    }
   }
 
   .map-wrapper.print-mode :global(.maplibregl-ctrl-top-right) {

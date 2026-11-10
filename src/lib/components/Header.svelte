@@ -29,6 +29,7 @@
   }: Props = $props();
 
   let copyStatus: 'idle' | 'copied' | 'error' = $state('idle');
+  let mobileSearchOpen: boolean = $state(false);
 
   async function copyLink() {
     try {
@@ -87,7 +88,23 @@
   </div>
 
   <div class="center-section">
-    <PlaceSearch onSelect={onSelectPlace} />
+    <div class="desktop-search">
+      <PlaceSearch onSelect={onSelectPlace} />
+    </div>
+    <button
+      type="button"
+      class="outline-btn nav-btn mobile-search-btn"
+      class:active={mobileSearchOpen}
+      onclick={() => (mobileSearchOpen = !mobileSearchOpen)}
+      title="Search places in England"
+      aria-label="Search places in England"
+      aria-expanded={mobileSearchOpen}
+    >
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="7"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+    </button>
     <BasemapControl
       {basemap}
       {showPlaceNames}
@@ -103,6 +120,7 @@
       rel="noreferrer"
       class="outline-btn nav-btn"
       title="View Project Documentation, Methodology, and Data Dictionary"
+      aria-label="View project documentation"
     >
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
@@ -111,7 +129,7 @@
       <span>Docs</span>
     </a>
     <button
-      class="outline-btn nav-btn"
+      class="outline-btn nav-btn print-nav-btn"
       onclick={onEnterPrintView}
       title="Switch to clean publication print view (P)"
       aria-label="Switch to print view"
@@ -140,6 +158,17 @@
     </button>
   </div>
 </header>
+
+{#if mobileSearchOpen}
+  <div class="mobile-search-bar">
+    <PlaceSearch
+      onSelect={(bbox, name) => {
+        onSelectPlace(bbox, name);
+        mobileSearchOpen = false;
+      }}
+    />
+  </div>
+{/if}
 
 <style>
   .app-header {
@@ -259,17 +288,104 @@
     border-color: var(--accent-rose);
   }
 
+  .desktop-search {
+    display: flex;
+    flex: 0 1 300px;
+    min-width: 160px;
+  }
+
+  .mobile-search-btn {
+    display: none;
+  }
+
+  .mobile-search-btn.active {
+    border-color: var(--accent-civic);
+    background: #eff6ff;
+    color: var(--accent-civic);
+  }
+
+  .mobile-search-bar {
+    display: none;
+  }
+
   @media (max-width: 960px) {
     .subtitle, .toggle-label {
       display: none;
     }
   }
 
-  @media (max-width: 540px) {
+  @media (max-width: 767px) {
     .app-header {
       padding: 0 10px;
+      gap: 6px;
     }
+
+    .left-section {
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .brand {
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .logo-icon {
+      width: 28px;
+      height: 28px;
+      flex-shrink: 0;
+    }
+
+    .title-group h1 {
+      font-size: 15px;
+      white-space: nowrap;
+    }
+
+    .badge {
+      display: none;
+    }
+
+    .desktop-search {
+      display: none;
+    }
+
+    .mobile-search-btn {
+      display: inline-flex;
+    }
+
+    .center-section {
+      flex: 0 0 auto;
+      padding: 0;
+      gap: 6px;
+      margin-left: auto;
+    }
+
+    .right-section {
+      gap: 6px;
+    }
+
+    .toggle-btn,
+    .nav-btn {
+      min-width: 36px;
+      height: 36px;
+      padding: 0 9px;
+    }
+
     .nav-btn span {
+      display: none;
+    }
+
+    .mobile-search-bar {
+      display: block;
+      padding: 6px 10px 8px 10px;
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-color);
+      z-index: 29;
+    }
+  }
+
+  @media (max-width: 359px) {
+    .print-nav-btn {
       display: none;
     }
   }
