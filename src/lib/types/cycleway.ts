@@ -43,10 +43,12 @@ export interface FilterState {
   section: string;
   status: string;
   searchTerm: string;
-  colorBy: 'category' | 'classification' | 'developer' | 'status' | 'kml';
+  colorBy: 'category' | 'classification' | 'infrastructure_type_detailed' | 'detailed_classification' | 'developer' | 'status' | 'kml';
   hiddenLegendItems: string[];
   /** Show superseded alignments (only offered when colouring by status). */
   showSuperseded: boolean;
+  /** Show pending alignments north of Crewe (only offered when colouring by status). */
+  showPending: boolean;
 }
 
 export interface CyclewayStats {
