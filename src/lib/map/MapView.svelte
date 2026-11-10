@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount, onDestroy } from 'svelte';
+  import { onMount, onDestroy, untrack } from 'svelte';
   import maplibregl from 'maplibre-gl';
   import * as pmtiles from 'pmtiles';
   import type { 
@@ -257,6 +257,7 @@
   }
 
   let styleReady = false;
+  let loadedDataRef: CyclewayFeatureCollection | null = null;
 
   function ensureLayers() {
     if (!map || !data || !styleReady) return;
@@ -882,10 +883,15 @@
 
     const existingSource = map.getSource('cycleway-data') as maplibregl.GeoJSONSource;
     if (existingSource) {
-      existingSource.setData(data as any);
-      fitInitialBounds();
+      if (loadedDataRef !== data) {
+        loadedDataRef = data;
+        existingSource.setData(data as any);
+        fitInitialBounds();
+      }
       return;
     }
+
+    loadedDataRef = data;
 
     try {
       const pathVersion = data.version || data.metadata?.version || 'v0.4.0';
@@ -1246,6 +1252,7 @@
 
     map.on('style.load', () => {
       styleReady = true;
+      loadedDataRef = null;
       setupMapLayers();
     });
   });
@@ -1298,10 +1305,11 @@
     }
   });
 
-  // Watch data updates reactively
+  // Watch data updates reactively (untrack setupMapLayers so filter/UI reads inside it do not re-trigger this effect)
   $effect(() => {
-    if (map && data) {
-      ensureLayers();
+    const currentData = data;
+    if (map && currentData) {
+      untrack(() => ensureLayers());
     }
   });
 
@@ -1313,10 +1321,12 @@
     const _cat = filters.category;
     const _cls = filters.classification;
     const _sec = filters.section;
+    const _status = filters.status;
     const _colorBy = filters.colorBy;
     const _superseded = filters.showSuperseded;
+    const _pending = filters.showPending;
 
-    if (map && map.isStyleLoaded() && map.getLayer('cycleway-lines')) {
+    if (map && map.getLayer('cycleway-lines')) {
       const filterExpr = getActiveFilterExpression(filters);
       map.setFilter('cycleway-lines', filterExpr);
       map.setFilter('cycleway-casing', filterExpr);
@@ -1327,6 +1337,7 @@
       
       const colorExpr = colorExpression(filters.colorBy);
       map.setPaintProperty('cycleway-lines', 'line-color', colorExpr);
+      map.triggerRepaint();
     }
   });
 
