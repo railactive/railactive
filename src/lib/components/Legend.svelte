@@ -316,6 +316,29 @@
     opacity: 1;
   }
 
+  @media (hover: none), (max-width: 767px) {
+    .colorby-row select {
+      padding: 7px 8px;
+      font-size: 13px;
+    }
+
+    .legend-item-btn {
+      padding: 7px 4px;
+      min-height: 34px;
+    }
+
+    .toggle-box {
+      width: 15px;
+      height: 15px;
+    }
+
+    .solo-btn {
+      opacity: 1;
+      padding: 3px 7px;
+      font-size: 10.5px;
+    }
+  }
+
   .solo-btn:hover {
     background: var(--accent-civic);
     border-color: var(--accent-civic);

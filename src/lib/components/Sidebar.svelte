@@ -9,6 +9,7 @@
 
   interface Props {
     open: boolean;
+    onClose?: () => void;
     stats: CyclewayStats;
     filters: FilterState;
     legend: LegendProps;
@@ -21,6 +22,7 @@
 
   let {
     open,
+    onClose = () => {},
     stats,
     filters = $bindable(),
     legend,
@@ -38,9 +40,28 @@
   let filtersOpen = $state(false);
 </script>
 
+{#if open}
+  <div class="sidebar-backdrop" onclick={onClose} aria-hidden="true"></div>
+{/if}
+
 <aside class="sidebar" class:closed={!open}>
   <div class="sidebar-content">
-    <div class="section-title">Corridor Metrics</div>
+    <div class="sidebar-top-row">
+      <div class="section-title">Corridor Metrics</div>
+      <button
+        type="button"
+        class="mobile-close-btn"
+        onclick={onClose}
+        aria-label="Close side panel"
+        title="Close side panel"
+      >
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+        <span>Map</span>
+      </button>
+    </div>
     <KPICards {stats} />
 
     <div class="section-title">Map Layers</div>
@@ -145,5 +166,78 @@
 
   .chevron.open {
     transform: rotate(180deg);
+  }
+
+  .sidebar-backdrop {
+    display: none;
+  }
+
+  .sidebar-top-row {
+    display: block;
+  }
+
+  .mobile-close-btn {
+    display: none;
+  }
+
+  @media (max-width: 767px) {
+    .sidebar-backdrop {
+      display: block;
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.32);
+      backdrop-filter: blur(1px);
+      z-index: 19;
+    }
+
+    .sidebar {
+      width: min(320px, calc(100vw - 48px));
+      max-width: calc(100vw - 48px);
+      box-shadow: 4px 0 20px rgba(15, 23, 42, 0.16);
+    }
+
+    .sidebar-content {
+      padding: 14px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .sidebar-top-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 6px;
+      margin-bottom: 10px;
+    }
+
+    .sidebar-top-row .section-title {
+      border-bottom: none;
+      padding-bottom: 0;
+      margin-bottom: 0;
+      margin-top: 0;
+    }
+
+    .mobile-close-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      border-radius: var(--radius-sm);
+      padding: 4px 8px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .mobile-close-btn:active {
+      background: var(--bg-muted);
+      color: var(--text-primary);
+    }
+
+    .filters-toggle {
+      padding: 8px 0;
+    }
   }
 </style>

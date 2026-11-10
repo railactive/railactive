@@ -168,4 +168,18 @@
     color: var(--text-primary);
     border-color: var(--border-strong);
   }
+
+  @media (max-width: 767px) {
+    input[type="text"], select {
+      padding: 8px 10px;
+      font-size: 13px;
+      min-height: 38px;
+    }
+
+    .reset-btn {
+      padding: 9px;
+      font-size: 12px;
+      min-height: 38px;
+    }
+  }
 </style>
