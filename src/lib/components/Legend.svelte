@@ -19,6 +19,7 @@
     onIsolateItem: (label: string) => void;
     onShowAll: () => void;
     showHs2Railway?: boolean;
+    hs2RailwayKm?: number;
     onToggleHs2Railway?: () => void;
     showNcn: boolean;
     onToggleNcn: () => void;
@@ -36,6 +37,7 @@
     onIsolateItem,
     onShowAll,
     showHs2Railway = true,
+    hs2RailwayKm = 0,
     onToggleHs2Railway,
     showNcn,
     onToggleNcn,
@@ -115,6 +117,9 @@
         {@render checkbox(showHs2Railway)}
         <span class="color-bar hs2-color-bar"></span>
         <span class="item-label">HS2 railway alignment</span>
+        {#if hs2RailwayKm > 0}
+          <span class="item-km">{hs2RailwayKm.toFixed(1)} km</span>
+        {/if}
       </button>
     </div>
 
@@ -123,12 +128,13 @@
         {@render checkbox(showNcn)}
         <span class="color-bar ncn-color-bar"></span>
         <span class="item-label">National Cycle Network</span>
+        <span class="item-km">19,752 km</span>
       </button>
     </div>
     {#if showNcn}
       <div class="sublegend">
-        <div class="sublegend-item"><span class="sample ncn-sample-solid"></span>Traffic-free</div>
-        <div class="sublegend-item"><span class="sample ncn-sample-on-road"></span>On-road</div>
+        <div class="sublegend-item"><span class="sample ncn-sample-solid"></span>Traffic-free (8,315 km)</div>
+        <div class="sublegend-item"><span class="sample ncn-sample-on-road"></span>On-road (11,383 km)</div>
       </div>
     {/if}
 
@@ -137,6 +143,7 @@
         {@render checkbox(showOpenRoads)}
         <span class="color-bar openroads-color-bar"></span>
         <span class="item-label">OS OpenRoads (10 km)</span>
+        <span class="item-km">39,356 km</span>
       </button>
     </div>
     {#if showOpenRoads}
@@ -153,6 +160,7 @@
         {@render checkbox(showStudyArea)}
         <span class="color-bar studyarea-color-bar"></span>
         <span class="item-label">Study area (10 km)</span>
+        <span class="item-km">12,009 km²</span>
       </button>
     </div>
   </div>

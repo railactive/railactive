@@ -208,6 +208,14 @@
     );
   });
 
+  // Total length of the rendered HS2 railway alignment reference layer
+  let hs2RailwayKm = $derived.by(() => {
+    if (!rawData) return 0;
+    return rawData.features
+      .filter(f => f.properties.layer_type === 'hs2_railway' && !isPending(f.properties) && !isSuperseded(f.properties))
+      .reduce((sum, f) => sum + (Number(f.properties.length_km) || 0), 0);
+  });
+
   // The current network, without superseded or pending alignments; drives the filter dropdown options
   let activeNetworkFeatures = $derived(routeFeatures.filter(f => !isSuperseded(f.properties) && !isPending(f.properties)));
 
@@ -448,6 +456,7 @@
           onIsolateItem: handleIsolateLegendItem,
           onShowAll: handleShowAllLegendItems,
           showHs2Railway,
+          hs2RailwayKm,
           onToggleHs2Railway: () => showHs2Railway = !showHs2Railway,
           showNcn,
           onToggleNcn: () => showNcn = !showNcn,
@@ -474,6 +483,7 @@
         hiddenItems={hiddenGroups}
         {stats}
         {showHs2Railway}
+        {hs2RailwayKm}
         {showNcn}
         {showOpenRoads}
         {showStudyArea}
