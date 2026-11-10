@@ -7,7 +7,6 @@
     onToggleSidebar: () => void;
     isExampleData: boolean;
     onCopyLink: () => Promise<void>;
-    isNetAssign?: boolean;
     basemap?: string;
     showPlaceNames?: boolean;
     onChangeBasemap?: (style: string) => void;
@@ -21,7 +20,6 @@
     onToggleSidebar, 
     isExampleData = false,
     onCopyLink,
-    isNetAssign = false,
     basemap = 'light',
     showPlaceNames = true,
     onChangeBasemap = () => {},
@@ -77,40 +75,28 @@
       <div class="title-group">
         <div class="title-row">
           <h1>RailActive</h1>
-          {#if isNetAssign}
-            <span class="badge" title="NetAssign Active Travel Demand Model">/netassign</span>
-          {:else if isExampleData}
+          {#if isExampleData}
             <span class="badge warning" title="Running with open example dataset">Example Data</span>
           {/if}
         </div>
         <span class="subtitle">
-          {isNetAssign ? 'Phase 4 Active Travel Demand & Flow Model' : 'North-South Greenway'}
+          North-South Greenway
         </span>
       </div>
     </div>
   </div>
 
-  {#if !isNetAssign}
-    <div class="center-section">
-      <PlaceSearch onSelect={onSelectPlace} />
-      <BasemapControl
-        {basemap}
-        {showPlaceNames}
-        {onChangeBasemap}
-        {onTogglePlaceNames}
-      />
-    </div>
-  {/if}
+  <div class="center-section">
+    <PlaceSearch onSelect={onSelectPlace} />
+    <BasemapControl
+      {basemap}
+      {showPlaceNames}
+      {onChangeBasemap}
+      {onTogglePlaceNames}
+    />
+  </div>
 
   <div class="right-section">
-    {#if isNetAssign}
-      <a href="/" class="outline-btn nav-btn" title="Return to Corridor Alignment Explorer">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-        </svg>
-        <span>Corridor Map</span>
-      </a>
-    {/if}
     <a
       href="/docs/"
       target="_blank"
@@ -124,21 +110,19 @@
       </svg>
       <span>Docs</span>
     </a>
-    {#if !isNetAssign}
-      <button
-        class="outline-btn nav-btn"
-        onclick={onEnterPrintView}
-        title="Switch to clean publication print view (P)"
-        aria-label="Switch to print view"
-      >
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polyline points="6 9 6 2 18 2 18 9"></polyline>
-          <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
-          <rect x="6" y="14" width="12" height="8"></rect>
-        </svg>
-        <span>Print</span>
-      </button>
-    {/if}
+    <button
+      class="outline-btn nav-btn"
+      onclick={onEnterPrintView}
+      title="Switch to clean publication print view (P)"
+      aria-label="Switch to print view"
+    >
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="6 9 6 2 18 2 18 9"></polyline>
+        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+        <rect x="6" y="14" width="12" height="8"></rect>
+      </svg>
+      <span>Print</span>
+    </button>
     <button
       class="outline-btn nav-btn share-link"
       class:copied={copyStatus === 'copied'}
