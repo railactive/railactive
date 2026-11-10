@@ -95,7 +95,7 @@
     showOpenRoads,
     openRoadsPmtilesUrl = './data/openroads.pmtiles',
     showStudyArea = false,
-    studyAreaGeojsonUrl = './data/study_area.geojson?v=0.4.0-av',
+    studyAreaGeojsonUrl = './data/study_area.geojson?v=0.4.1',
     showPlaceNames = true,
     printMode = null
   }: Props = $props();
