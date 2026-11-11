@@ -1,5 +1,11 @@
 <script lang="ts">
-  import { INTERVENTION_COLOR, REFERENCE_COLORS as ref } from '../palette';
+  import {
+    INTERVENTION_COLOR,
+    INTERVENTION_LEGACY_COLOR,
+    INTERVENTION_LEGACY_OPACITY,
+    INTERVENTION_LEGACY_THRESHOLD_M,
+    REFERENCE_COLORS as ref
+  } from '../palette';
   import { isDevEnvironment } from '../urlState';
   import type { FilterState } from '../types/cycleway';
 
@@ -23,6 +29,8 @@
     onToggleHs2Railway?: () => void;
     showInterventions?: boolean;
     interventionCount?: number;
+    onRouteInterventionCount?: number;
+    legacyInterventionCount?: number;
     onToggleInterventions?: () => void;
     showNcn: boolean;
     onToggleNcn: () => void;
@@ -44,6 +52,8 @@
     onToggleHs2Railway,
     showInterventions = false,
     interventionCount = 0,
+    onRouteInterventionCount = 0,
+    legacyInterventionCount = 0,
     onToggleInterventions,
     showNcn,
     onToggleNcn,
@@ -142,6 +152,23 @@
         {/if}
       </button>
     </div>
+    {#if showInterventions}
+      <div class="sublegend">
+        <div class="sublegend-item">
+          <span class="point-swatch point-swatch-sm" style="background-color: {INTERVENTION_COLOR};"></span>
+          On route &le; {INTERVENTION_LEGACY_THRESHOLD_M} m ({onRouteInterventionCount.toLocaleString()})
+        </div>
+        {#if legacyInterventionCount > 0}
+          <div class="sublegend-item">
+            <span
+              class="point-swatch point-swatch-sm"
+              style="background-color: {INTERVENTION_LEGACY_COLOR}; opacity: {INTERVENTION_LEGACY_OPACITY};"
+            ></span>
+            Legacy &gt; {INTERVENTION_LEGACY_THRESHOLD_M} m ({legacyInterventionCount.toLocaleString()})
+          </div>
+        {/if}
+      </div>
+    {/if}
 
     <div class="legend-row" class:hidden-layer={!showNcn}>
       <button class="legend-item-btn" onclick={onToggleNcn} aria-pressed={showNcn}>
@@ -452,5 +479,11 @@
     border-radius: 50%;
     border: 1.5px solid #ffffff;
     box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.28);
+    flex-shrink: 0;
+  }
+
+  .point-swatch-sm {
+    width: 8px;
+    height: 8px;
   }
 </style>

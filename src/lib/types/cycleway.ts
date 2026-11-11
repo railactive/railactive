@@ -16,6 +16,7 @@ export interface CyclewaySegmentProperties {
   osm_infrastructure?: string;
   osm_highway?: string;
   osm_surface?: string;
+  dist_to_route_m?: number;
 }
 
 export interface CyclewayFeature {

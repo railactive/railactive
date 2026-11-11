@@ -16,6 +16,10 @@
     formatStatusLabel,
     hiddenGroupExpressions,
     INTERVENTION_COLOR,
+    INTERVENTION_LEGACY_COLOR,
+    INTERVENTION_LEGACY_OPACITY,
+    INTERVENTION_LEGACY_THRESHOLD_M,
+    isLegacyIntervention,
     isSuperseded,
     normalizeClassification,
     REFERENCE_COLORS,
@@ -368,19 +372,28 @@
     const properties = feat.properties as CyclewaySegmentProperties;
 
     const superseded = isSuperseded(properties);
+    const legacy = isLegacyIntervention(properties);
+    const distM = typeof properties.dist_to_route_m === 'number' ? properties.dist_to_route_m : null;
+    const distText = distM !== null
+      ? (distM >= 1000 ? `${(distM / 1000).toFixed(1)} km from route` : `${distM} m from route`)
+      : '';
 
     const title = properties.name || 'Junction Treatment';
     const folder = properties.folder ? properties.folder.replace(' - Interventions', '') : 'Intervention';
-    const classification = superseded ? 'Old active travel route alignment' : (properties.classification || 'Intervention Point');
+    const classification = superseded
+      ? 'Old active travel route alignment'
+      : legacy
+        ? `Legacy intervention (> ${INTERVENTION_LEGACY_THRESHOLD_M} m from active route)`
+        : (properties.classification || 'Intervention Point');
     const remarks = properties.remarks ? `<div class="tooltip-remarks">${escapeHtml(properties.remarks)}</div>` : '';
 
     const html = `
       <div class="tooltip-content point-tooltip">
         <div class="tooltip-title">${escapeHtml(title)}</div>
         <div class="tooltip-meta">
-          <span class="badge-sec">${escapeHtml(folder)}</span>
-          ${properties.status ? `<span class="badge-sec badge-${properties.status.toLowerCase()}">${formatStatusLabel(properties.status)}</span>` : ''}
-          <span class="tooltip-len">ID: ${properties.id}</span>
+          <span class="badge-sec ${legacy ? 'badge-superseded' : ''}">${escapeHtml(legacy && !superseded ? 'Legacy' : folder)}</span>
+          ${properties.status && !legacy ? `<span class="badge-sec badge-${properties.status.toLowerCase()}">${formatStatusLabel(properties.status)}</span>` : ''}
+          <span class="tooltip-len">${distText || `ID: ${properties.id}`}</span>
         </div>
         <div class="tooltip-cat">${escapeHtml(classification)}</div>
         ${remarks}
@@ -406,17 +419,26 @@
     }
 
     const superseded = isSuperseded(properties);
+    const legacy = isLegacyIntervention(properties);
+    const distM = typeof properties.dist_to_route_m === 'number' ? properties.dist_to_route_m : null;
+    const distLabel = distM !== null
+      ? (distM >= 1000 ? `${(distM / 1000).toFixed(2)} km` : `${distM} m`)
+      : null;
 
     const title = popupValue(properties.name, 'Junction Treatment');
     const folder = popupValue(properties.folder ? properties.folder.replace(' - Interventions', '') : '', 'Intervention');
-    const classification = superseded ? 'Old active travel route alignment' : popupValue(properties.classification, 'Active Route Treatment');
+    const classification = superseded
+      ? 'Old active travel route alignment'
+      : legacy
+        ? `Legacy (> ${INTERVENTION_LEGACY_THRESHOLD_M} m from route)`
+        : popupValue(properties.classification, 'Active Route Treatment');
 
     const html = `
       <div class="map-popup-card">
         <div class="map-popup-header">
           <div class="map-badge-group">
-            <span class="map-badge ${superseded ? 'warning' : 'civic'}">
-              ${superseded ? 'Old Alignment' : 'Intervention'}
+            <span class="map-badge ${superseded || legacy ? 'warning' : 'civic'}">
+              ${superseded ? 'Old Alignment' : legacy ? 'Legacy Point' : 'Intervention'}
             </span>
             <span class="map-badge">${folder}</span>
           </div>
@@ -426,6 +448,7 @@
           <div class="map-cell"><span class="k">Point ID:</span><span class="v font-mono">${properties.id}</span></div>
           <div class="map-cell"><span class="k">Type:</span><span class="v">${title}</span></div>
           <div class="map-cell"><span class="k">Status:</span><span class="v">${classification}</span></div>
+          ${distLabel ? `<div class="map-cell"><span class="k">Distance to route:</span><span class="v font-mono">${distLabel}</span></div>` : ''}
           <div class="map-cell full"><span class="k">Corridor Section:</span><span class="v">${folder}</span></div>
           ${properties.remarks ? `<div class="map-cell full"><span class="k">Remarks:</span><span class="v">${escapeHtml(properties.remarks)}</span></div>` : ''}
         </div>
@@ -1064,19 +1087,28 @@
       });
 
       // 3. Points / Interventions Layer
+      const legacyPointExpr: any = [
+        'any',
+        ['==', ['coalesce', ['get', 'folder'], ''], 'Superseded'],
+        ['==', ['coalesce', ['get', 'status'], ''], 'superseded'],
+        ['>', ['coalesce', ['get', 'dist_to_route_m'], 0], INTERVENTION_LEGACY_THRESHOLD_M]
+      ];
       map.addLayer({
         id: 'cycleway-points',
         type: 'circle',
         source: 'cycleway-data',
         filter: getPointFilterExpression(filters),
         layout: {
-          visibility: showInterventions ? 'visible' : 'none'
+          visibility: showInterventions ? 'visible' : 'none',
+          'circle-sort-key': ['case', legacyPointExpr, 0, 1]
         },
         paint: {
           'circle-radius': ['interpolate', ['linear'], ['zoom'], 6, 4, 12, 7, 16, 11],
-          'circle-color': INTERVENTION_COLOR,
-          'circle-stroke-width': 2,
-          'circle-stroke-color': basemap === 'dark' ? '#0f172a' : '#ffffff'
+          'circle-color': ['case', legacyPointExpr, INTERVENTION_LEGACY_COLOR, INTERVENTION_COLOR],
+          'circle-opacity': ['case', legacyPointExpr, INTERVENTION_LEGACY_OPACITY, 1.0],
+          'circle-stroke-width': ['case', legacyPointExpr, 1.5, 2],
+          'circle-stroke-color': basemap === 'dark' ? '#0f172a' : '#ffffff',
+          'circle-stroke-opacity': ['case', legacyPointExpr, INTERVENTION_LEGACY_OPACITY, 1.0]
         }
       });
 
