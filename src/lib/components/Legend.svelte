@@ -69,12 +69,12 @@
   <div class="colorby-row">
     <label for="colorby-select">Colour by</label>
     <select id="colorby-select" bind:value={colorBy}>
-      <option value="classification">Infrastructure type</option>
+      <option value="classification">Delivery category</option>
       {#if showDetailedColorOptions}
-        <option value="infrastructure_type_detailed">Infrastructure type (detailed)</option>
+        <option value="infrastructure_type_detailed">Delivery category (detailed)</option>
         <option value="detailed_classification">Detailed classification</option>
       {/if}
-      <option value="category">Delivery category</option>
+      <option value="category">Infrastructure type</option>
       <option value="developer">Lead developer</option>
       <option value="status">Alignment status</option>
       {#if showDetailedColorOptions}

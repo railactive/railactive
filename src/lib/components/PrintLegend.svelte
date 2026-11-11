@@ -35,10 +35,10 @@
   }: Props = $props();
 
   const schemeLabels: Record<FilterState['colorBy'], string> = {
-    classification: 'By infrastructure type',
-    infrastructure_type_detailed: 'By infrastructure type (detailed)',
+    classification: 'By delivery category',
+    infrastructure_type_detailed: 'By delivery category (detailed)',
     detailed_classification: 'By detailed classification',
-    category: 'By delivery category',
+    category: 'By infrastructure type',
     developer: 'By lead developer',
     status: 'By alignment status',
     kml: 'By KML source colour'

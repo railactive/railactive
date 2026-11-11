@@ -47,24 +47,24 @@
     </select>
   </div>
 
-  <!-- Category Filter -->
+  <!-- Classification (Delivery Category) Filter -->
   <div class="form-group">
-    <label for="category-select">Delivery Category</label>
-    <select id="category-select" bind:value={filters.category}>
-      <option value="">All Categories ({availableCategories.length})</option>
-      {#each availableCategories as cat}
-        <option value={cat}>{cat}</option>
+    <label for="class-select">Delivery Category</label>
+    <select id="class-select" bind:value={filters.classification}>
+      <option value="">All Delivery Categories ({availableClassifications.length})</option>
+      {#each availableClassifications as cls}
+        <option value={cls}>{cls}</option>
       {/each}
     </select>
   </div>
 
-  <!-- Classification Filter -->
+  <!-- Category (Infrastructure Type) Filter -->
   <div class="form-group">
-    <label for="class-select">Classification</label>
-    <select id="class-select" bind:value={filters.classification}>
-      <option value="">All Classifications ({availableClassifications.length})</option>
-      {#each availableClassifications as cls}
-        <option value={cls}>{cls}</option>
+    <label for="category-select">Infrastructure Type</label>
+    <select id="category-select" bind:value={filters.category}>
+      <option value="">All Infrastructure Types ({availableCategories.length})</option>
+      {#each availableCategories as cat}
+        <option value={cat}>{cat}</option>
       {/each}
     </select>
   </div>
