@@ -354,4 +354,15 @@
     background: linear-gradient(90deg, var(--road-major), var(--road-local));
     flex-shrink: 0;
   }
+
+  @media (max-width: 767px) {
+    .print-legend {
+      top: 50px;
+      left: 10px;
+      width: min(260px, calc(100vw - 20px));
+      max-height: calc(100dvh - 64px);
+      overflow-y: auto;
+      padding: 10px 12px;
+    }
+  }
 </style>
