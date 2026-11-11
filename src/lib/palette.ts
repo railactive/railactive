@@ -23,23 +23,23 @@ interface ColorScheme {
 }
 
 const HS2_ORANGE = '#c2410c';
-const HS2_GREENWAY = '#0f766e';
+const HS2_GREENWAY = '#0e7490';
 const HS2_MAT = '#d97706';
-const GREEN = '#14532d';
-const LIGHT_GREEN = '#22c55e';
+const GREEN = '#15803d';
+const LIGHT_GREEN = '#0d9488';
 const BLUE = '#1d4ed8';
-const TEAL = '#0f766e';
+const TEAL = '#0891b2';
 const PURPLE = '#7c3aed';
 const MAGENTA = '#a21caf';
 const YELLOW = '#b45309';
 const GREY = '#64748b';
 
 const SUPERSEDED_COLOR = '#94a3b8';
-const PENDING_COLOR = '#a855f7';
+const PENDING_COLOR = '#9333ea';
 const OLD_ALIGNMENT = 'Old active travel route alignment';
 export const SUPERSEDED_LABEL = 'Superseded';
 export const PENDING_LABEL = 'Pending';
-export const INTERVENTION_COLOR = '#0f766e';
+export const INTERVENTION_COLOR = '#d97706';
 
 export function formatStatusLabel(status?: string): string {
   if (!status) return '';
@@ -321,10 +321,10 @@ const SCHEMES: Record<Exclude<ColorBy, 'kml'>, ColorScheme> = {
 
 /** Reference (context) layers: kept off the route hues so they never read as proposed routes. */
 export const REFERENCE_COLORS = {
-  // NCN: traffic-free pine/teal, on-road crimson
-  ncnOffRoad: '#0f766e',
-  ncnOnRoad: '#b91c1c',
-  roadHaulage: '#c2410c',
+  // NCN: muted deep pine (traffic-free) & muted rose-brick (on-road)
+  ncnOffRoad: '#115e59',
+  ncnOnRoad: '#9f1239',
+  roadHaulage: '#9a3412',
   roadMajor: '#475569',
   roadMinor: '#64748b',
   roadLocal: '#94a3b8',
