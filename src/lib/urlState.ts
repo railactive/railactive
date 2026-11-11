@@ -10,7 +10,7 @@ export function isMobileViewport(): boolean {
 }
 
 const PROD_COLOR_BY_VALUES: FilterState['colorBy'][] = ['category', 'classification', 'developer', 'status'];
-const DEV_COLOR_BY_VALUES: FilterState['colorBy'][] = ['category', 'classification', 'infrastructure_type_detailed', 'detailed_classification', 'developer', 'status', 'kml'];
+const DEV_COLOR_BY_VALUES: FilterState['colorBy'][] = ['category', 'classification', 'infrastructure_type_detailed', 'detailed_classification', 'osm_infrastructure', 'developer', 'status', 'kml'];
 
 export function isDevEnvironment(): boolean {
   if (typeof window !== 'undefined') {

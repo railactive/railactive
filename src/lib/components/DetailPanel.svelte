@@ -1,7 +1,10 @@
 <script lang="ts">
   import type { CyclewaySegmentProperties } from '../types/cycleway';
   import { formatStatusLabel, normalizeClassification } from '../palette';
+  import { isDevEnvironment } from '../urlState';
   import MapButtons from './MapButtons.svelte';
+
+  const showDevAttrs = isDevEnvironment();
 
   interface Props {
     segment: CyclewaySegmentProperties | null;
@@ -54,6 +57,17 @@
           <span class="attr-label">Infrastructure type</span>
           <span class="attr-value">{segment.category || (segment.layer_type === 'intervention' ? 'Active Route Treatment' : 'Uncategorized')}</span>
         </div>
+        {#if showDevAttrs && segment.osm_infrastructure}
+          <div class="attr-item full">
+            <span class="attr-label">Current infrastructure (OSM)</span>
+            <span class="attr-value">
+              {segment.osm_infrastructure}
+              {#if segment.osm_highway || segment.osm_surface}
+                <span class="text-muted">({[segment.osm_highway ? `highway=${segment.osm_highway}` : '', segment.osm_surface ? `surface=${segment.osm_surface}` : ''].filter(Boolean).join(', ')})</span>
+              {/if}
+            </span>
+          </div>
+        {/if}
         {#if segment.folder}
           <div class="attr-item full">
             <span class="attr-label">Corridor Section</span>

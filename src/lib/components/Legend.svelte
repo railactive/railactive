@@ -75,6 +75,9 @@
         <option value="detailed_classification">Detailed classification</option>
       {/if}
       <option value="category">Infrastructure type</option>
+      {#if showDetailedColorOptions}
+        <option value="osm_infrastructure">Current infrastructure (OSM)</option>
+      {/if}
       <option value="developer">Lead developer</option>
       <option value="status">Alignment status</option>
       {#if showDetailedColorOptions}
