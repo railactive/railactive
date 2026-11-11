@@ -6,7 +6,7 @@ import type { CyclewaySegmentProperties, FilterState } from './types/cycleway';
 // popups and the detail panel.
 
 export type ColorBy = FilterState['colorBy'];
-type GroupField = 'classification' | 'category' | 'developer' | 'status';
+type GroupField = 'classification' | 'category' | 'osm_infrastructure' | 'developer' | 'status';
 
 export interface ColorGroup {
   label: string;
@@ -281,6 +281,18 @@ const SCHEMES: Record<Exclude<ColorBy, 'kml'>, ColorScheme> = {
       { label: 'Canal towpath', color: LIGHT_GREEN, values: ['Canal tow path or new path close by canal'] },
       { label: '20mph / protected on-road', color: BLUE, values: ['20mph and traffic calmed or protected cycle lane'] },
       { label: 'Other', color: GREY }
+    ]
+  },
+  osm_infrastructure: {
+    field: 'osm_infrastructure',
+    groups: [
+      { label: 'Cycle track / cycleway', color: PURPLE, values: ['Cycle track / cycleway'] },
+      { label: 'Shared path / bridleway', color: GREEN, values: ['Shared path / bridleway'] },
+      { label: 'Canal towpath', color: LIGHT_GREEN, values: ['Canal towpath'] },
+      { label: 'Footpath / farm track', color: HS2_MAT, values: ['Footpath / farm track'] },
+      { label: 'Quiet / local road', color: BLUE, values: ['Quiet / local road'] },
+      { label: 'Main road (A / B / C road)', color: '#dc2626', values: ['Main road (A / B / C road)'] },
+      { label: 'Greenfield / no existing way', color: GREY }
     ]
   },
   developer: {

@@ -13,6 +13,9 @@ export interface CyclewaySegmentProperties {
   layer_type?: string;
   folder?: string;
   status?: string;
+  osm_infrastructure?: string;
+  osm_highway?: string;
+  osm_surface?: string;
 }
 
 export interface CyclewayFeature {
@@ -43,7 +46,7 @@ export interface FilterState {
   section: string;
   status: string;
   searchTerm: string;
-  colorBy: 'category' | 'classification' | 'infrastructure_type_detailed' | 'detailed_classification' | 'developer' | 'status' | 'kml';
+  colorBy: 'category' | 'classification' | 'infrastructure_type_detailed' | 'detailed_classification' | 'osm_infrastructure' | 'developer' | 'status' | 'kml';
   hiddenLegendItems: string[];
   /** Show superseded alignments (only offered when colouring by status). */
   showSuperseded: boolean;

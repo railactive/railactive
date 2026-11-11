@@ -39,6 +39,7 @@
     infrastructure_type_detailed: 'By delivery category (detailed)',
     detailed_classification: 'By detailed classification',
     category: 'By infrastructure type',
+    osm_infrastructure: 'By current infrastructure (OSM)',
     developer: 'By lead developer',
     status: 'By alignment status',
     kml: 'By KML source colour'
