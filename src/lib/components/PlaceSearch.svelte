@@ -189,9 +189,16 @@
     min-width: 160px;
   }
 
-  @media (max-width: 720px) {
+  @media (max-width: 767px) {
     .place-search {
-      display: none;
+      width: 100%;
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+
+    input {
+      height: 36px;
+      font-size: 13px;
     }
   }
 

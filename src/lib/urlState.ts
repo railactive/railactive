@@ -3,6 +3,11 @@ import type { FilterState } from './types/cycleway';
 export const BASEMAP_IDS = ['light', 'dark', 'satellite', 'opencyclemap', 'osm'] as const;
 export type BasemapId = (typeof BASEMAP_IDS)[number];
 export type PrintMode = 'legend' | 'clean' | null;
+export const MOBILE_BREAKPOINT = 768;
+
+export function isMobileViewport(): boolean {
+  return typeof window !== 'undefined' && window.innerWidth < MOBILE_BREAKPOINT;
+}
 
 const PROD_COLOR_BY_VALUES: FilterState['colorBy'][] = ['category', 'classification', 'developer', 'status'];
 const DEV_COLOR_BY_VALUES: FilterState['colorBy'][] = ['category', 'classification', 'infrastructure_type_detailed', 'detailed_classification', 'developer', 'status', 'kml'];
@@ -78,12 +83,18 @@ export function readUrlState(url: URL): AppUrlState {
   }
 
   const allowedColorByValues = isDevEnvironment() ? DEV_COLOR_BY_VALUES : PROD_COLOR_BY_VALUES;
+  const sidebarParam = (params.get('sidebar') || '').trim().toLowerCase();
+  const sidebarOpen = sidebarParam === 'open'
+    ? true
+    : sidebarParam === 'closed'
+      ? false
+      : !isMobileViewport();
 
   return {
     basemap: BASEMAP_IDS.includes(requestedBasemap as BasemapId)
       ? requestedBasemap as BasemapId
       : 'light',
-    sidebarOpen: params.get('sidebar') !== 'closed',
+    sidebarOpen,
     filters: {
       developer: getLimitedParam(params, 'developer'),
       category: getLimitedParam(params, 'category'),
@@ -113,6 +124,7 @@ export function readUrlState(url: URL): AppUrlState {
 export function writeUrlState(url: URL, state: AppUrlState): string {
   const nextUrl = new URL(url);
 
+  const hadSidebarClosedParam = url.searchParams.get('sidebar') === 'closed';
   for (const key of MANAGED_PARAMS) {
     nextUrl.searchParams.delete(key);
   }
@@ -132,7 +144,12 @@ export function writeUrlState(url: URL, state: AppUrlState): string {
   if (state.filters.showSuperseded) nextUrl.searchParams.set('superseded', 'true');
   if (state.filters.showPending) nextUrl.searchParams.set('pending', 'true');
   if (state.selectedSegmentKey) nextUrl.searchParams.set('segment', state.selectedSegmentKey);
-  if (!state.sidebarOpen) nextUrl.searchParams.set('sidebar', 'closed');
+  if (isMobileViewport()) {
+    if (state.sidebarOpen) nextUrl.searchParams.set('sidebar', 'open');
+    else if (hadSidebarClosedParam) nextUrl.searchParams.set('sidebar', 'closed');
+  } else if (!state.sidebarOpen) {
+    nextUrl.searchParams.set('sidebar', 'closed');
+  }
   if (!state.showHs2Railway) nextUrl.searchParams.set('hs2', '0');
   if (state.showNcn) nextUrl.searchParams.set('ncn', 'true');
   if (state.showOpenRoads) nextUrl.searchParams.set('openroads', 'true');

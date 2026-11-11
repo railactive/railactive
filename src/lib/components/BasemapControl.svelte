@@ -82,7 +82,7 @@
     </button>
 
     <button
-      class="outline-btn basemap-btn"
+      class="outline-btn basemap-btn placenames-btn"
       class:active={showPlaceNames}
       onclick={onTogglePlaceNames}
       title={showPlaceNames ? 'Hide place names on map' : 'Show place names on map'}
@@ -293,6 +293,24 @@
   @media (max-width: 900px) {
     .btn-text {
       display: none;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .placenames-btn {
+      display: none;
+    }
+
+    .basemap-btn {
+      min-width: 36px;
+      height: 36px;
+      padding: 0 9px;
+    }
+
+    .basemap-menu {
+      left: auto;
+      right: 0;
+      width: min(220px, calc(100vw - 16px));
     }
   }
 </style>
