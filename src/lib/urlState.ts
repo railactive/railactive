@@ -38,6 +38,9 @@ const MANAGED_PARAMS = [
   'sidebar',
   'hs2',
   'interventions',
+  'ptsActive',
+  'ptsSuperseded',
+  'ptsPending',
   'ncn',
   'openroads',
   'studyarea',
@@ -53,6 +56,9 @@ export interface AppUrlState {
   selectedSegmentKey: string | null;
   showHs2Railway: boolean;
   showInterventions: boolean;
+  showActivePoints: boolean;
+  showSupersededPoints: boolean;
+  showPendingPoints: boolean;
   showNcn: boolean;
   showOpenRoads: boolean;
   showStudyArea: boolean;
@@ -116,6 +122,9 @@ export function readUrlState(url: URL): AppUrlState {
     selectedSegmentKey: getLimitedParam(params, 'segment', 100) || null,
     showHs2Railway: params.get('hs2') !== '0' && params.get('hs2') !== 'false',
     showInterventions: params.get('interventions') === 'true' || params.get('interventions') === '1',
+    showActivePoints: params.get('ptsActive') !== 'false' && params.get('ptsActive') !== '0',
+    showSupersededPoints: params.get('ptsSuperseded') === 'true' || params.get('ptsSuperseded') === '1',
+    showPendingPoints: params.get('ptsPending') === 'true' || params.get('ptsPending') === '1',
     showNcn: params.get('ncn') === 'true' || params.get('ncn') === '1',
     showOpenRoads: params.get('openroads') === 'true',
     showStudyArea: params.get('studyarea') === 'true' || params.get('study_area') === 'true',
@@ -155,6 +164,9 @@ export function writeUrlState(url: URL, state: AppUrlState): string {
   }
   if (!state.showHs2Railway) nextUrl.searchParams.set('hs2', '0');
   if (state.showInterventions) nextUrl.searchParams.set('interventions', 'true');
+  if (!state.showActivePoints) nextUrl.searchParams.set('ptsActive', 'false');
+  if (state.showSupersededPoints) nextUrl.searchParams.set('ptsSuperseded', 'true');
+  if (state.showPendingPoints) nextUrl.searchParams.set('ptsPending', 'true');
   if (state.showNcn) nextUrl.searchParams.set('ncn', 'true');
   if (state.showOpenRoads) nextUrl.searchParams.set('openroads', 'true');
   if (state.showStudyArea) nextUrl.searchParams.set('studyarea', 'true');

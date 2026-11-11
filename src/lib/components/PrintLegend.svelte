@@ -4,7 +4,7 @@
     INTERVENTION_COLOR,
     INTERVENTION_LEGACY_COLOR,
     INTERVENTION_LEGACY_OPACITY,
-    INTERVENTION_LEGACY_THRESHOLD_M,
+    PENDING_COLOR,
     REFERENCE_COLORS as ref
   } from '../palette';
   import type { CyclewayStats, FilterState } from '../types/cycleway';
@@ -24,9 +24,12 @@
     showHs2Railway?: boolean;
     hs2RailwayKm?: number;
     showInterventions?: boolean;
-    interventionCount?: number;
-    onRouteInterventionCount?: number;
-    legacyInterventionCount?: number;
+    activePointCount?: number;
+    supersededPointCount?: number;
+    pendingPointCount?: number;
+    showActivePoints?: boolean;
+    showSupersededPoints?: boolean;
+    showPendingPoints?: boolean;
     showNcn: boolean;
     showOpenRoads: boolean;
     showStudyArea: boolean;
@@ -41,9 +44,12 @@
     showHs2Railway = true,
     hs2RailwayKm = 0,
     showInterventions = false,
-    interventionCount = 0,
-    onRouteInterventionCount = 0,
-    legacyInterventionCount = 0,
+    activePointCount = 0,
+    supersededPointCount = 0,
+    pendingPointCount = 0,
+    showActivePoints = true,
+    showSupersededPoints = false,
+    showPendingPoints = false,
     showNcn = false,
     showOpenRoads = false,
     showStudyArea = false
@@ -134,23 +140,28 @@
       </div>
     {/if}
     {#if showInterventions}
-      <div class="print-row">
-        <span class="swatch-point"></span>
-        <span class="row-label">Intervention point (&le; {INTERVENTION_LEGACY_THRESHOLD_M} m)</span>
-        {#if onRouteInterventionCount > 0}
-          <span class="row-km">{onRouteInterventionCount.toLocaleString()} pts</span>
-        {:else if interventionCount > 0}
-          <span class="row-km">{interventionCount.toLocaleString()} pts</span>
-        {/if}
-      </div>
-      {#if legacyInterventionCount > 0}
+      {#if showActivePoints && activePointCount > 0}
+        <div class="print-row">
+          <span class="swatch-point"></span>
+          <span class="row-label">Active route point</span>
+          <span class="row-km">{activePointCount.toLocaleString()} pts</span>
+        </div>
+      {/if}
+      {#if showSupersededPoints && supersededPointCount > 0}
         <div class="print-row">
           <span
             class="swatch-point"
             style="background: {INTERVENTION_LEGACY_COLOR}; opacity: {INTERVENTION_LEGACY_OPACITY};"
           ></span>
-          <span class="row-label">Legacy point (&gt; {INTERVENTION_LEGACY_THRESHOLD_M} m)</span>
-          <span class="row-km">{legacyInterventionCount.toLocaleString()} pts</span>
+          <span class="row-label">Superseded / legacy point</span>
+          <span class="row-km">{supersededPointCount.toLocaleString()} pts</span>
+        </div>
+      {/if}
+      {#if showPendingPoints && pendingPointCount > 0}
+        <div class="print-row">
+          <span class="swatch-point" style="background: {PENDING_COLOR};"></span>
+          <span class="row-label">Pending point</span>
+          <span class="row-km">{pendingPointCount.toLocaleString()} pts</span>
         </div>
       {/if}
     {/if}

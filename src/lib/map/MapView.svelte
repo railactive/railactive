@@ -20,9 +20,13 @@
     INTERVENTION_LEGACY_OPACITY,
     INTERVENTION_LEGACY_THRESHOLD_M,
     isLegacyIntervention,
+    isPending,
     isSuperseded,
     normalizeClassification,
+    PENDING_COLOR,
     REFERENCE_COLORS,
+    showsPending,
+    showsSuperseded,
     statusFilterExpressions
   } from '../palette';
   import { mapButtonsHtml } from '../components/MapButtons.svelte';
@@ -79,6 +83,9 @@
     onSelectSegment: (segment: CyclewaySegmentProperties | null, center?: [number, number] | null) => void;
     showHs2Railway?: boolean;
     showInterventions?: boolean;
+    showActivePoints?: boolean;
+    showSupersededPoints?: boolean;
+    showPendingPoints?: boolean;
     showNcn?: boolean;
     ncnPmtilesUrl?: string;
     showOpenRoads: boolean;
@@ -99,6 +106,9 @@
     onSelectSegment,
     showHs2Railway = true,
     showInterventions = false,
+    showActivePoints = true,
+    showSupersededPoints = false,
+    showPendingPoints = false,
     showNcn = false,
     ncnPmtilesUrl = './data/ncn.pmtiles',
     showOpenRoads,
@@ -255,14 +265,55 @@
     return expressions;
   }
 
-  function getPointFilterExpression(f: FilterState): any {
-    const expressions: any[] = [
+  const pendingPointExpr: any = [
+    'any',
+    ['==', ['coalesce', ['get', 'folder'], ''], 'Pending'],
+    ['==', ['coalesce', ['get', 'status'], ''], 'pending']
+  ];
+
+  const legacyPointExpr: any = [
+    'all',
+    ['!', pendingPointExpr],
+    [
+      'any',
+      ['==', ['coalesce', ['get', 'folder'], ''], 'Superseded'],
+      ['==', ['coalesce', ['get', 'status'], ''], 'superseded'],
+      ['==', ['coalesce', ['get', 'category'], ''], 'Old active travel route alignment'],
+      ['==', ['coalesce', ['get', 'classification'], ''], 'Old active travel route alignment'],
+      ['>', ['coalesce', ['get', 'dist_to_route_m'], 0], INTERVENTION_LEGACY_THRESHOLD_M]
+    ]
+  ];
+
+  const activePointExpr: any = [
+    'all',
+    ['!', pendingPointExpr],
+    ['!', legacyPointExpr]
+  ];
+
+  function getPointFilterExpression(
+    f: FilterState,
+    ptsActive: boolean,
+    ptsSuperseded: boolean,
+    ptsPending: boolean
+  ): any {
+    const allowActive = ptsActive;
+    const allowSuperseded = ptsSuperseded || showsSuperseded(f);
+    const allowPending = ptsPending || showsPending(f);
+
+    const clauses: any[] = [];
+    if (allowActive) clauses.push(activePointExpr);
+    if (allowSuperseded) clauses.push(legacyPointExpr);
+    if (allowPending) clauses.push(pendingPointExpr);
+
+    if (clauses.length === 0) {
+      return ['==', 1, 0];
+    }
+
+    return [
       'all',
       ['==', ['geometry-type'], 'Point'],
-      ...statusFilterExpressions(f)
+      clauses.length === 1 ? clauses[0] : ['any', ...clauses]
     ];
-
-    return expressions;
   }
 
   let styleReady = false;
@@ -371,8 +422,9 @@
     const feat = e.features[0];
     const properties = feat.properties as CyclewaySegmentProperties;
 
+    const pending = isPending(properties);
     const superseded = isSuperseded(properties);
-    const legacy = isLegacyIntervention(properties);
+    const legacy = !pending && isLegacyIntervention(properties);
     const distM = typeof properties.dist_to_route_m === 'number' ? properties.dist_to_route_m : null;
     const distText = distM !== null
       ? (distM >= 1000 ? `${(distM / 1000).toFixed(1)} km from route` : `${distM} m from route`)
@@ -380,11 +432,13 @@
 
     const title = properties.name || 'Junction Treatment';
     const folder = properties.folder ? properties.folder.replace(' - Interventions', '') : 'Intervention';
-    const classification = superseded
-      ? 'Old active travel route alignment'
-      : legacy
-        ? `Legacy intervention (> ${INTERVENTION_LEGACY_THRESHOLD_M} m from active route)`
-        : (properties.classification || 'Intervention Point');
+    const classification = pending
+      ? 'Pending northern extension intervention'
+      : superseded
+        ? 'Old active travel route alignment'
+        : legacy
+          ? `Legacy intervention (> ${INTERVENTION_LEGACY_THRESHOLD_M} m from active route)`
+          : (properties.classification || 'Intervention Point');
     const remarks = properties.remarks ? `<div class="tooltip-remarks">${escapeHtml(properties.remarks)}</div>` : '';
 
     const html = `
@@ -418,8 +472,9 @@
       clickPopup = null;
     }
 
+    const pending = isPending(properties);
     const superseded = isSuperseded(properties);
-    const legacy = isLegacyIntervention(properties);
+    const legacy = !pending && isLegacyIntervention(properties);
     const distM = typeof properties.dist_to_route_m === 'number' ? properties.dist_to_route_m : null;
     const distLabel = distM !== null
       ? (distM >= 1000 ? `${(distM / 1000).toFixed(2)} km` : `${distM} m`)
@@ -427,18 +482,20 @@
 
     const title = popupValue(properties.name, 'Junction Treatment');
     const folder = popupValue(properties.folder ? properties.folder.replace(' - Interventions', '') : '', 'Intervention');
-    const classification = superseded
-      ? 'Old active travel route alignment'
-      : legacy
-        ? `Legacy (> ${INTERVENTION_LEGACY_THRESHOLD_M} m from route)`
-        : popupValue(properties.classification, 'Active Route Treatment');
+    const classification = pending
+      ? 'Pending northern extension intervention'
+      : superseded
+        ? 'Old active travel route alignment'
+        : legacy
+          ? `Legacy (> ${INTERVENTION_LEGACY_THRESHOLD_M} m from route)`
+          : popupValue(properties.classification, 'Active Route Treatment');
 
     const html = `
       <div class="map-popup-card">
         <div class="map-popup-header">
           <div class="map-badge-group">
             <span class="map-badge ${superseded || legacy ? 'warning' : 'civic'}">
-              ${superseded ? 'Old Alignment' : legacy ? 'Legacy Point' : 'Intervention'}
+              ${pending ? 'Pending' : superseded ? 'Old Alignment' : legacy ? 'Legacy Point' : 'Intervention'}
             </span>
             <span class="map-badge">${folder}</span>
           </div>
@@ -1087,24 +1144,25 @@
       });
 
       // 3. Points / Interventions Layer
-      const legacyPointExpr: any = [
-        'any',
-        ['==', ['coalesce', ['get', 'folder'], ''], 'Superseded'],
-        ['==', ['coalesce', ['get', 'status'], ''], 'superseded'],
-        ['>', ['coalesce', ['get', 'dist_to_route_m'], 0], INTERVENTION_LEGACY_THRESHOLD_M]
-      ];
       map.addLayer({
         id: 'cycleway-points',
         type: 'circle',
         source: 'cycleway-data',
-        filter: getPointFilterExpression(filters),
+        filter: getPointFilterExpression(filters, showActivePoints, showSupersededPoints, showPendingPoints),
         layout: {
           visibility: showInterventions ? 'visible' : 'none',
-          'circle-sort-key': ['case', legacyPointExpr, 0, 1]
+          'circle-sort-key': ['case', legacyPointExpr, 0, pendingPointExpr, 1, 2]
         },
         paint: {
           'circle-radius': ['interpolate', ['linear'], ['zoom'], 6, 4, 12, 7, 16, 11],
-          'circle-color': ['case', legacyPointExpr, INTERVENTION_LEGACY_COLOR, INTERVENTION_COLOR],
+          'circle-color': [
+            'case',
+            pendingPointExpr,
+            PENDING_COLOR,
+            legacyPointExpr,
+            INTERVENTION_LEGACY_COLOR,
+            INTERVENTION_COLOR
+          ],
           'circle-opacity': ['case', legacyPointExpr, INTERVENTION_LEGACY_OPACITY, 1.0],
           'circle-stroke-width': ['case', legacyPointExpr, 1.5, 2],
           'circle-stroke-color': basemap === 'dark' ? '#0f172a' : '#ffffff',
@@ -1180,7 +1238,7 @@
     const bounds = new maplibregl.LngLatBounds();
     
     for (const f of data.features) {
-      if (isSuperseded(f.properties)) continue;
+      if (isSuperseded(f.properties) || isPending(f.properties)) continue;
       const geom = f.geometry;
       if (geom.type === 'LineString') {
         for (const c of geom.coordinates) bounds.extend(c as [number, number]);
@@ -1413,6 +1471,9 @@
     const _colorBy = filters.colorBy;
     const _superseded = filters.showSuperseded;
     const _pending = filters.showPending;
+    const _ptsActive = showActivePoints;
+    const _ptsSuperseded = showSupersededPoints;
+    const _ptsPending = showPendingPoints;
 
     if (map && map.getLayer('cycleway-lines')) {
       const filterExpr = getActiveFilterExpression(filters);
@@ -1420,7 +1481,7 @@
       map.setFilter('cycleway-casing', filterExpr);
       
       if (map.getLayer('cycleway-points')) {
-        map.setFilter('cycleway-points', getPointFilterExpression(filters));
+        map.setFilter('cycleway-points', getPointFilterExpression(filters, _ptsActive, _ptsSuperseded, _ptsPending));
       }
       
       const colorExpr = colorExpression(filters.colorBy);

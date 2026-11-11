@@ -35,7 +35,7 @@ const YELLOW = '#b45309';
 const GREY = '#64748b';
 
 const SUPERSEDED_COLOR = '#94a3b8';
-const PENDING_COLOR = '#9333ea';
+export const PENDING_COLOR = '#9333ea';
 const OLD_ALIGNMENT = 'Old active travel route alignment';
 export const SUPERSEDED_LABEL = 'Superseded';
 export const PENDING_LABEL = 'Pending';

@@ -51,6 +51,9 @@
   });
   let showHs2Railway: boolean = $state(initialUrlState.showHs2Railway);
   let showInterventions: boolean = $state(initialUrlState.showInterventions);
+  let showActivePoints: boolean = $state(initialUrlState.showActivePoints);
+  let showSupersededPoints: boolean = $state(initialUrlState.showSupersededPoints);
+  let showPendingPoints: boolean = $state(initialUrlState.showPendingPoints);
   let showNcn: boolean = $state(initialUrlState.showNcn);
   let showOpenRoads: boolean = $state(initialUrlState.showOpenRoads);
   let showStudyArea: boolean = $state(initialUrlState.showStudyArea);
@@ -89,7 +92,7 @@
       } else {
         // Try production dataset first (bypass browser cache so updated local GeoJSON is always loaded)
         try {
-          const resp = await fetch('./data/north_south_cycleway.json?v=0.4.3', { cache: 'no-cache' });
+          const resp = await fetch('./data/north_south_cycleway.json?v=0.4.4', { cache: 'no-cache' });
           if (resp.ok) {
             rawData = annotatePointRouteDistances(await resp.json());
             isExampleData = false;
@@ -173,6 +176,9 @@
       selectedSegmentKey: selectedSegment?.link_id || (selectedSegment ? String(selectedSegment.id) : null),
       showHs2Railway,
       showInterventions,
+      showActivePoints,
+      showSupersededPoints,
+      showPendingPoints,
       showNcn,
       showOpenRoads,
       showStudyArea,
@@ -220,19 +226,31 @@
       .reduce((sum, f) => sum + (Number(f.properties.length_km) || 0), 0);
   });
 
-  // Total active junction / intervention points matching current superseded/pending visibility
-  let visiblePointFeatures = $derived.by(() => {
+  // Junction / intervention points grouped by active route, superseded/legacy, and pending
+  let allPointFeatures = $derived.by(() => {
     if (!rawData) return [];
-    return rawData.features.filter(f =>
-      f.geometry.type === 'Point'
-      && (showsSuperseded(filters) || !isSuperseded(f.properties))
-      && (showsPending(filters) || !isPending(f.properties))
-    );
+    return rawData.features.filter(f => f.geometry.type === 'Point');
   });
 
-  let interventionCount = $derived(visiblePointFeatures.length);
-  let onRouteInterventionCount = $derived(visiblePointFeatures.filter(f => !isLegacyIntervention(f.properties)).length);
-  let legacyInterventionCount = $derived(visiblePointFeatures.filter(f => isLegacyIntervention(f.properties)).length);
+  let activePointCount = $derived(
+    allPointFeatures.filter(f => !isPending(f.properties) && !isLegacyIntervention(f.properties)).length
+  );
+  let supersededPointCount = $derived(
+    allPointFeatures.filter(f => !isPending(f.properties) && isLegacyIntervention(f.properties)).length
+  );
+  let pendingPointCount = $derived(
+    allPointFeatures.filter(f => isPending(f.properties)).length
+  );
+
+  let effectiveShowActivePoints = $derived(showActivePoints);
+  let effectiveShowSupersededPoints = $derived(showSupersededPoints || showsSuperseded(filters));
+  let effectiveShowPendingPoints = $derived(showPendingPoints || showsPending(filters));
+
+  let interventionCount = $derived(
+    (effectiveShowActivePoints ? activePointCount : 0)
+    + (effectiveShowSupersededPoints ? supersededPointCount : 0)
+    + (effectiveShowPendingPoints ? pendingPointCount : 0)
+  );
 
   // The current network, without superseded or pending alignments; drives the filter dropdown options
   let activeNetworkFeatures = $derived(routeFeatures.filter(f => !isSuperseded(f.properties) && !isPending(f.properties)));
@@ -244,11 +262,22 @@
   // Legend groups switched off, including Superseded and Pending while unticked
   let hiddenGroups = $derived(effectiveHiddenGroups(filters));
 
-  // A superseded or pending link can't stay selected once its opt-in layer is hidden
+  // A superseded or pending link/point can't stay selected once its opt-in layer is hidden
   $effect(() => {
-    if (selectedSegment && isSuperseded(selectedSegment) && !showsSuperseded(filters)) {
+    if (!selectedSegment) return;
+    if (selectedSegment.layer_type === 'intervention') {
+      if (!showInterventions) {
+        selectedSegment = null;
+      } else if (isPending(selectedSegment) && !effectiveShowPendingPoints) {
+        selectedSegment = null;
+      } else if (!isPending(selectedSegment) && isLegacyIntervention(selectedSegment) && !effectiveShowSupersededPoints) {
+        selectedSegment = null;
+      } else if (!isPending(selectedSegment) && !isLegacyIntervention(selectedSegment) && !effectiveShowActivePoints) {
+        selectedSegment = null;
+      }
+    } else if (isSuperseded(selectedSegment) && !showsSuperseded(filters)) {
       selectedSegment = null;
-    } else if (selectedSegment && isPending(selectedSegment) && !showsPending(filters)) {
+    } else if (isPending(selectedSegment) && !showsPending(filters)) {
       selectedSegment = null;
     }
   });
@@ -487,9 +516,16 @@
           onToggleHs2Railway: () => showHs2Railway = !showHs2Railway,
           showInterventions,
           interventionCount,
-          onRouteInterventionCount,
-          legacyInterventionCount,
+          activePointCount,
+          supersededPointCount,
+          pendingPointCount,
+          showActivePoints: effectiveShowActivePoints,
+          showSupersededPoints: effectiveShowSupersededPoints,
+          showPendingPoints: effectiveShowPendingPoints,
           onToggleInterventions: () => showInterventions = !showInterventions,
+          onToggleActivePoints: () => showActivePoints = !showActivePoints,
+          onToggleSupersededPoints: () => showSupersededPoints = !showSupersededPoints,
+          onTogglePendingPoints: () => showPendingPoints = !showPendingPoints,
           showNcn,
           onToggleNcn: () => showNcn = !showNcn,
           showOpenRoads,
@@ -517,9 +553,12 @@
         {showHs2Railway}
         {hs2RailwayKm}
         {showInterventions}
-        {interventionCount}
-        {onRouteInterventionCount}
-        {legacyInterventionCount}
+        {activePointCount}
+        {supersededPointCount}
+        {pendingPointCount}
+        showActivePoints={effectiveShowActivePoints}
+        showSupersededPoints={effectiveShowSupersededPoints}
+        showPendingPoints={effectiveShowPendingPoints}
         {showNcn}
         {showOpenRoads}
         {showStudyArea}
@@ -590,6 +629,9 @@
     }}
     {showHs2Railway}
     {showInterventions}
+    {showActivePoints}
+    {showSupersededPoints}
+    {showPendingPoints}
     {showNcn}
     {showOpenRoads}
     {showStudyArea}
