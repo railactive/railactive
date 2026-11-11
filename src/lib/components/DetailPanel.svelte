@@ -48,11 +48,11 @@
         {/if}
         <div class="attr-item full">
           <span class="attr-label">Delivery category</span>
-          <span class="attr-value">{segment.category || (segment.layer_type === 'intervention' ? 'Active Route Treatment' : 'Uncategorized')}</span>
+          <span class="attr-value">{normalizeClassification(segment.classification) || (segment.layer_type === 'intervention' ? 'Intervention Point' : 'Unclassified')}</span>
         </div>
         <div class="attr-item full">
-          <span class="attr-label">Classification</span>
-          <span class="attr-value">{normalizeClassification(segment.classification) || (segment.layer_type === 'intervention' ? 'Intervention Point' : 'Unclassified')}</span>
+          <span class="attr-label">Infrastructure type</span>
+          <span class="attr-value">{segment.category || (segment.layer_type === 'intervention' ? 'Active Route Treatment' : 'Uncategorized')}</span>
         </div>
         {#if segment.folder}
           <div class="attr-item full">
