@@ -160,7 +160,7 @@
       <button class="legend-item-btn" onclick={onToggleInterventions} aria-pressed={showInterventions}>
         {@render checkbox(showInterventions)}
         <span class="point-swatch-wrap"><span class="point-swatch" style="background-color: {INTERVENTION_COLOR};"></span></span>
-        <span class="item-label">Junction / intervention point</span>
+        <span class="item-label">Point interventions</span>
         <span class="item-km">{interventionCount.toLocaleString()} pts</span>
       </button>
     </div>

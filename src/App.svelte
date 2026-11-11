@@ -92,7 +92,7 @@
       } else {
         // Try production dataset first (bypass browser cache so updated local GeoJSON is always loaded)
         try {
-          const resp = await fetch('./data/north_south_cycleway.json?v=0.4.4', { cache: 'no-cache' });
+          const resp = await fetch('./data/north_south_cycleway.json?v=0.5.0', { cache: 'no-cache' });
           if (resp.ok) {
             rawData = annotatePointRouteDistances(await resp.json());
             isExampleData = false;
