@@ -16,6 +16,8 @@
     stats: CyclewayStats;
     showHs2Railway?: boolean;
     hs2RailwayKm?: number;
+    showInterventions?: boolean;
+    interventionCount?: number;
     showNcn: boolean;
     showOpenRoads: boolean;
     showStudyArea: boolean;
@@ -29,6 +31,8 @@
     stats,
     showHs2Railway = true,
     hs2RailwayKm = 0,
+    showInterventions = false,
+    interventionCount = 0,
     showNcn = false,
     showOpenRoads = false,
     showStudyArea = false
@@ -118,10 +122,15 @@
         {/if}
       </div>
     {/if}
-    <div class="print-row">
-      <span class="swatch-point"></span>
-      <span class="row-label">Junction / intervention point</span>
-    </div>
+    {#if showInterventions}
+      <div class="print-row">
+        <span class="swatch-point"></span>
+        <span class="row-label">Junction / intervention point</span>
+        {#if interventionCount > 0}
+          <span class="row-km">{interventionCount.toLocaleString()} pts</span>
+        {/if}
+      </div>
+    {/if}
 
     {#if showStudyArea}
       <div class="print-row">

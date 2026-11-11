@@ -37,6 +37,7 @@ const MANAGED_PARAMS = [
   'segment',
   'sidebar',
   'hs2',
+  'interventions',
   'ncn',
   'openroads',
   'studyarea',
@@ -51,6 +52,7 @@ export interface AppUrlState {
   filters: FilterState;
   selectedSegmentKey: string | null;
   showHs2Railway: boolean;
+  showInterventions: boolean;
   showNcn: boolean;
   showOpenRoads: boolean;
   showStudyArea: boolean;
@@ -113,6 +115,7 @@ export function readUrlState(url: URL): AppUrlState {
     },
     selectedSegmentKey: getLimitedParam(params, 'segment', 100) || null,
     showHs2Railway: params.get('hs2') !== '0' && params.get('hs2') !== 'false',
+    showInterventions: params.get('interventions') === 'true' || params.get('interventions') === '1',
     showNcn: params.get('ncn') === 'true' || params.get('ncn') === '1',
     showOpenRoads: params.get('openroads') === 'true',
     showStudyArea: params.get('studyarea') === 'true' || params.get('study_area') === 'true',
@@ -151,6 +154,7 @@ export function writeUrlState(url: URL, state: AppUrlState): string {
     nextUrl.searchParams.set('sidebar', 'closed');
   }
   if (!state.showHs2Railway) nextUrl.searchParams.set('hs2', '0');
+  if (state.showInterventions) nextUrl.searchParams.set('interventions', 'true');
   if (state.showNcn) nextUrl.searchParams.set('ncn', 'true');
   if (state.showOpenRoads) nextUrl.searchParams.set('openroads', 'true');
   if (state.showStudyArea) nextUrl.searchParams.set('studyarea', 'true');
