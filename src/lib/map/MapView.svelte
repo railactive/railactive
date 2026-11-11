@@ -74,6 +74,7 @@
     selectedSegment: CyclewaySegmentProperties | null;
     onSelectSegment: (segment: CyclewaySegmentProperties | null, center?: [number, number] | null) => void;
     showHs2Railway?: boolean;
+    showInterventions?: boolean;
     showNcn?: boolean;
     ncnPmtilesUrl?: string;
     showOpenRoads: boolean;
@@ -93,6 +94,7 @@
     selectedSegment,
     onSelectSegment,
     showHs2Railway = true,
+    showInterventions = false,
     showNcn = false,
     ncnPmtilesUrl = './data/ncn.pmtiles',
     showOpenRoads,
@@ -252,7 +254,7 @@
   function getPointFilterExpression(f: FilterState): any {
     const expressions: any[] = [
       'all',
-      ['==', '$type', 'Point'],
+      ['==', ['geometry-type'], 'Point'],
       ...statusFilterExpressions(f)
     ];
 
@@ -1067,6 +1069,9 @@
         type: 'circle',
         source: 'cycleway-data',
         filter: getPointFilterExpression(filters),
+        layout: {
+          visibility: showInterventions ? 'visible' : 'none'
+        },
         paint: {
           'circle-radius': ['interpolate', ['linear'], ['zoom'], 6, 4, 12, 7, 16, 11],
           'circle-color': INTERVENTION_COLOR,
@@ -1328,6 +1333,21 @@
     }
     if (!showHs2Railway) {
       hoverPopup?.remove();
+    }
+    map.triggerRepaint();
+  });
+
+  // Watch Junction / intervention points visibility reactively
+  $effect(() => {
+    const ptsVisible = showInterventions ? 'visible' : 'none';
+    if (!map) return;
+    if (map.getLayer('cycleway-points')) {
+      map.setLayoutProperty('cycleway-points', 'visibility', ptsVisible);
+    }
+    if (!showInterventions) {
+      hoverPopup?.remove();
+      clickPopup?.remove();
+      clickPopup = null;
     }
     map.triggerRepaint();
   });

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { REFERENCE_COLORS as ref } from '../palette';
+  import { INTERVENTION_COLOR, REFERENCE_COLORS as ref } from '../palette';
   import { isDevEnvironment } from '../urlState';
   import type { FilterState } from '../types/cycleway';
 
@@ -21,6 +21,9 @@
     showHs2Railway?: boolean;
     hs2RailwayKm?: number;
     onToggleHs2Railway?: () => void;
+    showInterventions?: boolean;
+    interventionCount?: number;
+    onToggleInterventions?: () => void;
     showNcn: boolean;
     onToggleNcn: () => void;
     showOpenRoads: boolean;
@@ -39,6 +42,9 @@
     showHs2Railway = true,
     hs2RailwayKm = 0,
     onToggleHs2Railway,
+    showInterventions = false,
+    interventionCount = 0,
+    onToggleInterventions,
     showNcn,
     onToggleNcn,
     showOpenRoads,
@@ -122,6 +128,17 @@
         <span class="item-label">HS2 railway alignment</span>
         {#if hs2RailwayKm > 0}
           <span class="item-km">{hs2RailwayKm.toFixed(1)} km</span>
+        {/if}
+      </button>
+    </div>
+
+    <div class="legend-row" class:hidden-layer={!showInterventions}>
+      <button class="legend-item-btn" onclick={onToggleInterventions} aria-pressed={showInterventions}>
+        {@render checkbox(showInterventions)}
+        <span class="point-swatch-wrap"><span class="point-swatch" style="background-color: {INTERVENTION_COLOR};"></span></span>
+        <span class="item-label">Junction / intervention point</span>
+        {#if interventionCount > 0}
+          <span class="item-km">{interventionCount.toLocaleString()} pts</span>
         {/if}
       </button>
     </div>
@@ -419,5 +436,21 @@
     height: 8px;
     background: color-mix(in srgb, var(--study-area) 35%, transparent);
     border: 1px dashed var(--study-area-outline);
+  }
+
+  .point-swatch-wrap {
+    width: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .point-swatch {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    border: 1.5px solid #ffffff;
+    box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.28);
   }
 </style>

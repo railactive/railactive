@@ -48,6 +48,7 @@
     return match ? featureCenter(match.geometry) : null;
   });
   let showHs2Railway: boolean = $state(initialUrlState.showHs2Railway);
+  let showInterventions: boolean = $state(initialUrlState.showInterventions);
   let showNcn: boolean = $state(initialUrlState.showNcn);
   let showOpenRoads: boolean = $state(initialUrlState.showOpenRoads);
   let showStudyArea: boolean = $state(initialUrlState.showStudyArea);
@@ -169,6 +170,7 @@
       },
       selectedSegmentKey: selectedSegment?.link_id || (selectedSegment ? String(selectedSegment.id) : null),
       showHs2Railway,
+      showInterventions,
       showNcn,
       showOpenRoads,
       showStudyArea,
@@ -214,6 +216,16 @@
     return rawData.features
       .filter(f => f.properties.layer_type === 'hs2_railway' && !isPending(f.properties) && !isSuperseded(f.properties))
       .reduce((sum, f) => sum + (Number(f.properties.length_km) || 0), 0);
+  });
+
+  // Total active junction / intervention points matching current superseded/pending visibility
+  let interventionCount = $derived.by(() => {
+    if (!rawData) return 0;
+    return rawData.features.filter(f =>
+      f.geometry.type === 'Point'
+      && (showsSuperseded(filters) || !isSuperseded(f.properties))
+      && (showsPending(filters) || !isPending(f.properties))
+    ).length;
   });
 
   // The current network, without superseded or pending alignments; drives the filter dropdown options
@@ -467,6 +479,9 @@
           showHs2Railway,
           hs2RailwayKm,
           onToggleHs2Railway: () => showHs2Railway = !showHs2Railway,
+          showInterventions,
+          interventionCount,
+          onToggleInterventions: () => showInterventions = !showInterventions,
           showNcn,
           onToggleNcn: () => showNcn = !showNcn,
           showOpenRoads,
@@ -493,6 +508,8 @@
         {stats}
         {showHs2Railway}
         {hs2RailwayKm}
+        {showInterventions}
+        {interventionCount}
         {showNcn}
         {showOpenRoads}
         {showStudyArea}
@@ -562,6 +579,7 @@
       clickedSegmentCenter = center;
     }}
     {showHs2Railway}
+    {showInterventions}
     {showNcn}
     {showOpenRoads}
     {showStudyArea}
