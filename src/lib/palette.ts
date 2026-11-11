@@ -265,10 +265,10 @@ const SCHEMES: Record<Exclude<ColorBy, 'kml'>, ColorScheme> = {
     field: 'category',
     groups: [
       {
-        label: 'HS2 aligned route',
-        color: HS2_ORANGE,
-        alwaysShow: true,
+        label: 'Traffic-free path',
+        color: GREEN,
         values: [
+          'Traffic-free path away from highway',
           'HS2 aligned route',
           'Repurposed HS2 temporary construction road (TCR)',
           'Repurposed HS2 TCR',
@@ -278,7 +278,6 @@ const SCHEMES: Record<Exclude<ColorBy, 'kml'>, ColorScheme> = {
           'Dual use of HS2 maintenance access tracks (MATs)'
         ]
       },
-      { label: 'Traffic-free path', color: GREEN, values: ['Traffic-free path away from highway'] },
       { label: 'Canal towpath', color: LIGHT_GREEN, values: ['Canal tow path or new path close by canal'] },
       { label: '20mph / protected on-road', color: BLUE, values: ['20mph and traffic calmed or protected cycle lane'] },
       { label: 'Other', color: GREY }
