@@ -3,7 +3,7 @@
     INTERVENTION_COLOR,
     INTERVENTION_LEGACY_COLOR,
     INTERVENTION_LEGACY_OPACITY,
-    INTERVENTION_LEGACY_THRESHOLD_M,
+    PENDING_COLOR,
     REFERENCE_COLORS as ref
   } from '../palette';
   import { isDevEnvironment } from '../urlState';
@@ -29,9 +29,16 @@
     onToggleHs2Railway?: () => void;
     showInterventions?: boolean;
     interventionCount?: number;
-    onRouteInterventionCount?: number;
-    legacyInterventionCount?: number;
+    activePointCount?: number;
+    supersededPointCount?: number;
+    pendingPointCount?: number;
+    showActivePoints?: boolean;
+    showSupersededPoints?: boolean;
+    showPendingPoints?: boolean;
     onToggleInterventions?: () => void;
+    onToggleActivePoints?: () => void;
+    onToggleSupersededPoints?: () => void;
+    onTogglePendingPoints?: () => void;
     showNcn: boolean;
     onToggleNcn: () => void;
     showOpenRoads: boolean;
@@ -52,9 +59,16 @@
     onToggleHs2Railway,
     showInterventions = false,
     interventionCount = 0,
-    onRouteInterventionCount = 0,
-    legacyInterventionCount = 0,
+    activePointCount = 0,
+    supersededPointCount = 0,
+    pendingPointCount = 0,
+    showActivePoints = true,
+    showSupersededPoints = false,
+    showPendingPoints = false,
     onToggleInterventions,
+    onToggleActivePoints,
+    onToggleSupersededPoints,
+    onTogglePendingPoints,
     showNcn,
     onToggleNcn,
     showOpenRoads,
@@ -147,26 +161,47 @@
         {@render checkbox(showInterventions)}
         <span class="point-swatch-wrap"><span class="point-swatch" style="background-color: {INTERVENTION_COLOR};"></span></span>
         <span class="item-label">Junction / intervention point</span>
-        {#if interventionCount > 0}
-          <span class="item-km">{interventionCount.toLocaleString()} pts</span>
-        {/if}
+        <span class="item-km">{interventionCount.toLocaleString()} pts</span>
       </button>
     </div>
     {#if showInterventions}
-      <div class="sublegend">
-        <div class="sublegend-item">
+      <div class="sublegend sublegend-checks">
+        <button
+          type="button"
+          class="subcheck-btn"
+          class:unchecked={!showActivePoints}
+          onclick={onToggleActivePoints}
+          aria-pressed={showActivePoints}
+        >
+          {@render checkbox(showActivePoints)}
           <span class="point-swatch point-swatch-sm" style="background-color: {INTERVENTION_COLOR};"></span>
-          On route &le; {INTERVENTION_LEGACY_THRESHOLD_M} m ({onRouteInterventionCount.toLocaleString()})
-        </div>
-        {#if legacyInterventionCount > 0}
-          <div class="sublegend-item">
-            <span
-              class="point-swatch point-swatch-sm"
-              style="background-color: {INTERVENTION_LEGACY_COLOR}; opacity: {INTERVENTION_LEGACY_OPACITY};"
-            ></span>
-            Legacy &gt; {INTERVENTION_LEGACY_THRESHOLD_M} m ({legacyInterventionCount.toLocaleString()})
-          </div>
-        {/if}
+          <span class="subcheck-label">Active route ({activePointCount.toLocaleString()})</span>
+        </button>
+        <button
+          type="button"
+          class="subcheck-btn"
+          class:unchecked={!showSupersededPoints}
+          onclick={onToggleSupersededPoints}
+          aria-pressed={showSupersededPoints}
+        >
+          {@render checkbox(showSupersededPoints)}
+          <span
+            class="point-swatch point-swatch-sm"
+            style="background-color: {INTERVENTION_LEGACY_COLOR}; opacity: {INTERVENTION_LEGACY_OPACITY};"
+          ></span>
+          <span class="subcheck-label">Superseded / legacy ({supersededPointCount.toLocaleString()})</span>
+        </button>
+        <button
+          type="button"
+          class="subcheck-btn"
+          class:unchecked={!showPendingPoints}
+          onclick={onTogglePendingPoints}
+          aria-pressed={showPendingPoints}
+        >
+          {@render checkbox(showPendingPoints)}
+          <span class="point-swatch point-swatch-sm" style="background-color: {PENDING_COLOR};"></span>
+          <span class="subcheck-label">Pending ({pendingPointCount.toLocaleString()})</span>
+        </button>
       </div>
     {/if}
 
@@ -399,6 +434,41 @@
     padding: 0 4px 6px 47px;
     font-size: 11px;
     color: var(--text-secondary);
+  }
+
+  .sublegend-checks {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    gap: 1px;
+    padding: 1px 4px 6px 26px;
+  }
+
+  .subcheck-btn {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 3px 4px;
+    font-size: 11.5px;
+    color: var(--text-primary);
+    cursor: pointer;
+    text-align: left;
+  }
+
+  .subcheck-btn:hover {
+    background: var(--bg-secondary);
+  }
+
+  .subcheck-btn.unchecked {
+    opacity: 0.58;
+  }
+
+  .subcheck-label {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .sublegend-item {
