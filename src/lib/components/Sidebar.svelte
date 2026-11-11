@@ -17,6 +17,8 @@
     availableCategories: string[];
     availableClassifications: string[];
     availableSections: string[];
+    searchMatchCount?: number;
+    onZoomToSearch?: () => void;
     onResetFilters: () => void;
   }
 
@@ -30,6 +32,8 @@
     availableCategories,
     availableClassifications,
     availableSections,
+    searchMatchCount = 0,
+    onZoomToSearch,
     onResetFilters
   }: Props = $props();
 
@@ -38,6 +42,12 @@
       .filter(Boolean).length
   );
   let filtersOpen = $state(false);
+
+  $effect(() => {
+    if (filters.searchTerm) {
+      filtersOpen = true;
+    }
+  });
 </script>
 
 {#if open}
@@ -94,6 +104,8 @@
         {availableCategories}
         {availableClassifications}
         {availableSections}
+        {searchMatchCount}
+        {onZoomToSearch}
         {onResetFilters}
       />
     {/if}
