@@ -479,7 +479,7 @@
         <div class="tooltip-meta">
           <span class="badge-sec ${legacy ? 'badge-superseded' : ''}">${escapeHtml(legacy && !superseded ? 'Legacy' : folder)}</span>
           ${properties.status && !legacy ? `<span class="badge-sec badge-${properties.status.toLowerCase()}">${formatStatusLabel(properties.status)}</span>` : ''}
-          <span class="tooltip-len">${distText || `ID: ${properties.id}`}</span>
+          <span class="tooltip-len">${distText || `ID: ${escapeHtml(String(properties.link_id || properties.id))}`}</span>
         </div>
         <div class="tooltip-cat">${escapeHtml(classification)}</div>
         ${remarks}
@@ -534,7 +534,7 @@
         </div>
         <h4 class="map-popup-title">${title}</h4>
         <div class="map-popup-table">
-          <div class="map-cell"><span class="k">Point ID:</span><span class="v font-mono">${properties.id}</span></div>
+          <div class="map-cell"><span class="k">Point ID:</span><span class="v font-mono">${escapeHtml(String(properties.link_id || properties.id))}</span></div>
           <div class="map-cell"><span class="k">Type:</span><span class="v">${title}</span></div>
           <div class="map-cell"><span class="k">Status:</span><span class="v">${classification}</span></div>
           ${distLabel ? `<div class="map-cell"><span class="k">Distance to route:</span><span class="v font-mono">${distLabel}</span></div>` : ''}

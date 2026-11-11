@@ -143,7 +143,7 @@
       {#if showActivePoints && activePointCount > 0}
         <div class="print-row">
           <span class="swatch-point"></span>
-          <span class="row-label">Active route point</span>
+          <span class="row-label">Point interventions (active)</span>
           <span class="row-km">{activePointCount.toLocaleString()} pts</span>
         </div>
       {/if}
@@ -153,14 +153,14 @@
             class="swatch-point"
             style="background: {INTERVENTION_LEGACY_COLOR}; opacity: {INTERVENTION_LEGACY_OPACITY};"
           ></span>
-          <span class="row-label">Superseded / legacy point</span>
+          <span class="row-label">Point interventions (legacy)</span>
           <span class="row-km">{supersededPointCount.toLocaleString()} pts</span>
         </div>
       {/if}
       {#if showPendingPoints && pendingPointCount > 0}
         <div class="print-row">
           <span class="swatch-point" style="background: {PENDING_COLOR};"></span>
-          <span class="row-label">Pending point</span>
+          <span class="row-label">Point interventions (pending)</span>
           <span class="row-km">{pendingPointCount.toLocaleString()} pts</span>
         </div>
       {/if}
