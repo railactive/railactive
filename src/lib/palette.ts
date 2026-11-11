@@ -30,6 +30,7 @@ const LIGHT_GREEN = '#22c55e';
 const BLUE = '#1d4ed8';
 const TEAL = '#0f766e';
 const PURPLE = '#7c3aed';
+const MAGENTA = '#a21caf';
 const YELLOW = '#b45309';
 const GREY = '#64748b';
 
@@ -302,7 +303,7 @@ const SCHEMES: Record<Exclude<ColorBy, 'kml'>, ColorScheme> = {
       { label: 'Local authority', color: GREEN, values: ['Local Authority'] },
       { label: 'Canal & River Trust', color: TEAL, values: ['Canals & River Trust', 'Canals &amp; River Trust'] },
       { label: 'DfT', color: BLUE, values: ['DfT'] },
-      { label: 'Walk Wheel Cycle Trust', color: YELLOW, values: ['Walk Wheel Cycle Trust', 'Sustrans'] },
+      { label: 'Walk Wheel Cycle Trust', color: MAGENTA, values: ['Walk Wheel Cycle Trust', 'Sustrans'] },
       { label: 'Other', color: GREY }
     ]
   },
