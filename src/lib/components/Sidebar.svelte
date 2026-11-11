@@ -3,7 +3,10 @@
   import KPICards from './KPICards.svelte';
   import Legend from './Legend.svelte';
   import FilterPanel from './FilterPanel.svelte';
+  import { isDevEnvironment } from '../urlState';
   import type { FilterState, CyclewayStats } from '../types/cycleway';
+
+  const showFiltersSection = isDevEnvironment();
 
   type LegendProps = Omit<ComponentProps<typeof Legend>, 'colorBy'>;
 
@@ -77,37 +80,39 @@
     <div class="section-title">Map Layers</div>
     <Legend bind:colorBy={filters.colorBy} {...legend} />
 
-    <button
-      type="button"
-      class="section-title filters-toggle"
-      onclick={() => filtersOpen = !filtersOpen}
-      aria-expanded={filtersOpen}
-    >
-      <span>Filters{#if activeFilterCount > 0} ({activeFilterCount}){/if}</span>
-      <svg
-        class="chevron"
-        class:open={filtersOpen}
-        width="14"
-        height="14"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
+    {#if showFiltersSection}
+      <button
+        type="button"
+        class="section-title filters-toggle"
+        onclick={() => filtersOpen = !filtersOpen}
+        aria-expanded={filtersOpen}
       >
-        <polyline points="6 9 12 15 18 9"></polyline>
-      </svg>
-    </button>
-    {#if filtersOpen}
-      <FilterPanel
-        bind:filters={filters}
-        {availableDevelopers}
-        {availableCategories}
-        {availableClassifications}
-        {availableSections}
-        {searchMatchCount}
-        {onZoomToSearch}
-        {onResetFilters}
-      />
+        <span>Filters{#if activeFilterCount > 0} ({activeFilterCount}){/if}</span>
+        <svg
+          class="chevron"
+          class:open={filtersOpen}
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </button>
+      {#if filtersOpen}
+        <FilterPanel
+          bind:filters={filters}
+          {availableDevelopers}
+          {availableCategories}
+          {availableClassifications}
+          {availableSections}
+          {searchMatchCount}
+          {onZoomToSearch}
+          {onResetFilters}
+        />
+      {/if}
     {/if}
   </div>
 </aside>

@@ -90,7 +90,8 @@ export function readUrlState(url: URL): AppUrlState {
     printMode = 'legend';
   }
 
-  const allowedColorByValues = isDevEnvironment() ? DEV_COLOR_BY_VALUES : PROD_COLOR_BY_VALUES;
+  const isDev = isDevEnvironment();
+  const allowedColorByValues = isDev ? DEV_COLOR_BY_VALUES : PROD_COLOR_BY_VALUES;
   const sidebarParam = (params.get('sidebar') || '').trim().toLowerCase();
   const sidebarOpen = sidebarParam === 'open'
     ? true
@@ -104,12 +105,12 @@ export function readUrlState(url: URL): AppUrlState {
       : 'light',
     sidebarOpen,
     filters: {
-      developer: getLimitedParam(params, 'developer'),
-      category: getLimitedParam(params, 'category'),
-      classification: getLimitedParam(params, 'classification'),
-      section: getLimitedParam(params, 'section', 50),
-      status: getLimitedParam(params, 'status', 50),
-      searchTerm: getLimitedParam(params, 'q'),
+      developer: isDev ? getLimitedParam(params, 'developer') : '',
+      category: isDev ? getLimitedParam(params, 'category') : '',
+      classification: isDev ? getLimitedParam(params, 'classification') : '',
+      section: isDev ? getLimitedParam(params, 'section', 50) : '',
+      status: isDev ? getLimitedParam(params, 'status', 50) : '',
+      searchTerm: isDev ? getLimitedParam(params, 'q') : '',
       colorBy: allowedColorByValues.includes(requestedColorBy as FilterState['colorBy'])
         ? requestedColorBy as FilterState['colorBy']
         : 'classification',
