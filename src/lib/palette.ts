@@ -302,7 +302,7 @@ const SCHEMES: Record<Exclude<ColorBy, 'kml'>, ColorScheme> = {
       { label: 'Local authority', color: GREEN, values: ['Local Authority'] },
       { label: 'Canal & River Trust', color: TEAL, values: ['Canals & River Trust', 'Canals &amp; River Trust'] },
       { label: 'DfT', color: BLUE, values: ['DfT'] },
-      { label: 'Sustrans', color: YELLOW, values: ['Sustrans'] },
+      { label: 'Walk Wheel Cycle Trust', color: YELLOW, values: ['Walk Wheel Cycle Trust', 'Sustrans'] },
       { label: 'Other', color: GREY }
     ]
   },
