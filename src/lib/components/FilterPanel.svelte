@@ -1,5 +1,8 @@
 <script lang="ts">
+  import { isDevEnvironment } from '../urlState';
   import type { FilterState } from '../types/cycleway';
+
+  const isDev = isDevEnvironment();
 
   interface Props {
     filters: FilterState;
@@ -61,64 +64,66 @@
     {/if}
   </div>
 
-  <!-- Route Status Filter -->
-  <div class="form-group">
-    <label for="status-select">Alignment Status</label>
-    <select id="status-select" bind:value={filters.status}>
-      <option value="">All Active (Preferred & Complimentary)</option>
-      <option value="preferred">Preferred Spine Only</option>
-      <option value="alternative">Complimentary Alignments Only</option>
-    </select>
-  </div>
+  {#if isDev}
+    <!-- Route Status Filter -->
+    <div class="form-group">
+      <label for="status-select">Alignment Status</label>
+      <select id="status-select" bind:value={filters.status}>
+        <option value="">All Active (Preferred & Complimentary)</option>
+        <option value="preferred">Preferred Spine Only</option>
+        <option value="alternative">Complimentary Alignments Only</option>
+      </select>
+    </div>
 
-  <!-- Classification (Delivery Category) Filter -->
-  <div class="form-group">
-    <label for="class-select">Delivery Category</label>
-    <select id="class-select" bind:value={filters.classification}>
-      <option value="">All Delivery Categories ({availableClassifications.length})</option>
-      {#each availableClassifications as cls}
-        <option value={cls}>{cls}</option>
-      {/each}
-    </select>
-  </div>
+    <!-- Classification (Delivery Category) Filter -->
+    <div class="form-group">
+      <label for="class-select">Delivery Category</label>
+      <select id="class-select" bind:value={filters.classification}>
+        <option value="">All Delivery Categories ({availableClassifications.length})</option>
+        {#each availableClassifications as cls}
+          <option value={cls}>{cls}</option>
+        {/each}
+      </select>
+    </div>
 
-  <!-- Category (Infrastructure Type) Filter -->
-  <div class="form-group">
-    <label for="category-select">Infrastructure Type</label>
-    <select id="category-select" bind:value={filters.category}>
-      <option value="">All Infrastructure Types ({availableCategories.length})</option>
-      {#each availableCategories as cat}
-        <option value={cat}>{cat}</option>
-      {/each}
-    </select>
-  </div>
+    <!-- Category (Infrastructure Type) Filter -->
+    <div class="form-group">
+      <label for="category-select">Infrastructure Type</label>
+      <select id="category-select" bind:value={filters.category}>
+        <option value="">All Infrastructure Types ({availableCategories.length})</option>
+        {#each availableCategories as cat}
+          <option value={cat}>{cat}</option>
+        {/each}
+      </select>
+    </div>
 
-  <!-- Developer Filter -->
-  <div class="form-group">
-    <label for="developer-select">Lead Delivery Body</label>
-    <select id="developer-select" bind:value={filters.developer}>
-      <option value="">All Delivery Bodies ({availableDevelopers.length})</option>
-      {#each availableDevelopers as dev}
-        <option value={dev}>{dev}</option>
-      {/each}
-    </select>
-  </div>
+    <!-- Developer Filter -->
+    <div class="form-group">
+      <label for="developer-select">Lead Delivery Body</label>
+      <select id="developer-select" bind:value={filters.developer}>
+        <option value="">All Delivery Bodies ({availableDevelopers.length})</option>
+        {#each availableDevelopers as dev}
+          <option value={dev}>{dev}</option>
+        {/each}
+      </select>
+    </div>
 
-  <!-- Section Filter -->
-  <div class="form-group">
-    <label for="section-select">Corridor Section</label>
-    <select id="section-select" bind:value={filters.section}>
-      <option value="">All Sections (1 – 35)</option>
-      {#each availableSections as sec}
-        <option value={sec}>Section {sec}</option>
-      {/each}
-    </select>
-  </div>
+    <!-- Section Filter -->
+    <div class="form-group">
+      <label for="section-select">Corridor Section</label>
+      <select id="section-select" bind:value={filters.section}>
+        <option value="">All Sections (1 – 35)</option>
+        {#each availableSections as sec}
+          <option value={sec}>Section {sec}</option>
+        {/each}
+      </select>
+    </div>
 
-  <!-- Reset Button -->
-  <button class="reset-btn" onclick={onResetFilters}>
-    Reset All Filters
-  </button>
+    <!-- Reset Button -->
+    <button class="reset-btn" onclick={onResetFilters}>
+      Reset All Filters
+    </button>
+  {/if}
 </div>
 
 <style>
