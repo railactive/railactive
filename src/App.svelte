@@ -9,9 +9,11 @@
   import MapView from './lib/map/MapView.svelte';
   import { hasValidMapHash, isMobileViewport, readUrlState, writeUrlState, type AppUrlState, type PrintMode } from './lib/urlState';
   import {
+    annotatePointRouteDistances,
     effectiveHiddenGroups,
     groupFor,
     groupsFor,
+    isLegacyIntervention,
     isPending,
     isSuperseded,
     normalizeClassification,
@@ -82,14 +84,14 @@
         console.info('Loading open example dataset (public/data/example.geojson)...');
         const resp = await fetch('./data/example.geojson');
         if (!resp.ok) throw new Error(`Example dataset error (${resp.status})`);
-        rawData = await resp.json();
+        rawData = annotatePointRouteDistances(await resp.json());
         isExampleData = true;
       } else {
         // Try production dataset first (bypass browser cache so updated local GeoJSON is always loaded)
         try {
           const resp = await fetch('./data/north_south_cycleway.json?v=0.4.3', { cache: 'no-cache' });
           if (resp.ok) {
-            rawData = await resp.json();
+            rawData = annotatePointRouteDistances(await resp.json());
             isExampleData = false;
           } else {
             throw new Error(`Production data not found (${resp.status})`);
@@ -98,7 +100,7 @@
           console.warn('Production dataset not found, falling back to open example dataset...');
           const fallbackResp = await fetch('./data/example.geojson');
           if (!fallbackResp.ok) throw new Error(`Example dataset fallback failed (${fallbackResp.status})`);
-          rawData = await fallbackResp.json();
+          rawData = annotatePointRouteDistances(await fallbackResp.json());
           isExampleData = true;
         }
       }
@@ -219,14 +221,18 @@
   });
 
   // Total active junction / intervention points matching current superseded/pending visibility
-  let interventionCount = $derived.by(() => {
-    if (!rawData) return 0;
+  let visiblePointFeatures = $derived.by(() => {
+    if (!rawData) return [];
     return rawData.features.filter(f =>
       f.geometry.type === 'Point'
       && (showsSuperseded(filters) || !isSuperseded(f.properties))
       && (showsPending(filters) || !isPending(f.properties))
-    ).length;
+    );
   });
+
+  let interventionCount = $derived(visiblePointFeatures.length);
+  let onRouteInterventionCount = $derived(visiblePointFeatures.filter(f => !isLegacyIntervention(f.properties)).length);
+  let legacyInterventionCount = $derived(visiblePointFeatures.filter(f => isLegacyIntervention(f.properties)).length);
 
   // The current network, without superseded or pending alignments; drives the filter dropdown options
   let activeNetworkFeatures = $derived(routeFeatures.filter(f => !isSuperseded(f.properties) && !isPending(f.properties)));
@@ -481,6 +487,8 @@
           onToggleHs2Railway: () => showHs2Railway = !showHs2Railway,
           showInterventions,
           interventionCount,
+          onRouteInterventionCount,
+          legacyInterventionCount,
           onToggleInterventions: () => showInterventions = !showInterventions,
           showNcn,
           onToggleNcn: () => showNcn = !showNcn,
@@ -510,6 +518,8 @@
         {hs2RailwayKm}
         {showInterventions}
         {interventionCount}
+        {onRouteInterventionCount}
+        {legacyInterventionCount}
         {showNcn}
         {showOpenRoads}
         {showStudyArea}

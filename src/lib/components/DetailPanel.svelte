@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { CyclewaySegmentProperties } from '../types/cycleway';
-  import { formatStatusLabel, normalizeClassification } from '../palette';
+  import { formatStatusLabel, INTERVENTION_LEGACY_THRESHOLD_M, isLegacyIntervention, normalizeClassification } from '../palette';
   import { isDevEnvironment } from '../urlState';
   import MapButtons from './MapButtons.svelte';
 
@@ -47,6 +47,13 @@
           <div class="attr-item">
             <span class="attr-label">Length</span>
             <span class="attr-value font-mono">{segment.length_km ? segment.length_km.toFixed(2) + ' km' : 'N/A'}</span>
+          </div>
+        {:else if typeof segment.dist_to_route_m === 'number'}
+          <div class="attr-item">
+            <span class="attr-label">Route Distance</span>
+            <span class="attr-value font-mono">
+              {segment.dist_to_route_m >= 1000 ? (segment.dist_to_route_m / 1000).toFixed(2) + ' km' : segment.dist_to_route_m + ' m'}{isLegacyIntervention(segment) ? ` (> ${INTERVENTION_LEGACY_THRESHOLD_M} m)` : ''}
+            </span>
           </div>
         {/if}
         <div class="attr-item full">

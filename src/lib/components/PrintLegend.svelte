@@ -1,5 +1,12 @@
 <script lang="ts">
-  import { formatStatusLabel, INTERVENTION_COLOR, REFERENCE_COLORS as ref } from '../palette';
+  import {
+    formatStatusLabel,
+    INTERVENTION_COLOR,
+    INTERVENTION_LEGACY_COLOR,
+    INTERVENTION_LEGACY_OPACITY,
+    INTERVENTION_LEGACY_THRESHOLD_M,
+    REFERENCE_COLORS as ref
+  } from '../palette';
   import type { CyclewayStats, FilterState } from '../types/cycleway';
 
   interface LegendItem {
@@ -18,6 +25,8 @@
     hs2RailwayKm?: number;
     showInterventions?: boolean;
     interventionCount?: number;
+    onRouteInterventionCount?: number;
+    legacyInterventionCount?: number;
     showNcn: boolean;
     showOpenRoads: boolean;
     showStudyArea: boolean;
@@ -33,6 +42,8 @@
     hs2RailwayKm = 0,
     showInterventions = false,
     interventionCount = 0,
+    onRouteInterventionCount = 0,
+    legacyInterventionCount = 0,
     showNcn = false,
     showOpenRoads = false,
     showStudyArea = false
@@ -125,11 +136,23 @@
     {#if showInterventions}
       <div class="print-row">
         <span class="swatch-point"></span>
-        <span class="row-label">Junction / intervention point</span>
-        {#if interventionCount > 0}
+        <span class="row-label">Intervention point (&le; {INTERVENTION_LEGACY_THRESHOLD_M} m)</span>
+        {#if onRouteInterventionCount > 0}
+          <span class="row-km">{onRouteInterventionCount.toLocaleString()} pts</span>
+        {:else if interventionCount > 0}
           <span class="row-km">{interventionCount.toLocaleString()} pts</span>
         {/if}
       </div>
+      {#if legacyInterventionCount > 0}
+        <div class="print-row">
+          <span
+            class="swatch-point"
+            style="background: {INTERVENTION_LEGACY_COLOR}; opacity: {INTERVENTION_LEGACY_OPACITY};"
+          ></span>
+          <span class="row-label">Legacy point (&gt; {INTERVENTION_LEGACY_THRESHOLD_M} m)</span>
+          <span class="row-km">{legacyInterventionCount.toLocaleString()} pts</span>
+        </div>
+      {/if}
     {/if}
 
     {#if showStudyArea}
@@ -323,7 +346,7 @@
     border-radius: 50%;
     background: var(--intervention);
     border: 1.5px solid #ffffff;
-    box-shadow: 0 0 0 1px #0f766e;
+    box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.28);
     flex-shrink: 0;
   }
 

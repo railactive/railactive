@@ -1,4 +1,4 @@
-import type { CyclewaySegmentProperties, FilterState } from './types/cycleway';
+import type { CyclewayFeatureCollection, CyclewaySegmentProperties, FilterState } from './types/cycleway';
 
 // Single source of truth for every colour drawn on the map, the legend and
 // the sidebar composition bar. Raw attribute values are grouped into a small
@@ -40,6 +40,9 @@ const OLD_ALIGNMENT = 'Old active travel route alignment';
 export const SUPERSEDED_LABEL = 'Superseded';
 export const PENDING_LABEL = 'Pending';
 export const INTERVENTION_COLOR = '#d97706';
+export const INTERVENTION_LEGACY_THRESHOLD_M = 500;
+export const INTERVENTION_LEGACY_COLOR = '#64748b';
+export const INTERVENTION_LEGACY_OPACITY = 0.3;
 
 export function formatStatusLabel(status?: string): string {
   if (!status) return '';
@@ -342,6 +345,67 @@ export function isSuperseded(props: CyclewaySegmentProperties): boolean {
 
 export function isPending(props: CyclewaySegmentProperties): boolean {
   return props.folder === 'Pending' || props.status === 'pending';
+}
+
+export function isLegacyIntervention(props: CyclewaySegmentProperties): boolean {
+  return isSuperseded(props)
+    || (typeof props.dist_to_route_m === 'number' && props.dist_to_route_m > INTERVENTION_LEGACY_THRESHOLD_M);
+}
+
+/**
+ * Annotates every Point feature with `dist_to_route_m` (planar distance in metres
+ * to the nearest active, non-superseded, non-pending corridor route segment).
+ */
+export function annotatePointRouteDistances(collection: CyclewayFeatureCollection): CyclewayFeatureCollection {
+  const segs: [number, number, number, number][] = [];
+  for (const feat of collection.features) {
+    const g = feat.geometry;
+    if (!g || (g.type !== 'LineString' && g.type !== 'MultiLineString')) continue;
+    const p = feat.properties;
+    if (p.layer_type === 'hs2_railway' || isSuperseded(p) || isPending(p)) continue;
+
+    const lines: number[][][] = g.type === 'LineString' ? [g.coordinates] : g.coordinates;
+    for (const coords of lines) {
+      for (let i = 0; i < coords.length - 1; i++) {
+        segs.push([coords[i][0], coords[i][1], coords[i + 1][0], coords[i + 1][1]]);
+      }
+    }
+  }
+
+  if (segs.length === 0) return collection;
+
+  for (const feat of collection.features) {
+    if (!feat.geometry || feat.geometry.type !== 'Point') continue;
+    const [lon, lat] = feat.geometry.coordinates as [number, number];
+    const kx = 111320 * Math.cos((lat * Math.PI) / 180);
+    const ky = 111132;
+    let best2 = Infinity;
+    let best = Infinity;
+
+    for (let i = 0; i < segs.length; i++) {
+      const [x1, y1, x2, y2] = segs[i];
+      if (Math.abs(lon - x1) * kx > best && Math.abs(lon - x2) * kx > best) continue;
+      if (Math.abs(lat - y1) * ky > best && Math.abs(lat - y2) * ky > best) continue;
+
+      const dx = (x2 - x1) * kx;
+      const dy = (y2 - y1) * ky;
+      const px = (lon - x1) * kx;
+      const py = (lat - y1) * ky;
+      const l2 = dx * dx + dy * dy;
+      const t = l2 === 0 ? 0 : Math.max(0, Math.min(1, (px * dx + py * dy) / l2));
+      const projX = px - t * dx;
+      const projY = py - t * dy;
+      const d2 = projX * projX + projY * projY;
+      if (d2 < best2) {
+        best2 = d2;
+        best = Math.sqrt(d2);
+      }
+    }
+
+    feat.properties.dist_to_route_m = Math.round(best);
+  }
+
+  return collection;
 }
 
 const SUPERSEDED_EXPRESSION = [
