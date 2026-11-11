@@ -110,7 +110,7 @@ export function readUrlState(url: URL): AppUrlState {
       classification: isDev ? getLimitedParam(params, 'classification') : '',
       section: isDev ? getLimitedParam(params, 'section', 50) : '',
       status: isDev ? getLimitedParam(params, 'status', 50) : '',
-      searchTerm: isDev ? getLimitedParam(params, 'q') : '',
+      searchTerm: getLimitedParam(params, 'q'),
       colorBy: allowedColorByValues.includes(requestedColorBy as FilterState['colorBy'])
         ? requestedColorBy as FilterState['colorBy']
         : 'classification',

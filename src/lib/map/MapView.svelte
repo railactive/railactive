@@ -248,6 +248,18 @@
     ];
   }
 
+  function cyclewayCasingWidthExpression(hasSearch: boolean): any {
+    return hasSearch
+      ? ['interpolate', ['linear'], ['zoom'], 5, 10.0, 8, 13.0, 12, 15.5, 16, 19.0]
+      : ['interpolate', ['linear'], ['zoom'], 5, 5.5, 8, 7.5, 12, 10.5, 16, 15.0];
+  }
+
+  function cyclewayLineWidthExpression(hasSearch: boolean): any {
+    return hasSearch
+      ? ['interpolate', ['linear'], ['zoom'], 5, 6.5, 8, 9.0, 12, 11.5, 16, 15.0]
+      : ['interpolate', ['linear'], ['zoom'], 5, 3.5, 8, 5.0, 12, 7.5, 16, 12.0];
+  }
+
   function getActiveFilterExpression(f: FilterState): any {
     const expressions: any[] = [
       'all',
@@ -1113,6 +1125,8 @@
       // ==========================================
       // B. ACTIVE TRAVEL NETWORK (Walking, Wheeling, Cycling)
       // ==========================================
+      const hasSearch = Boolean(filters.searchTerm.trim());
+
       // 1. High-Contrast Outer Casing Layer
       map.addLayer({
         id: 'cycleway-casing',
@@ -1125,15 +1139,7 @@
         },
         paint: {
           'line-color': basemap === 'dark' ? '#0f172a' : '#ffffff',
-          'line-width': [
-            'interpolate',
-            ['linear'],
-            ['zoom'],
-            5, 5.5,
-            8, 7.5,
-            12, 10.5,
-            16, 15.0
-          ],
+          'line-width': cyclewayCasingWidthExpression(hasSearch),
           'line-opacity': 0.95
         }
       });
@@ -1150,15 +1156,7 @@
         },
         paint: {
           'line-color': colorExpression(filters.colorBy),
-          'line-width': [
-            'interpolate',
-            ['linear'],
-            ['zoom'],
-            5, 3.5,
-            8, 5.0,
-            12, 7.5,
-            16, 12.0
-          ],
+          'line-width': cyclewayLineWidthExpression(hasSearch),
           'line-opacity': 1.0
         }
       });
@@ -1505,8 +1503,12 @@
 
     if (map && map.getLayer('cycleway-lines')) {
       const filterExpr = getActiveFilterExpression(filters);
+      const hasSearch = Boolean(_search.trim());
       map.setFilter('cycleway-lines', filterExpr);
-      map.setFilter('cycleway-casing', filterExpr);
+      if (map.getLayer('cycleway-casing')) {
+        map.setFilter('cycleway-casing', filterExpr);
+        map.setPaintProperty('cycleway-casing', 'line-width', cyclewayCasingWidthExpression(hasSearch));
+      }
       
       if (map.getLayer('cycleway-points')) {
         map.setFilter('cycleway-points', getPointFilterExpression(filters, _ptsActive, _ptsSuperseded, _ptsPending));
@@ -1514,6 +1516,7 @@
       
       const colorExpr = colorExpression(filters.colorBy);
       map.setPaintProperty('cycleway-lines', 'line-color', colorExpr);
+      map.setPaintProperty('cycleway-lines', 'line-width', cyclewayLineWidthExpression(hasSearch));
       map.triggerRepaint();
     }
   });
