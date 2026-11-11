@@ -336,8 +336,8 @@
       }
       if (filters.section && p.section !== filters.section) return false;
       if (filters.status && !isSuperseded(p) && !isPending(p) && (p.status || 'preferred') !== filters.status) return false;
-      if (filters.searchTerm) {
-        const term = filters.searchTerm.toLowerCase();
+      const term = filters.searchTerm.trim().toLowerCase();
+      if (term) {
         const matchName = p.name && p.name.toLowerCase().includes(term);
         const matchId = p.link_id && p.link_id.toLowerCase().includes(term);
         const matchRemarks = p.remarks && p.remarks.toLowerCase().includes(term);
@@ -346,6 +346,10 @@
       return true;
     });
   });
+
+  let visibleMatchingFeatures = $derived(
+    matchingFeatures.filter(f => !hiddenGroups.includes(groupFor(filters.colorBy, f.properties).label))
+  );
 
   // Matching features that count towards km totals. Alternatives would double-count the
   // preferred spine, so they only count when selected or when colouring by status.
@@ -431,6 +435,20 @@
     }
     if (mapViewRef && typeof mapViewRef.zoomToSegment === 'function') {
       mapViewRef.zoomToSegment(id);
+    }
+  }
+
+  function handleZoomToSearch() {
+    if (visibleMatchingFeatures.length === 0) return;
+    if (visibleMatchingFeatures.length === 1) {
+      selectedSegment = visibleMatchingFeatures[0].properties;
+      clickedSegmentCenter = null;
+    }
+    if (isMobileViewport()) {
+      sidebarOpen = false;
+    }
+    if (mapViewRef && typeof mapViewRef.zoomToFeatures === 'function') {
+      mapViewRef.zoomToFeatures(visibleMatchingFeatures.map(f => f.properties.id));
     }
   }
 
@@ -537,6 +555,8 @@
         {availableCategories}
         {availableClassifications}
         {availableSections}
+        searchMatchCount={visibleMatchingFeatures.length}
+        onZoomToSearch={handleZoomToSearch}
         onResetFilters={handleResetFilters}
       />
     </div>

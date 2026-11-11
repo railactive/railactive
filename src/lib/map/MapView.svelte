@@ -237,6 +237,17 @@
     }
   };
 
+  function searchFilterExpression(searchTerm: string): any | null {
+    const term = searchTerm ? searchTerm.trim().toLowerCase() : '';
+    if (!term) return null;
+    return [
+      'any',
+      ['>=', ['index-of', term, ['downcase', ['to-string', ['coalesce', ['get', 'name'], '']]]], 0],
+      ['>=', ['index-of', term, ['downcase', ['to-string', ['coalesce', ['get', 'link_id'], '']]]], 0],
+      ['>=', ['index-of', term, ['downcase', ['to-string', ['coalesce', ['get', 'remarks'], '']]]], 0]
+    ];
+  }
+
   function getActiveFilterExpression(f: FilterState): any {
     const expressions: any[] = [
       'all',
@@ -257,6 +268,10 @@
     }
     if (f.section) {
       expressions.push(['==', ['coalesce', ['get', 'section'], ''], f.section]);
+    }
+    const searchExpr = searchFilterExpression(f.searchTerm);
+    if (searchExpr) {
+      expressions.push(searchExpr);
     }
 
     // Interactive legend: exclude unchecked colour groups
@@ -309,11 +324,16 @@
       return ['==', 1, 0];
     }
 
-    return [
+    const expr: any[] = [
       'all',
       ['==', ['geometry-type'], 'Point'],
       clauses.length === 1 ? clauses[0] : ['any', ...clauses]
     ];
+    const searchExpr = searchFilterExpression(f.searchTerm);
+    if (searchExpr) {
+      expr.push(searchExpr);
+    }
+    return expr;
   }
 
   let styleReady = false;
@@ -1279,21 +1299,28 @@
   }
 
   export function zoomToSegment(id: number) {
-    if (!map || !data) return;
+    zoomToFeatures([id]);
+  }
+
+  export function zoomToFeatures(ids: number[]) {
+    if (!map || !data || ids.length === 0) return;
     map.resize();
-    const feature = data.features.find(f => f.properties.id === id);
-    if (!feature) return;
+    const idSet = new Set(ids);
+    const features = data.features.filter(f => idSet.has(f.properties.id));
+    if (features.length === 0) return;
 
     const bounds = new maplibregl.LngLatBounds();
-    const geom = feature.geometry;
-    if (geom.type === 'LineString') {
-      for (const c of geom.coordinates) bounds.extend(c as [number, number]);
-    } else if (geom.type === 'MultiLineString') {
-      for (const line of geom.coordinates) {
-        for (const c of line) bounds.extend(c as [number, number]);
+    for (const feature of features) {
+      const geom = feature.geometry;
+      if (geom.type === 'LineString') {
+        for (const c of geom.coordinates) bounds.extend(c as [number, number]);
+      } else if (geom.type === 'MultiLineString') {
+        for (const line of geom.coordinates) {
+          for (const c of line) bounds.extend(c as [number, number]);
+        }
+      } else if (geom.type === 'Point') {
+        bounds.extend(geom.coordinates as [number, number]);
       }
-    } else if (geom.type === 'Point') {
-      bounds.extend(geom.coordinates as [number, number]);
     }
 
     if (!bounds.isEmpty()) {
@@ -1468,6 +1495,7 @@
     const _cls = filters.classification;
     const _sec = filters.section;
     const _status = filters.status;
+    const _search = filters.searchTerm;
     const _colorBy = filters.colorBy;
     const _superseded = filters.showSuperseded;
     const _pending = filters.showPending;

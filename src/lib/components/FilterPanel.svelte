@@ -7,6 +7,8 @@
     availableCategories: string[];
     availableClassifications: string[];
     availableSections: string[];
+    searchMatchCount?: number;
+    onZoomToSearch?: () => void;
     onResetFilters: () => void;
   }
 
@@ -16,6 +18,8 @@
     availableCategories,
     availableClassifications,
     availableSections,
+    searchMatchCount = 0,
+    onZoomToSearch,
     onResetFilters
   }: Props = $props();
 </script>
@@ -30,11 +34,31 @@
         type="text" 
         placeholder="e.g. 202, Curzon, Greenway..." 
         bind:value={filters.searchTerm}
+        onkeydown={(e) => {
+          if (e.key === 'Enter' && searchMatchCount > 0 && onZoomToSearch) {
+            e.preventDefault();
+            onZoomToSearch();
+          }
+        }}
       />
       {#if filters.searchTerm}
-        <button class="clear-btn" onclick={() => filters.searchTerm = ''}>×</button>
+        <button class="clear-btn" onclick={() => filters.searchTerm = ''} aria-label="Clear search">×</button>
       {/if}
     </div>
+    {#if filters.searchTerm.trim()}
+      <div class="search-status">
+        {#if searchMatchCount > 0}
+          <span class="match-count">{searchMatchCount} matching {searchMatchCount === 1 ? 'segment' : 'segments'}</span>
+          {#if onZoomToSearch}
+            <button type="button" class="zoom-matches-btn" onclick={onZoomToSearch}>
+              Zoom to {searchMatchCount === 1 ? 'match' : 'matches'}
+            </button>
+          {/if}
+        {:else}
+          <span class="no-match">No matching segments in active view</span>
+        {/if}
+      </div>
+    {/if}
   </div>
 
   <!-- Route Status Filter -->
@@ -148,6 +172,38 @@
     color: var(--text-muted);
     font-size: 16px;
     cursor: pointer;
+  }
+
+  .search-status {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 2px;
+    font-size: 11px;
+  }
+
+  .match-count {
+    color: var(--text-secondary);
+  }
+
+  .no-match {
+    color: #b45309;
+    font-weight: 500;
+  }
+
+  .zoom-matches-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    color: var(--accent-civic);
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .zoom-matches-btn:hover {
+    text-decoration: underline;
   }
 
   .reset-btn {
