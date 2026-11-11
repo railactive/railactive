@@ -1024,7 +1024,7 @@
           'line-join': 'round'
         },
         paint: {
-          'line-color': '#ffffff',
+          'line-color': basemap === 'dark' ? '#0f172a' : '#ffffff',
           'line-width': [
             'interpolate',
             ['linear'],
@@ -1076,7 +1076,7 @@
           'circle-radius': ['interpolate', ['linear'], ['zoom'], 6, 4, 12, 7, 16, 11],
           'circle-color': INTERVENTION_COLOR,
           'circle-stroke-width': 2,
-          'circle-stroke-color': '#ffffff'
+          'circle-stroke-color': basemap === 'dark' ? '#0f172a' : '#ffffff'
         }
       });
 
@@ -1577,8 +1577,9 @@
   }
 
   :global(.badge-preferred) {
-    background: #ecfdf5 !important;
-    color: #059669 !important;
+    background: #eff6ff !important;
+    color: #1d4ed8 !important;
+    border-color: #bfdbfe !important;
   }
 
   :global(.badge-alternative) {

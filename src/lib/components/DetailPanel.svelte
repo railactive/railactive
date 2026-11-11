@@ -170,9 +170,9 @@
   }
 
   .badge-status.status-preferred {
-    background: #ecfdf5;
-    color: var(--accent-emerald);
-    border: 1px solid #a7f3d0;
+    background: #eff6ff;
+    color: var(--accent-civic);
+    border: 1px solid #bfdbfe;
   }
 
   .badge-status.status-alternative {
