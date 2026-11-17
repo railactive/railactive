@@ -17,6 +17,8 @@ export interface CyclewaySegmentProperties {
   osm_highway?: string;
   osm_surface?: string;
   dist_to_route_m?: number;
+  geocoded_from_id?: boolean;
+  location_precision?: string;
 }
 
 export interface CyclewayFeature {

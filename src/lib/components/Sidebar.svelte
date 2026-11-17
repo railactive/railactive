@@ -3,12 +3,14 @@
   import KPICards from './KPICards.svelte';
   import Legend from './Legend.svelte';
   import FilterPanel from './FilterPanel.svelte';
+  import DataDownloadPanel from './DataDownloadPanel.svelte';
   import { isDevEnvironment } from '../urlState';
   import type { FilterState, CyclewayStats } from '../types/cycleway';
 
   const isDev = isDevEnvironment();
 
   type LegendProps = Omit<ComponentProps<typeof Legend>, 'colorBy'>;
+  type DownloadProps = Omit<ComponentProps<typeof DataDownloadPanel>, 'colorBy'>;
 
   interface Props {
     open: boolean;
@@ -16,6 +18,7 @@
     stats: CyclewayStats;
     filters: FilterState;
     legend: LegendProps;
+    download: DownloadProps;
     availableDevelopers: string[];
     availableCategories: string[];
     availableClassifications: string[];
@@ -31,6 +34,7 @@
     stats,
     filters = $bindable(),
     legend,
+    download,
     availableDevelopers,
     availableCategories,
     availableClassifications,
@@ -45,6 +49,7 @@
       .filter(Boolean).length
   );
   let filtersOpen = $state(false);
+  let downloadOpen = $state(false);
 
   $effect(() => {
     if (filters.searchTerm.trim()) {
@@ -111,6 +116,30 @@
         {onZoomToSearch}
         {onResetFilters}
       />
+    {/if}
+
+    <button
+      type="button"
+      class="section-title filters-toggle"
+      onclick={() => downloadOpen = !downloadOpen}
+      aria-expanded={downloadOpen}
+    >
+      <span>Data download</span>
+      <svg
+        class="chevron"
+        class:open={downloadOpen}
+        width="14"
+        height="14"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <polyline points="6 9 12 15 18 9"></polyline>
+      </svg>
+    </button>
+    {#if downloadOpen}
+      <DataDownloadPanel colorBy={filters.colorBy} {...download} />
     {/if}
   </div>
 </aside>
