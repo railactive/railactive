@@ -232,9 +232,10 @@
     return rawData.features.filter(f => f.geometry.type === 'Point');
   });
 
-  let activePointCount = $derived(
-    allPointFeatures.filter(f => !isPending(f.properties) && !isLegacyIntervention(f.properties)).length
+  let activePointFeatures = $derived(
+    allPointFeatures.filter(f => !isPending(f.properties) && !isLegacyIntervention(f.properties))
   );
+  let activePointCount = $derived(activePointFeatures.length);
   let supersededPointCount = $derived(
     allPointFeatures.filter(f => !isPending(f.properties) && isLegacyIntervention(f.properties)).length
   );
@@ -245,6 +246,29 @@
   let effectiveShowActivePoints = $derived(showActivePoints);
   let effectiveShowSupersededPoints = $derived(showSupersededPoints || showsSuperseded(filters));
   let effectiveShowPendingPoints = $derived(showPendingPoints || showsPending(filters));
+
+  let visiblePointFeatures = $derived.by(() => {
+    if (!showInterventions) return [];
+    const term = filters.searchTerm.trim().toLowerCase();
+    return allPointFeatures.filter(f => {
+      const p = f.properties;
+      const pend = isPending(p);
+      const leg = !pend && isLegacyIntervention(p);
+      const allowed = pend
+        ? effectiveShowPendingPoints
+        : leg
+          ? effectiveShowSupersededPoints
+          : effectiveShowActivePoints;
+      if (!allowed) return false;
+      if (term) {
+        const matchName = p.name && p.name.toLowerCase().includes(term);
+        const matchId = p.link_id && p.link_id.toLowerCase().includes(term);
+        const matchRemarks = p.remarks && p.remarks.toLowerCase().includes(term);
+        if (!matchName && !matchId && !matchRemarks) return false;
+      }
+      return true;
+    });
+  });
 
   let interventionCount = $derived(
     (effectiveShowActivePoints ? activePointCount : 0)
@@ -481,13 +505,6 @@
       onCopyLink={copyShareLink}
       onToggleSidebar={() => {
         sidebarOpen = !sidebarOpen;
-        if (!isMobileViewport()) {
-          setTimeout(() => {
-            if (mapViewRef && typeof mapViewRef.fitCorridorBounds === 'function') {
-              mapViewRef.fitCorridorBounds();
-            }
-          }, 300);
-        }
       }}
       {isExampleData}
       {basemap}
@@ -550,6 +567,13 @@
           onToggleOpenRoads: () => showOpenRoads = !showOpenRoads,
           showStudyArea,
           onToggleStudyArea: () => showStudyArea = !showStudyArea
+        }}
+        download={{
+          visibleRoutes: visibleMatchingFeatures,
+          fullRoutes: activeNetworkFeatures,
+          visiblePoints: visiblePointFeatures,
+          fullPoints: activePointFeatures,
+          showInterventions
         }}
         {availableDevelopers}
         {availableCategories}

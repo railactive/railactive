@@ -14,6 +14,9 @@ const DEV_COLOR_BY_VALUES: FilterState['colorBy'][] = ['category', 'classificati
 
 export function isDevEnvironment(): boolean {
   if (typeof window !== 'undefined') {
+    if (new URLSearchParams(window.location.search).get('env') === 'prod') {
+      return false;
+    }
     const host = window.location.hostname.toLowerCase();
     if (host === 'localhost' || host === '127.0.0.1' || host.includes('-dev.')) {
       return true;
