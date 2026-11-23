@@ -26,6 +26,7 @@ public/data/*
 !public/data/ncn.pmtiles
 *.csv
 !docs/data/*.csv
+!docs/data/*.geojson
 *.tsv
 *.xlsx
 *.zip
