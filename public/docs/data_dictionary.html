@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.6.43">
+<meta name="generator" content="quarto-1.9.38">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -11,6 +11,9 @@
 
 <title>RailActive Data Dictionary &amp; Dataset Register – RailActive Documentation</title>
 <style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
 div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -32,15 +35,16 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-d4d76bf8491c20bad77d141916dc28e1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-ddd961a2510921635943dfbbd19534c4.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-b369c03b595828d15008a012e77f3fc9.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -69,46 +73,29 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 <style>html{ scroll-behavior: smooth; }</style>
-<link href="site_libs/htmltools-fill-0.5.8.1/fill.css" rel="stylesheet">
-
+<link href="site_libs/htmltools-fill-0.5.9/fill.css" rel="stylesheet">
 <script src="site_libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
-
 <link href="site_libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet">
-
-<script src="site_libs/datatables-binding-0.33/datatables.js"></script>
-
+<script src="site_libs/datatables-binding-0.34.0/datatables.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
-
 <link href="site_libs/dt-core-1.13.6/css/jquery.dataTables.min.css" rel="stylesheet">
-
 <link href="site_libs/dt-core-1.13.6/css/jquery.dataTables.extra.css" rel="stylesheet">
-
 <script src="site_libs/dt-core-1.13.6/js/jquery.dataTables.min.js"></script>
-
 <link href="site_libs/nouislider-7.0.10/jquery.nouislider.min.css" rel="stylesheet">
-
 <script src="site_libs/nouislider-7.0.10/jquery.nouislider.min.js"></script>
-
 <link href="site_libs/selectize-0.12.0/selectize.bootstrap3.css" rel="stylesheet">
-
 <script src="site_libs/selectize-0.12.0/selectize.min.js"></script>
-
 <link href="site_libs/dt-plugin-searchhighlight-1.13.6/source.css" rel="stylesheet">
-
 <script src="site_libs/dt-plugin-searchhighlight-1.13.6/jquery.highlight.js"></script>
-
 <script src="site_libs/dt-plugin-searchhighlight-1.13.6/source.min.js"></script>
-
-<link href="site_libs/crosstalk-1.2.1/css/crosstalk.min.css" rel="stylesheet">
-
-<script src="site_libs/crosstalk-1.2.1/js/crosstalk.min.js"></script>
-
+<link href="site_libs/crosstalk-1.2.2/css/crosstalk.min.css" rel="stylesheet">
+<script src="site_libs/crosstalk-1.2.2/js/crosstalk.min.js"></script>
 
 
 <link rel="stylesheet" href="styles.css">
 </head>
 
-<body class="nav-fixed">
+<body class="nav-fixed quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -136,6 +123,10 @@ ul.task-list li input[type="checkbox"] {
   <li class="nav-item">
     <a class="nav-link" href="./methods.html"> 
 <span class="menu-text">Methodology</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./uptake_case_study.html"> 
+<span class="menu-text">Uptake Case Study</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link active" href="./data_dictionary.html" aria-current="page"> 
@@ -1004,8 +995,8 @@ ul.task-list li input[type="checkbox"] {
 <p>Search and filter across all variables, types, and descriptions in the complete unified data dictionary:</p>
 <div class="cell">
 <div class="cell-output-display">
-<div class="datatables html-widget html-fill-item" id="htmlwidget-41f0c900cc463d005c2e" style="width:100%;height:auto;"></div>
-<script type="application/json" data-for="htmlwidget-41f0c900cc463d005c2e">{"x":{"filter":"top","vertical":false,"filterHTML":"<tr>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n<\/tr>","data":[["north_south_corridor","north_south_corridor","north_south_corridor","north_south_corridor","north_south_corridor","north_south_corridor","north_south_corridor","north_south_corridor","north_south_corridor","north_south_corridor","north_south_corridor","north_south_corridor","north_south_corridor","custom_gpx","custom_gpx","custom_gpx","custom_gpx","custom_gpx","custom_gpx","custom_gpx","custom_gpx","custom_gpx","openroads","openroads","openroads","openroads","openroads","openroads","openroads","openroads","stats19","stats19","stats19","stats19","stats19","stats19","stats19","stats19","stats19","stats19","stats19","stats19","stats19","osm","osm","osm","osm","osm","osm","osm","osm","osm","osm","ncn","ncn","ncn","ncn","ncn","ncn","ncn","ncn","ncn","ncn","ncn"],["id","name","link_id","section","category","classification","developer","setting","length_km","folder","layer_type","status","remarks","track_name","source_file","case_study","link_prefix","source","feature_type","highway","surface","length_km","id","name_1","road_classification","road_function","form_of_way","road_classification_number","length","possible_haulage_basis","collision_index","collision_year","date","time","collision_severity","number_of_vehicles","number_of_casualties","speed_limit","road_type","light_conditions","weather_conditions","road_surface_conditions","urban_or_rural_area","osm_id","name","highway","cycleway","bicycle","foot","surface","crossing","lit","maxspeed","RouteNo","Desc_","Greenway","RouteType","RouteCat","OpenStatus","Surface","Quality","Lighting","RoadClass","length_km"],["integer","string","string","string","string","string","string","string","numeric","string","string","string","string","string","string","string","string","string","string","string","string","numeric","string","string","string","string","string","string","numeric","string","string","integer","string","string","string","integer","integer","integer","string","string","string","string","string","integer/string","string","string","string","string","string","string","string","string","string","string","string","string","string","string","string","string","string","string","string","numeric"],["Unique identifier for each link or intervention point","Descriptive name of the route link or junction treatment","Standardized corridor link code","Corridor section identifier or regional segment name","Functional route intervention category","Engineering intervention classification","Anticipated delivery organisation or authority","Landscape setting","Length of the segment in kilometres","Thematic group or route cluster","Geometry layer classification","Lifecycle and appraisal status of the alignment","Contextual rationale, engineering notes, and QA audit details","Name of the client GPX route track","Source .gpx filename from client archive","Designated case study corridor area","Prefix applied to generated link_ids","Data derivation origin for segment","Matched physical infrastructure type","OSM highway tag or proposed footpath upgrade","Pavement surface condition","Length of the segment in kilometres","Unique OS OpenRoads link identifier","Primary gazetted road name","Department for Transport classification","Functional road network hierarchy role","Physical carriageway geometry structure","Official classified route number","Length of the road link","Spatial deduction flag for HS2 haulage overlap","Unique national collision reference number","Year collision occurred","Date of collision","Time of collision","Maximum severity of any casualty involved","Number of motorized and non-motorized vehicles involved","Total casualties resulting from the collision","Posted permanent speed limit at collision site","Road layout at collision location","Natural and artificial illumination state","Atmospheric weather state at collision time","Pavement surface condition","DfT urban/rural classification","Unique OpenStreetMap feature identifier","Gazetted road or path name in OSM","Primary OpenStreetMap highway classification tag","Specific cycling accommodation along highway","Legal access designation for bicycles","Legal access designation for pedestrians","Pavement surface material and condition","Pedestrian / cycle crossing facility type","Presence of dedicated street lighting","Legal speed limit tag","Designated National Cycle Network route number","Traffic separation status indicator","Greenway facility designation flag","Sustrans route facility layout typology","Network hierarchy categorization tier","Network operational status","Surface condition audit","Sustrans network audit quality rating","Presence of route lighting","Highway classification for on-road NCN links","Length of the NCN link in kilometres"],["Project Pipeline","KML / Client Route Plan","Client / Pipeline","KML Section Plan","ATE / Client Schema","Client Specification","Client Dataset","Spatial Analysis","Spatial Calculation (BNG)","KML Hierarchy","Pipeline","Pipeline","Client / Pipeline","Shane Snow (OS Maps)","Project Archive","Project Specification","Pipeline","Pipeline","Pipeline","OSM / Client Track","OSM / Aerial Photography","Spatial Calculation (BNG)","Ordnance Survey","Ordnance Survey","Ordnance Survey","Ordnance Survey","Ordnance Survey","Ordnance Survey","Ordnance Survey","Pipeline Deduction","DfT STATS19","DfT STATS19","DfT STATS19","DfT STATS19","DfT STATS19","DfT STATS19","DfT STATS19","DfT STATS19","DfT STATS19","DfT STATS19","DfT STATS19","DfT STATS19","DfT STATS19","OpenStreetMap","OpenStreetMap","OpenStreetMap","OpenStreetMap","OpenStreetMap","OpenStreetMap","OpenStreetMap","OpenStreetMap","OpenStreetMap","OpenStreetMap","Sustrans","Sustrans","Sustrans","Sustrans","Sustrans","Sustrans","Sustrans","Sustrans","Sustrans","Sustrans","Spatial Calculation (BNG)"],["Positive integer","Text","Text (e.g. '202', 'V2-CH01')","Text (e.g. '1'..'35', 'Northwest', 'South of London')","Categorical","Categorical","Categorical","Categorical ('Rural', 'Urban', 'Suburban')","km (&gt;= 0.0)","Text","Categorical ('active_route', 'hs2_railway', 'point_treatment')","Categorical ('preferred', 'alternative', 'superseded')","Text","Text","Text","Text","Text (e.g. 'V2-CH', 'V2-AV-CR', 'V2-AV-KM', 'V2-AV-DIR')","Categorical ('gpx_upgrade', 'osm')","Categorical ('off-road', 'road', 'track', 'traffic_free')","Text","Text (e.g. 'asphalt', 'unpaved', 'gravel')","km (&gt;= 0.0)","URN (e.g. 'urn:os:open:roadlink:...')","Text","Categorical ('A Road', 'B Road', 'Classified Unnumbered', 'Unclassified')","Categorical ('Motorway', 'A Road', 'B Road', 'Minor Road', 'Local Road', 'Restricted Local Access Road')","Categorical ('Single Carriageway', 'Dual Carriageway', 'Roundabout', 'Slip Road')","Text (e.g. 'A452', 'B4114', 'M42')","metres","Categorical ('hs2_haulage_collinear', 'none')","Text (13-character string)","YYYY (e.g. 2023)","Date (YYYY-MM-DD)","Time (HH:MM)","Categorical ('Fatal', 'Serious', 'Slight')","Positive integer (&gt;= 1)","Positive integer (&gt;= 1)","mph (20, 30, 40, 50, 60, 70)","Categorical ('Single carriageway', 'Dual carriageway', 'Roundabout', 'One way street')","Categorical ('Daylight', 'Darkness - lights lit', 'Darkness - no lighting')","Categorical ('Fine no high winds', 'Raining', 'Fog or mist', 'Snowing')","Categorical ('Dry', 'Wet or damp', 'Snow', 'Frost or ice')","Categorical ('Urban', 'Rural')","Integer","Text","Categorical ('cycleway', 'path', 'bridleway', 'footway', 'track', 'service', 'unclassified', 'tertiary')","Categorical ('track', 'lane', 'opposite', 'shared_busway', 'no')","Categorical ('yes', 'designated', 'permissive', 'no')","Categorical ('yes', 'designated', 'permissive', 'no')","Categorical ('asphalt', 'paved', 'concrete', 'gravel', 'unpaved', 'compacted')","Categorical ('traffic_signals', 'zebra', 'toucan', 'pegasus', 'uncontrolled')","Categorical ('yes', 'no')","Text (e.g. '30 mph', '20 mph', '60 mph')","Text (e.g. '4', '5', '54', '55', '68')","Categorical ('TrafficFree', 'OnRoad')","Categorical ('Yes', 'No')","Categorical ('Cycleway', 'Shared Use', 'Segregated', 'Road')","Categorical ('Primary', 'Secondary', 'Connecting')","Categorical ('Open', 'Proposed', 'Under Construction')","Categorical ('Sealed', 'Unsealed', 'Mixed')","Categorical ('Good', 'Fair', 'Poor')","Categorical ('Lit', 'Unlit', 'Partial')","Categorical ('A', 'B', 'C', 'U')","km (&gt;= 0.0)"],["Primary key","e.g. 'Link 202', 'Pear Tree Farm Footpath Upgrade'","Prefixed with V2- for client re-alignments","Defines macro corridor stage","e.g. 'Cycleway beside HS2', 'Traffic-free path away from highway', '20mph and traffic calmed or protected cycle lane', 'Old active travel route alignment'","e.g. 'HS2 Haulage', 'New Greenway', 'Upgrade PROW', 'Quiet Lane', 'Local Road Quietway', 'Existing routes', 'Old active travel route alignment'","e.g. 'HS2', 'Local Authority', 'National Trust', 'Sustrans', 'Canals &amp; River Trust', 'DfT'","Derived from ONS settlement boundaries","Computed using EPSG:27700 planar length","e.g. 'HS2 Alignment', 'Averte Verte', 'Cheshire Lanes - Swanley Bypass (v2)', 'Superseded'","Used for frontend styling and filtering","Preferred = primary spine; Alternative = comparative/interim route (e.g. AV Direct, Sevenoaks West); Superseded = decommissioned route","Detailed audit history","e.g. 'Pear Tree Farm footpath upgrade', 'AV Direct'","Stored in data/gpx/","e.g. 'Cheshire Lanes', 'Cuckmere &amp; Coast', 'Knole &amp; Mote', 'AV Direct'","Ensures unique global namespace","'gpx_upgrade' for new off-road paths; 'osm' for existing highway centreline","Classified via STRtree nearest neighbour matching","e.g. 'unclassified', 'tertiary', 'cycleway', 'bridleway', 'footpath_upgrade'","Recorded from OSM extra tags","Strictly continuous 2D planar length","OS OpenData national road identifier","e.g. 'Swanley Lane', 'A452 Chester Road'","Official UK road hierarchy","Used for filtering cycle suitability","Guides segregation requirements","Blank for unclassified local roads","Metric length in BNG","Identifies local roads designated for HS2 construction logistics","Primary key for road casualties","Annual reporting period","Standard ISO format","24-hour clock","Key road safety performance metric","Measure of multi-vehicle involvement","Direct injury count","High-speed rural lanes correlate with severity","Identifies junction vs link risk","Evaluates unlit rural road risk","Environmental risk modifier","Friction / skid risk factor","Based on settlement population thresholds","Global OSM way ID","e.g. 'Stoneley Green', 'Cuckmere River Path'","Core active travel infrastructure tag","Detailed cycle provision","Legal rights of way","Pedestrian rights of way","Determines cycle ride quality","Critical for severance assessment","Personal security &amp; winter usability","Local speed regulation","National route corridor identifier","Primary safety attribute","Off-road landscape greenway designation","Technical layout","Strategic importance","Identifies future network developments","Physical ridability","Infrastructure maintenance audit","Evening &amp; commuter utility","On-road traffic exposure","Metric planar length"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>dataset_id<\/th>\n      <th>variable_name<\/th>\n      <th>data_type<\/th>\n      <th>description<\/th>\n      <th>source<\/th>\n      <th>allowed_values_or_units<\/th>\n      <th>notes<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":20,"autoWidth":true,"searchHighlight":true,"columnDefs":[{"name":"dataset_id","targets":0},{"name":"variable_name","targets":1},{"name":"data_type","targets":2},{"name":"description","targets":3},{"name":"source","targets":4},{"name":"allowed_values_or_units","targets":5},{"name":"notes","targets":6}],"order":[],"orderClasses":false,"orderCellsTop":true,"lengthMenu":[10,20,25,50,100]}},"evals":[],"jsHooks":[]}</script>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-a45e1feaad281077de35" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-a45e1feaad281077de35">{"x":{"filter":"top","vertical":false,"filterHTML":"<tr>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n<\/tr>","data":[["north_south_corridor","north_south_corridor","north_south_corridor","north_south_corridor","north_south_corridor","north_south_corridor","north_south_corridor","north_south_corridor","north_south_corridor","north_south_corridor","north_south_corridor","north_south_corridor","north_south_corridor","custom_gpx","custom_gpx","custom_gpx","custom_gpx","custom_gpx","custom_gpx","custom_gpx","custom_gpx","custom_gpx","openroads","openroads","openroads","openroads","openroads","openroads","openroads","openroads","stats19","stats19","stats19","stats19","stats19","stats19","stats19","stats19","stats19","stats19","stats19","stats19","stats19","osm","osm","osm","osm","osm","osm","osm","osm","osm","osm","ncn","ncn","ncn","ncn","ncn","ncn","ncn","ncn","ncn","ncn","ncn"],["id","name","link_id","section","category","classification","developer","setting","length_km","folder","layer_type","status","remarks","track_name","source_file","case_study","link_prefix","source","feature_type","highway","surface","length_km","id","name_1","road_classification","road_function","form_of_way","road_classification_number","length","possible_haulage_basis","collision_index","collision_year","date","time","collision_severity","number_of_vehicles","number_of_casualties","speed_limit","road_type","light_conditions","weather_conditions","road_surface_conditions","urban_or_rural_area","osm_id","name","highway","cycleway","bicycle","foot","surface","crossing","lit","maxspeed","RouteNo","Desc_","Greenway","RouteType","RouteCat","OpenStatus","Surface","Quality","Lighting","RoadClass","length_km"],["integer","string","string","string","string","string","string","string","numeric","string","string","string","string","string","string","string","string","string","string","string","string","numeric","string","string","string","string","string","string","numeric","string","string","integer","string","string","string","integer","integer","integer","string","string","string","string","string","integer/string","string","string","string","string","string","string","string","string","string","string","string","string","string","string","string","string","string","string","string","numeric"],["Unique identifier for each link or intervention point","Descriptive name of the route link or junction treatment","Standardized corridor link code","Corridor section identifier or regional segment name","Functional route intervention category","Engineering intervention classification","Anticipated delivery organisation or authority","Landscape setting","Length of the segment in kilometres","Thematic group or route cluster","Geometry layer classification","Lifecycle and appraisal status of the alignment","Contextual rationale, engineering notes, and QA audit details","Name of the client GPX route track","Source .gpx filename from client archive","Designated case study corridor area","Prefix applied to generated link_ids","Data derivation origin for segment","Matched physical infrastructure type","OSM highway tag or proposed footpath upgrade","Pavement surface condition","Length of the segment in kilometres","Unique OS OpenRoads link identifier","Primary gazetted road name","Department for Transport classification","Functional road network hierarchy role","Physical carriageway geometry structure","Official classified route number","Length of the road link","Spatial deduction flag for HS2 haulage overlap","Unique national collision reference number","Year collision occurred","Date of collision","Time of collision","Maximum severity of any casualty involved","Number of motorized and non-motorized vehicles involved","Total casualties resulting from the collision","Posted permanent speed limit at collision site","Road layout at collision location","Natural and artificial illumination state","Atmospheric weather state at collision time","Pavement surface condition","DfT urban/rural classification","Unique OpenStreetMap feature identifier","Gazetted road or path name in OSM","Primary OpenStreetMap highway classification tag","Specific cycling accommodation along highway","Legal access designation for bicycles","Legal access designation for pedestrians","Pavement surface material and condition","Pedestrian / cycle crossing facility type","Presence of dedicated street lighting","Legal speed limit tag","Designated National Cycle Network route number","Traffic separation status indicator","Greenway facility designation flag","Sustrans route facility layout typology","Network hierarchy categorization tier","Network operational status","Surface condition audit","Sustrans network audit quality rating","Presence of route lighting","Highway classification for on-road NCN links","Length of the NCN link in kilometres"],["Project Pipeline","KML / Client Route Plan","Client / Pipeline","KML Section Plan","ATE / Client Schema","Client Specification","Client Dataset","Spatial Analysis","Spatial Calculation (BNG)","KML Hierarchy","Pipeline","Pipeline","Client / Pipeline","Shane Snow (OS Maps)","Project Archive","Project Specification","Pipeline","Pipeline","Pipeline","OSM / Client Track","OSM / Aerial Photography","Spatial Calculation (BNG)","Ordnance Survey","Ordnance Survey","Ordnance Survey","Ordnance Survey","Ordnance Survey","Ordnance Survey","Ordnance Survey","Pipeline Deduction","DfT STATS19","DfT STATS19","DfT STATS19","DfT STATS19","DfT STATS19","DfT STATS19","DfT STATS19","DfT STATS19","DfT STATS19","DfT STATS19","DfT STATS19","DfT STATS19","DfT STATS19","OpenStreetMap","OpenStreetMap","OpenStreetMap","OpenStreetMap","OpenStreetMap","OpenStreetMap","OpenStreetMap","OpenStreetMap","OpenStreetMap","OpenStreetMap","Sustrans","Sustrans","Sustrans","Sustrans","Sustrans","Sustrans","Sustrans","Sustrans","Sustrans","Sustrans","Spatial Calculation (BNG)"],["Positive integer","Text","Text (e.g. '202', 'V2-CH01')","Text (e.g. '1'..'35', 'Northwest', 'South of London')","Categorical","Categorical","Categorical","Categorical ('Rural', 'Urban', 'Suburban')","km (&gt;= 0.0)","Text","Categorical ('active_route', 'hs2_railway', 'point_treatment')","Categorical ('preferred', 'alternative', 'superseded')","Text","Text","Text","Text","Text (e.g. 'V2-CH', 'V2-AV-CR', 'V2-AV-KM', 'V2-AV-DIR')","Categorical ('gpx_upgrade', 'osm')","Categorical ('off-road', 'road', 'track', 'traffic_free')","Text","Text (e.g. 'asphalt', 'unpaved', 'gravel')","km (&gt;= 0.0)","URN (e.g. 'urn:os:open:roadlink:...')","Text","Categorical ('A Road', 'B Road', 'Classified Unnumbered', 'Unclassified')","Categorical ('Motorway', 'A Road', 'B Road', 'Minor Road', 'Local Road', 'Restricted Local Access Road')","Categorical ('Single Carriageway', 'Dual Carriageway', 'Roundabout', 'Slip Road')","Text (e.g. 'A452', 'B4114', 'M42')","metres","Categorical ('hs2_haulage_collinear', 'none')","Text (13-character string)","YYYY (e.g. 2023)","Date (YYYY-MM-DD)","Time (HH:MM)","Categorical ('Fatal', 'Serious', 'Slight')","Positive integer (&gt;= 1)","Positive integer (&gt;= 1)","mph (20, 30, 40, 50, 60, 70)","Categorical ('Single carriageway', 'Dual carriageway', 'Roundabout', 'One way street')","Categorical ('Daylight', 'Darkness - lights lit', 'Darkness - no lighting')","Categorical ('Fine no high winds', 'Raining', 'Fog or mist', 'Snowing')","Categorical ('Dry', 'Wet or damp', 'Snow', 'Frost or ice')","Categorical ('Urban', 'Rural')","Integer","Text","Categorical ('cycleway', 'path', 'bridleway', 'footway', 'track', 'service', 'unclassified', 'tertiary')","Categorical ('track', 'lane', 'opposite', 'shared_busway', 'no')","Categorical ('yes', 'designated', 'permissive', 'no')","Categorical ('yes', 'designated', 'permissive', 'no')","Categorical ('asphalt', 'paved', 'concrete', 'gravel', 'unpaved', 'compacted')","Categorical ('traffic_signals', 'zebra', 'toucan', 'pegasus', 'uncontrolled')","Categorical ('yes', 'no')","Text (e.g. '30 mph', '20 mph', '60 mph')","Text (e.g. '4', '5', '54', '55', '68')","Categorical ('TrafficFree', 'OnRoad')","Categorical ('Yes', 'No')","Categorical ('Cycleway', 'Shared Use', 'Segregated', 'Road')","Categorical ('Primary', 'Secondary', 'Connecting')","Categorical ('Open', 'Proposed', 'Under Construction')","Categorical ('Sealed', 'Unsealed', 'Mixed')","Categorical ('Good', 'Fair', 'Poor')","Categorical ('Lit', 'Unlit', 'Partial')","Categorical ('A', 'B', 'C', 'U')","km (&gt;= 0.0)"],["Primary key","e.g. 'Link 202', 'Pear Tree Farm Footpath Upgrade'","Prefixed with V2- for client re-alignments","Defines macro corridor stage","e.g. 'Cycleway beside HS2', 'Traffic-free path away from highway', '20mph and traffic calmed or protected cycle lane', 'Old active travel route alignment'","e.g. 'HS2 Haulage', 'New Greenway', 'Upgrade PROW', 'Quiet Lane', 'Local Road Quietway', 'Existing routes', 'Old active travel route alignment'","e.g. 'HS2', 'Local Authority', 'National Trust', 'Sustrans', 'Canals &amp; River Trust', 'DfT'","Derived from ONS settlement boundaries","Computed using EPSG:27700 planar length","e.g. 'HS2 Alignment', 'Averte Verte', 'Cheshire Lanes - Swanley Bypass (v2)', 'Superseded'","Used for frontend styling and filtering","Preferred = primary spine; Alternative = comparative/interim route (e.g. AV Direct, Sevenoaks West); Superseded = decommissioned route","Detailed audit history","e.g. 'Pear Tree Farm footpath upgrade', 'AV Direct'","Stored in data/gpx/","e.g. 'Cheshire Lanes', 'Cuckmere &amp; Coast', 'Knole &amp; Mote', 'AV Direct'","Ensures unique global namespace","'gpx_upgrade' for new off-road paths; 'osm' for existing highway centreline","Classified via STRtree nearest neighbour matching","e.g. 'unclassified', 'tertiary', 'cycleway', 'bridleway', 'footpath_upgrade'","Recorded from OSM extra tags","Strictly continuous 2D planar length","OS OpenData national road identifier","e.g. 'Swanley Lane', 'A452 Chester Road'","Official UK road hierarchy","Used for filtering cycle suitability","Guides segregation requirements","Blank for unclassified local roads","Metric length in BNG","Identifies local roads designated for HS2 construction logistics","Primary key for road casualties","Annual reporting period","Standard ISO format","24-hour clock","Key road safety performance metric","Measure of multi-vehicle involvement","Direct injury count","High-speed rural lanes correlate with severity","Identifies junction vs link risk","Evaluates unlit rural road risk","Environmental risk modifier","Friction / skid risk factor","Based on settlement population thresholds","Global OSM way ID","e.g. 'Stoneley Green', 'Cuckmere River Path'","Core active travel infrastructure tag","Detailed cycle provision","Legal rights of way","Pedestrian rights of way","Determines cycle ride quality","Critical for severance assessment","Personal security &amp; winter usability","Local speed regulation","National route corridor identifier","Primary safety attribute","Off-road landscape greenway designation","Technical layout","Strategic importance","Identifies future network developments","Physical ridability","Infrastructure maintenance audit","Evening &amp; commuter utility","On-road traffic exposure","Metric planar length"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>dataset_id<\/th>\n      <th>variable_name<\/th>\n      <th>data_type<\/th>\n      <th>description<\/th>\n      <th>source<\/th>\n      <th>allowed_values_or_units<\/th>\n      <th>notes<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":20,"autoWidth":true,"searchHighlight":true,"columnDefs":[{"name":"dataset_id","targets":0},{"name":"variable_name","targets":1},{"name":"data_type","targets":2},{"name":"description","targets":3},{"name":"source","targets":4},{"name":"allowed_values_or_units","targets":5},{"name":"notes","targets":6}],"order":[],"orderClasses":false,"orderCellsTop":true,"lengthMenu":[10,20,25,50,100]}},"evals":[],"jsHooks":[]}</script>
 </div>
 </div>
 
@@ -1014,236 +1005,243 @@ ul.task-list li input[type="checkbox"] {
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
-window.document.addEventListener("DOMContentLoaded", function (event) {
-  const toggleBodyColorMode = (bsSheetEl) => {
-    const mode = bsSheetEl.getAttribute("data-mode");
-    const bodyEl = window.document.querySelector("body");
-    if (mode === "dark") {
-      bodyEl.classList.add("quarto-dark");
-      bodyEl.classList.remove("quarto-light");
-    } else {
-      bodyEl.classList.add("quarto-light");
-      bodyEl.classList.remove("quarto-dark");
-    }
-  }
-  const toggleBodyColorPrimary = () => {
-    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
-    if (bsSheetEl) {
-      toggleBodyColorMode(bsSheetEl);
-    }
-  }
-  toggleBodyColorPrimary();  
-  const icon = "";
-  const anchorJS = new window.AnchorJS();
-  anchorJS.options = {
-    placement: 'right',
-    icon: icon
-  };
-  anchorJS.add('.anchored');
-  const isCodeAnnotation = (el) => {
-    for (const clz of el.classList) {
-      if (clz.startsWith('code-annotation-')) {                     
-        return true;
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
       }
+      return false;
     }
-    return false;
-  }
-  const onCopySuccess = function(e) {
-    // button target
-    const button = e.trigger;
-    // don't keep focus
-    button.blur();
-    // flash "checked"
-    button.classList.add('code-copy-button-checked');
-    var currentTitle = button.getAttribute("title");
-    button.setAttribute("title", "Copied!");
-    let tooltip;
-    if (window.bootstrap) {
-      button.setAttribute("data-bs-toggle", "tooltip");
-      button.setAttribute("data-bs-placement", "left");
-      button.setAttribute("data-bs-title", "Copied!");
-      tooltip = new bootstrap.Tooltip(button, 
-        { trigger: "manual", 
-          customClass: "code-copy-button-tooltip",
-          offset: [0, -8]});
-      tooltip.show();    
-    }
-    setTimeout(function() {
-      if (tooltip) {
-        tooltip.hide();
-        button.removeAttribute("data-bs-title");
-        button.removeAttribute("data-bs-toggle");
-        button.removeAttribute("data-bs-placement");
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
       }
-      button.setAttribute("title", currentTitle);
-      button.classList.remove('code-copy-button-checked');
-    }, 1000);
-    // clear code selection
-    e.clearSelection();
-  }
-  const getTextToCopy = function(trigger) {
-      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
       for (const childEl of codeEl.children) {
         if (isCodeAnnotation(childEl)) {
           childEl.remove();
         }
       }
       return codeEl.innerText;
-  }
-  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
-    text: getTextToCopy
-  });
-  clipboard.on('success', onCopySuccess);
-  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
-    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
-      text: getTextToCopy,
-      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
     });
-    clipboardModal.on('success', onCopySuccess);
-  }
-    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
-    var mailtoRegex = new RegExp(/^mailto:/);
-      var filterRegex = new RegExp('/' + window.location.host + '/');
-    var isInternal = (href) => {
-        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
     }
-    // Inspect non-navigation links and adorn them if external
- 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
-    for (var i=0; i<links.length; i++) {
-      const link = links[i];
-      if (!isInternal(link.href)) {
-        // undo the damage that might have been done by quarto-nav.js in the case of
-        // links that we want to consider external
-        if (link.dataset.originalHref !== undefined) {
-          link.href = link.dataset.originalHref;
-        }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
-    }
-  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
-    const config = {
-      allowHTML: true,
-      maxWidth: 500,
-      delay: 100,
-      arrow: false,
-      appendTo: function(el) {
-          return el.parentElement;
-      },
-      interactive: true,
-      interactiveBorder: 10,
-      theme: 'quarto',
-      placement: 'bottom-start',
-    };
-    if (contentFn) {
-      config.content = contentFn;
-    }
-    if (onTriggerFn) {
-      config.onTrigger = onTriggerFn;
-    }
-    if (onUntriggerFn) {
-      config.onUntrigger = onUntriggerFn;
-    }
-    window.tippy(el, config); 
-  }
-  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
-  for (var i=0; i<noterefs.length; i++) {
-    const ref = noterefs[i];
-    tippyHover(ref, function() {
-      // use id or data attribute instead here
-      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
-      try { href = new URL(href).hash; } catch {}
-      const id = href.replace(/^#\/?/, "");
-      const note = window.document.getElementById(id);
-      if (note) {
-        return note.innerHTML;
-      } else {
-        return "";
-      }
-    });
-  }
-  const xrefs = window.document.querySelectorAll('a.quarto-xref');
-  const processXRef = (id, note) => {
-    // Strip column container classes
-    const stripColumnClz = (el) => {
-      el.classList.remove("page-full", "page-columns");
-      if (el.children) {
-        for (const child of el.children) {
-          stripColumnClz(child);
-        }
-      }
-    }
-    stripColumnClz(note)
-    if (id === null || id.startsWith('sec-')) {
-      // Special case sections, only their first couple elements
-      const container = document.createElement("div");
-      if (note.children && note.children.length > 2) {
-        container.appendChild(note.children[0].cloneNode(true));
-        for (let i = 1; i < note.children.length; i++) {
-          const child = note.children[i];
-          if (child.tagName === "P" && child.innerText === "") {
-            continue;
-          } else {
-            container.appendChild(child.cloneNode(true));
-            break;
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
           }
         }
-        if (window.Quarto?.typesetMath) {
-          window.Quarto.typesetMath(container);
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
         }
-        return container.innerHTML
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
       } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
         if (window.Quarto?.typesetMath) {
           window.Quarto.typesetMath(note);
         }
-        return note.innerHTML;
-      }
-    } else {
-      // Remove any anchor links if they are present
-      const anchorLink = note.querySelector('a.anchorjs-link');
-      if (anchorLink) {
-        anchorLink.remove();
-      }
-      if (window.Quarto?.typesetMath) {
-        window.Quarto.typesetMath(note);
-      }
-      if (note.classList.contains("callout")) {
-        return note.outerHTML;
-      } else {
-        return note.innerHTML;
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
       }
     }
-  }
-  for (var i=0; i<xrefs.length; i++) {
-    const xref = xrefs[i];
-    tippyHover(xref, undefined, function(instance) {
-      instance.disable();
-      let url = xref.getAttribute('href');
-      let hash = undefined; 
-      if (url.startsWith('#')) {
-        hash = url;
-      } else {
-        try { hash = new URL(url).hash; } catch {}
-      }
-      if (hash) {
-        const id = hash.replace(/^#\/?/, "");
-        const note = window.document.getElementById(id);
-        if (note !== null) {
-          try {
-            const html = processXRef(id, note.cloneNode(true));
-            instance.setContent(html);
-          } finally {
-            instance.enable();
-            instance.show();
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
           }
         } else {
-          // See if we can fetch this
-          fetch(url.split('#')[0])
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
           .then(res => res.text())
           .then(html => {
             const parser = new DOMParser();
             const htmlDoc = parser.parseFromString(html, "text/html");
-            const note = htmlDoc.getElementById(id);
+            const note = htmlDoc.querySelector('main.content');
             if (note !== null) {
-              const html = processXRef(id, note);
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
               instance.setContent(html);
             } 
           }).finally(() => {
@@ -1251,185 +1249,161 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
             instance.show();
           });
         }
-      } else {
-        // See if we can fetch a full url (with no hash to target)
-        // This is a special case and we should probably do some content thinning / targeting
-        fetch(url)
-        .then(res => res.text())
-        .then(html => {
-          const parser = new DOMParser();
-          const htmlDoc = parser.parseFromString(html, "text/html");
-          const note = htmlDoc.querySelector('main.content');
-          if (note !== null) {
-            // This should only happen for chapter cross references
-            // (since there is no id in the URL)
-            // remove the first header
-            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
-              note.children[0].remove();
-            }
-            const html = processXRef(null, note);
-            instance.setContent(html);
-          } 
-        }).finally(() => {
-          instance.enable();
-          instance.show();
-        });
-      }
-    }, function(instance) {
-    });
-  }
-      let selectedAnnoteEl;
-      const selectorForAnnotation = ( cell, annotation) => {
-        let cellAttr = 'data-code-cell="' + cell + '"';
-        let lineAttr = 'data-code-annotation="' +  annotation + '"';
-        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
-        return selector;
-      }
-      const selectCodeLines = (annoteEl) => {
-        const doc = window.document;
-        const targetCell = annoteEl.getAttribute("data-target-cell");
-        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
-        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
-        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
-        const lineIds = lines.map((line) => {
-          return targetCell + "-" + line;
-        })
-        let top = null;
-        let height = null;
-        let parent = null;
-        if (lineIds.length > 0) {
-            //compute the position of the single el (top and bottom and make a div)
-            const el = window.document.getElementById(lineIds[0]);
-            top = el.offsetTop;
-            height = el.offsetHeight;
-            parent = el.parentElement.parentElement;
-          if (lineIds.length > 1) {
-            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
-            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
-            height = bottom - top;
-          }
-          if (top !== null && height !== null && parent !== null) {
-            // cook up a div (if necessary) and position it 
-            let div = window.document.getElementById("code-annotation-line-highlight");
-            if (div === null) {
-              div = window.document.createElement("div");
-              div.setAttribute("id", "code-annotation-line-highlight");
-              div.style.position = 'absolute';
-              parent.appendChild(div);
-            }
-            div.style.top = top - 2 + "px";
-            div.style.height = height + 4 + "px";
-            div.style.left = 0;
-            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
-            if (gutterDiv === null) {
-              gutterDiv = window.document.createElement("div");
-              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
-              gutterDiv.style.position = 'absolute';
-              const codeCell = window.document.getElementById(targetCell);
-              const gutter = codeCell.querySelector('.code-annotation-gutter');
-              gutter.appendChild(gutterDiv);
-            }
-            gutterDiv.style.top = top - 2 + "px";
-            gutterDiv.style.height = height + 4 + "px";
-          }
-          selectedAnnoteEl = annoteEl;
-        }
-      };
-      const unselectCodeLines = () => {
-        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
-        elementsIds.forEach((elId) => {
-          const div = window.document.getElementById(elId);
-          if (div) {
-            div.remove();
-          }
-        });
-        selectedAnnoteEl = undefined;
-      };
-        // Handle positioning of the toggle
-    window.addEventListener(
-      "resize",
-      throttle(() => {
-        elRect = undefined;
-        if (selectedAnnoteEl) {
-          selectCodeLines(selectedAnnoteEl);
-        }
-      }, 10)
-    );
-    function throttle(fn, ms) {
-    let throttle = false;
-    let timer;
-      return (...args) => {
-        if(!throttle) { // first call gets through
-            fn.apply(this, args);
-            throttle = true;
-        } else { // all the others get throttled
-            if(timer) clearTimeout(timer); // cancel #2
-            timer = setTimeout(() => {
-              fn.apply(this, args);
-              timer = throttle = false;
-            }, ms);
-        }
-      };
-    }
-      // Attach click handler to the DT
-      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
-      for (const annoteDlNode of annoteDls) {
-        annoteDlNode.addEventListener('click', (event) => {
-          const clickedEl = event.target;
-          if (clickedEl !== selectedAnnoteEl) {
-            unselectCodeLines();
-            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
-            if (activeEl) {
-              activeEl.classList.remove('code-annotation-active');
-            }
-            selectCodeLines(clickedEl);
-            clickedEl.classList.add('code-annotation-active');
-          } else {
-            // Unselect the line
-            unselectCodeLines();
-            clickedEl.classList.remove('code-annotation-active');
-          }
-        });
-      }
-  const findCites = (el) => {
-    const parentEl = el.parentElement;
-    if (parentEl) {
-      const cites = parentEl.dataset.cites;
-      if (cites) {
-        return {
-          el,
-          cites: cites.split(' ')
-        };
-      } else {
-        return findCites(el.parentElement)
-      }
-    } else {
-      return undefined;
-    }
-  };
-  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
-  for (var i=0; i<bibliorefs.length; i++) {
-    const ref = bibliorefs[i];
-    const citeInfo = findCites(ref);
-    if (citeInfo) {
-      tippyHover(citeInfo.el, function() {
-        var popup = window.document.createElement('div');
-        citeInfo.cites.forEach(function(cite) {
-          var citeDiv = window.document.createElement('div');
-          citeDiv.classList.add('hanging-indent');
-          citeDiv.classList.add('csl-entry');
-          var biblioDiv = window.document.getElementById('ref-' + cite);
-          if (biblioDiv) {
-            citeDiv.innerHTML = biblioDiv.innerHTML;
-          }
-          popup.appendChild(citeDiv);
-        });
-        return popup.innerHTML;
+      }, function(instance) {
       });
     }
-  }
-});
-</script>
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
 </div> <!-- /content -->
 
 

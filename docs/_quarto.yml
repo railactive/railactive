@@ -12,6 +12,8 @@ website:
         href: index.qmd
       - text: "Methodology"
         href: methods.qmd
+      - text: "Uptake Case Study"
+        href: uptake_case_study.qmd
       - text: "Data Dictionary"
         href: data_dictionary.qmd
       - text: "Data Inventory"
