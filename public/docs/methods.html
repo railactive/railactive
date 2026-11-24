@@ -6,10 +6,10 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="author" content="Prof Robin Lovelace &amp; hs2cycle Team">
+<meta name="author" content="RailActive Demand &amp; Appraisal Team (ITS, University of Leeds)">
 <meta name="dcterms.date" content="2026-11-24">
 
-<title>Appraisal &amp; Spatial Modeling Methodology – RailActive Documentation</title>
+<title>Appraisal &amp; Uptake Modelling: Methods &amp; Technical Appendix – RailActive Documentation</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -161,24 +161,13 @@ window.Quarto = {
 <span class="menu-text">Overview</span></a>
   </li>  
   <li class="nav-item">
+    <a class="nav-link" href="./uptake_case_study.html"> 
+<span class="menu-text">Uptake Brief</span></a>
+  </li>  
+  <li class="nav-item">
     <a class="nav-link active" href="./methods.html" aria-current="page"> 
-<span class="menu-text">Methodology</span></a>
+<span class="menu-text">Methods &amp; Appendix</span></a>
   </li>  
-  <li class="nav-item dropdown ">
-    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-uptake-modelling" role="link" data-bs-toggle="dropdown" aria-expanded="false">
- <span class="menu-text">Uptake Modelling</span>
-    </a>
-    <ul class="dropdown-menu" aria-labelledby="nav-menu-uptake-modelling">    
-        <li>
-    <a class="dropdown-item" href="./uptake_case_study.html">
- <span class="dropdown-text">Decision Brief (Ox–Ux)</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="./uptake_appendix.html">
- <span class="dropdown-text">Technical Appendix</span></a>
-  </li>  
-    </ul>
-  </li>
   <li class="nav-item">
     <a class="nav-link" href="./data_dictionary.html"> 
 <span class="menu-text">Data Dictionary</span></a>
@@ -211,46 +200,40 @@ window.Quarto = {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#methodological-framework" id="toc-methodological-framework" class="nav-link active" data-scroll-target="#methodological-framework"><span class="header-section-number">1</span> Methodological Framework</a></li>
-  <li><a href="#travel-demand-trip-purpose-modeling" id="toc-travel-demand-trip-purpose-modeling" class="nav-link" data-scroll-target="#travel-demand-trip-purpose-modeling"><span class="header-section-number">2</span> Travel Demand &amp; Trip Purpose Modeling</a>
+  <li><a href="#sec-purpose" id="toc-sec-purpose" class="nav-link active" data-scroll-target="#sec-purpose"><span class="header-section-number">1</span> Travel Demand &amp; Empirical Trip Purpose Evidence</a></li>
+  <li><a href="#sec-pct-details" id="toc-sec-pct-details" class="nav-link" data-scroll-target="#sec-pct-details"><span class="header-section-number">2</span> PCT Logistic Propensity Specification</a></li>
+  <li><a href="#sec-temporal-equations" id="toc-sec-temporal-equations" class="nav-link" data-scroll-target="#sec-temporal-equations"><span class="header-section-number">3</span> Temporal Adoption &amp; Health-Lag Equations</a></li>
+  <li><a href="#sec-amat" id="toc-sec-amat" class="nav-link" data-scroll-target="#sec-amat"><span class="header-section-number">4</span> Economic Benefits Appraisal (DfT AMAT) &amp; Validation</a>
   <ul class="collapse">
-  <li><a href="#empirical-insights-from-national-datasets" id="toc-empirical-insights-from-national-datasets" class="nav-link" data-scroll-target="#empirical-insights-from-national-datasets"><span class="header-section-number">2.1</span> Empirical Insights from National Datasets</a></li>
+  <li><a href="#golden-benchmark-validation" id="toc-golden-benchmark-validation" class="nav-link" data-scroll-target="#golden-benchmark-validation"><span class="header-section-number">4.1</span> Golden Benchmark Validation</a></li>
   </ul></li>
-  <li><a href="#economic-benefits-appraisal-dft-amat" id="toc-economic-benefits-appraisal-dft-amat" class="nav-link" data-scroll-target="#economic-benefits-appraisal-dft-amat"><span class="header-section-number">3</span> Economic Benefits Appraisal (DfT AMAT)</a>
-  <ul class="collapse">
-  <li><a href="#appraisal-components" id="toc-appraisal-components" class="nav-link" data-scroll-target="#appraisal-components"><span class="header-section-number">3.1</span> Appraisal Components</a></li>
-  </ul></li>
-  <li><a href="#golden-benchmark-validation" id="toc-golden-benchmark-validation" class="nav-link" data-scroll-target="#golden-benchmark-validation"><span class="header-section-number">4</span> Golden Benchmark Validation</a></li>
+  <li><a href="#sec-audit" id="toc-sec-audit" class="nav-link" data-scroll-target="#sec-audit"><span class="header-section-number">5</span> Audit of Existing RailActive Prototype Work</a></li>
+  <li><a href="#sec-more-examples" id="toc-sec-more-examples" class="nav-link" data-scroll-target="#sec-more-examples"><span class="header-section-number">6</span> Supplementary Oxfordshire–Uxbridge Diagnostics</a></li>
+  <li><a href="#sec-outputs" id="toc-sec-outputs" class="nav-link" data-scroll-target="#sec-outputs"><span class="header-section-number">7</span> Standardised Demand-to-AMAT Output Contract</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references"><span class="header-section-number">8</span> References</a></li>
   </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/railactive/railactive/edit/main/docs/methods.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/railactive/railactive/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/railactive/railactive/edit/main/docs/methods.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/railactive/railactive/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div><div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="methods.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li><li><a href="methods.docx"><i class="bi bi-file-word"></i>MS Word</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content" tabindex="-1">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Appraisal &amp; Spatial Modeling Methodology</h1>
-<p class="subtitle lead">Travel Demand Estimation, Empirical Purpose Weighting, and AMAT Economic Valuation</p>
+<h1 class="title">Appraisal &amp; Uptake Modelling: Methods &amp; Technical Appendix</h1>
+<p class="subtitle lead">Empirical Purpose Weighting, Model Equations, AMAT Valuation, Prototype Audit &amp; Data Contract</p>
 </div>
 
 
-<div class="quarto-title-meta-author">
-  <div class="quarto-title-meta-heading">Author</div>
-  <div class="quarto-title-meta-heading">Affiliation</div>
-  
-    <div class="quarto-title-meta-contents">
-    <p class="author">Prof Robin Lovelace &amp; hs2cycle Team </p>
-  </div>
-  <div class="quarto-title-meta-contents">
-        <p class="affiliation">
-            Institute for Transport Studies, University of Leeds
-          </p>
-      </div>
-  </div>
 
 <div class="quarto-title-meta">
 
-      
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>RailActive Demand &amp; Appraisal Team (ITS, University of Leeds) </p>
+          </div>
+  </div>
+    
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
@@ -266,34 +249,21 @@ window.Quarto = {
 </header>
 
 
-<section id="methodological-framework" class="level2" data-number="1">
-<h2 data-number="1" class="anchored" data-anchor-id="methodological-framework"><span class="header-section-number">1</span> Methodological Framework</h2>
-<p>The RailActive appraisal framework integrates spatial network analysis with empirical demand modeling and the UK Department for Transport’s (DfT) <strong>Active Mode Appraisal Toolkit (AMAT)</strong>, aligned with Active Travel England’s <em>Active Mode Benefits: Theoretical Framework</em> <span class="citation" data-cites="nellthorp2026">(<a href="#ref-nellthorp2026" role="doc-biblioref">Nellthorp et al. 2026</a>)</span>. For the first-principles uptake specification and Oxfordshire–Uxbridge case study, see the <a href="./uptake_case_study.html">Uptake Modelling Decision Brief</a>.</p>
-<p>The workflow comprises three interlinked analytical stages:</p>
+<p>This technical reference accompanies the <a href="./uptake_case_study.html">Oxfordshire–Uxbridge Decision Brief</a>. It brings together the empirical trip-purpose evidence, full Propensity to Cycle Tool (PCT) and temporal ramp-up equations, DfT <strong>Active Mode Appraisal Toolkit (AMAT)</strong> valuation formulas and benchmark validation, the audit of existing <code>railactive</code> prototype scripts, supplementary corridor diagnostics, and the standardised 4-table hand-off schema aligned with Active Travel England’s <em>Active Mode Benefits: Theoretical Framework</em> <span class="citation" data-cites="nellthorp2026">(<a href="#ref-nellthorp2026" role="doc-biblioref">Nellthorp et al. 2026</a>)</span>.</p>
+<section id="sec-purpose" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="sec-purpose"><span class="header-section-number">1</span> Travel Demand &amp; Empirical Trip Purpose Evidence</h2>
+<p>Traditional transport appraisal tools frequently focus solely on the commute-to-work (e.g.&nbsp;Census Journey to Work matrices or the PCT commute layer). For a regional or national spine route like the HS2 greenway, this introduces severe undercounting risk. Analysis of recent UK microdata shows how active travel distributes across purposes:</p>
 <ul>
-<li><strong>Spatial Network Categorisation</strong>: Ingestion and classification of civil engineering haul roads, access tracks, and intersecting rights of way.</li>
-<li><strong>Empirical Demand Segmentation</strong>: Calibrating baseline active travel uptake across utility (commuting, education, shopping) and leisure purposes using the National Travel Survey (NTS) and Active Lives Survey (ALS).</li>
-<li><strong>Multi-Modal Economic Appraisal</strong>: Quantifying 15 appraisal components across health, economy, environment, and capital costs following official TAG guidance.</li>
-</ul>
-<hr>
-</section>
-<section id="travel-demand-trip-purpose-modeling" class="level2" data-number="2">
-<h2 data-number="2" class="anchored" data-anchor-id="travel-demand-trip-purpose-modeling"><span class="header-section-number">2</span> Travel Demand &amp; Trip Purpose Modeling</h2>
-<p>Traditional transport appraisal tools frequently focus solely on the commute-to-work (e.g.&nbsp;Census Journey to Work matrices or the Propensity to Cycle Tool). For a national or regional spine route like the HS2 corridor, this introduces a severe undercounting risk.</p>
-<section id="empirical-insights-from-national-datasets" class="level3" data-number="2.1">
-<h3 data-number="2.1" class="anchored" data-anchor-id="empirical-insights-from-national-datasets"><span class="header-section-number">2.1</span> Empirical Insights from National Datasets</h3>
-<p>Analysis of recent microdata from the UK Data Service reveals the true distribution of active travel in England:</p>
+<li><strong>National Travel Survey (NTS, 2022–2024):</strong>
 <ul>
-<li><strong>National Travel Survey (NTS, 2022–2024)</strong>:
-<ul>
-<li><strong>Leisure Cycling (39.7%)</strong>: The single largest purpose for cycling, outstripping commuting (29.9%).</li>
-<li><strong>Leisure Walking (57.9%)</strong>: Walking for leisure or exercise (“just walk”) accounts for 42.5% of walking trips, whereas commuting walking represents only 6.7%.</li>
-<li><strong>Trip Distance &amp; Duration</strong>: Leisure cycle trips average <strong>4.20 miles (6.76 km) and 29.9 minutes</strong>, compared to <strong>3.43 miles (5.52 km) and 22.9 minutes</strong> for commuting. Leisure cyclists spend 31% more time per journey exercising.</li>
+<li><strong>Leisure cycling (39.7%)</strong> is the single largest cycling purpose, outstripping commuting (29.9%).</li>
+<li><strong>Leisure walking (57.9%)</strong> dominates walking trips (42.5% “just walk”), whereas commuting accounts for only 6.7%.</li>
+<li><strong>Trip length &amp; duration:</strong> Leisure cycle trips average <strong>4.20 miles (6.76 km) and 29.9 minutes</strong>, versus <strong>3.43 miles (5.52 km) and 22.9 minutes</strong> for commuting (31% longer per trip).</li>
 </ul></li>
-<li><strong>Sport England Active Lives Survey (ALS, Year 9, 2023–2024)</strong>:
+<li><strong>Sport England Active Lives Survey (ALS, Year 9, 2023–2024):</strong>
 <ul>
-<li><strong>Participation</strong>: 31.9% of adults cycle for leisure and sport annually, compared to 11.3% for travel.</li>
-<li><strong>Activity Volume</strong>: Leisure accounts for <strong>70.5% of total cycling minutes</strong> and <strong>61.5% of total walking minutes</strong> across the population.</li>
+<li><strong>Participation:</strong> 31.9% of adults cycle for leisure/sport annually versus 11.3% for travel.</li>
+<li><strong>Activity volume:</strong> Leisure represents <strong>70.5% of total cycling minutes</strong> and <strong>61.5% of total walking minutes</strong>.</li>
 </ul></li>
 </ul>
 <table class="caption-top table">
@@ -328,51 +298,65 @@ window.Quarto = {
 </tr>
 </tbody>
 </table>
-<hr>
 </section>
+<section id="sec-pct-details" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="sec-pct-details"><span class="header-section-number">2</span> PCT Logistic Propensity Specification</h2>
+<p>Under Random Utility Maximisation (RUM), commute cycling share <span class="math inline">\(p_{ij}\)</span> on <span class="math inline">\((i, j)\)</span> follows a logistic function of utility difference <span class="math inline">\(\Delta V_{ij} = -\lambda\,(GC^{\text{cycle}}_{ij} - GC^{\text{alt}}_{ij})\)</span>:</p>
+<p><span id="eq-logit"><span class="math display">\[
+\text{logit}\bigl(p_{ij}\bigr) = \ln\!\left(\frac{p_{ij}}{1 - p_{ij}}\right) = \alpha(q_{ij}) + f(d_{ij},\, g_{ij})
+\tag{1}\]</span></span></p>
+<p>In the UK Propensity to Cycle Tool <span class="citation" data-cites="lovelace2017">(<a href="#ref-lovelace2017" role="doc-biblioref">Lovelace et al. 2017</a>)</span>, calibrated on 2011 Census OD flows across England and Wales, the baseline distance–hilliness decay function for fastest-route distance <span class="math inline">\(d_{ij}\)</span> (km) and average gradient <span class="math inline">\(g_{ij}\)</span> (%) is:</p>
+<p><span id="eq-pct-base"><span class="math display">\[
+\begin{aligned}
+\text{logit}\bigl(p^{\text{base}}_{ij}\bigr) &amp;= -3.818 - 0.652\,d_{ij} + 2.084\sqrt{d_{ij}} + 0.00878\,d_{ij}^2 \\
+&amp;\quad - 0.256\,g_{ij} + 0.0199\,d_{ij}g_{ij} - 0.123\sqrt{d_{ij}}\,g_{ij}
+\end{aligned}
+\tag{2}\]</span></span></p>
+<p>Area-wide transformation to <em>Go Dutch</em> shifts the infrastructure-quality intercept (<span class="math inline">\(\Delta \alpha_{\text{Dutch}} = +2.552\)</span>, with slope term <span class="math inline">\(-0.079\,d_{ij}\)</span>), while <em>E-bikes</em> additionally attenuates distance and gradient exertion penalties <span class="math inline">\(e(t)\)</span> <span class="citation" data-cites="nellthorp2026">(<a href="#ref-nellthorp2026" role="doc-biblioref">Nellthorp et al. 2026, sec. 4.2.3</a>)</span>.</p>
 </section>
-<section id="economic-benefits-appraisal-dft-amat" class="level2" data-number="3">
-<h2 data-number="3" class="anchored" data-anchor-id="economic-benefits-appraisal-dft-amat"><span class="header-section-number">3</span> Economic Benefits Appraisal (DfT AMAT)</h2>
-<p>Economic benefits are evaluated using a concise, verified base-R implementation of AMAT (<a href="https://github.com/railactive/amat"><code>railactive/amat</code></a>).</p>
-<section id="appraisal-components" class="level3" data-number="3.1">
-<h3 data-number="3.1" class="anchored" data-anchor-id="appraisal-components"><span class="header-section-number">3.1</span> Appraisal Components</h3>
+<section id="sec-temporal-equations" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="sec-temporal-equations"><span class="header-section-number">3</span> Temporal Adoption &amp; Health-Lag Equations</h2>
+<p>Cumulative behavioural adoption <span class="math inline">\(r(t) \in [0, 1]\)</span> at <span class="math inline">\(t\)</span> years post-opening follows a <strong>Bass diffusion S-curve</strong> <span class="citation" data-cites="bass1969">(<a href="#ref-bass1969" role="doc-biblioref">Bass 1969</a>)</span> with innovation parameter <span class="math inline">\(p\)</span> and imitation parameter <span class="math inline">\(q\)</span>:</p>
+<p><span id="eq-bass"><span class="math display">\[
+r(t) = \frac{1 - e^{-(p + q)t}}{1 + \frac{q}{p}\,e^{-(p + q)t}}
+\tag{3}\]</span></span></p>
+<p>In appraisal year <span class="math inline">\(y \ge oy\)</span> (mid-year <span class="math inline">\(t_y = y - oy + 0.5\)</span>), daily trips equal:</p>
+<p><span id="eq-annual-trips"><span class="math display">\[
+\Delta T_y = \Delta T^{*} \cdot r(t_y) \cdot (1 + g_{\text{bg}})^{\min(y - oy,\, 20)}
+\tag{4}\]</span></span></p>
+<p>where <span class="math inline">\(\Delta T^{*}\)</span> is steady-state uptake and <span class="math inline">\(g_{\text{bg}} = 0.0075\)</span> is AMAT’s annual background growth rate. Convolving annual conversion cohorts <span class="math inline">\(\Delta r_j = r(t_j) - r(t_{j-1})\)</span> with AMAT’s 5-year linear physiological mortality lag gives the effective health-benefit share <span class="math inline">\(H^{\text{eff}}_k\)</span> in operational year <span class="math inline">\(k\)</span>:</p>
+<p><span id="eq-conv"><span class="math display">\[
+H^{\text{eff}}_k = \sum_{j=1}^{k} \Delta r_j \cdot \min\!\bigl(1,\; 0.2\,(k - j + 1)\bigr)
+\tag{5}\]</span></span></p>
+<p>Sensitivity profiles evaluated in the Decision Brief use <span class="math inline">\((p=0.22, q=0.70)\)</span> for Fast (3-yr), <span class="math inline">\((p=0.10, q=0.55)\)</span> for Central (5-yr), and <span class="math inline">\((p=0.05, q=0.35)\)</span> for Slow (8-yr) maturity.</p>
+</section>
+<section id="sec-amat" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="sec-amat"><span class="header-section-number">4</span> Economic Benefits Appraisal (DfT AMAT) &amp; Validation</h2>
+<p>Economic benefits are evaluated using a verified base-R implementation of DfT AMAT (<a href="https://github.com/railactive/amat"><code>railactive/amat</code></a>) across four main benefit streams:</p>
 <ol type="1">
-<li><p><strong>Premature Death Reduction (Health)</strong>:</p>
-<ul>
-<li>Uses the WHO Health Economic Assessment Tool (HEAT) dose-response curve adapted for TAG:</li>
-</ul>
-<p><span class="math display">\[\text{RR} = \max\left(0.55, \exp\left(\frac{\ln(0.90)}{11.25} \times \text{MET-hours/week}\right)\right)\]</span></p>
-<ul>
-<li>Attributable deaths avoided are calculated across 5 age bands for males and females and valued using discounted Years of Life Lost (YLL) at £92,240 per life-year.</li>
-</ul></li>
-<li><p><strong>Workplace Absenteeism</strong>:</p>
-<ul>
-<li>Sickness absence reduction (0.25 days per user per year) applied to employed new users, valued at average regional daily labor output (£267.36/day).</li>
-</ul></li>
-<li><p><strong>Journey Ambience &amp; Quality</strong>:</p>
-<ul>
-<li>Valued using the <strong>Rule of a Half</strong> for existing users and new switchers:</li>
-</ul>
-<p><span class="math display">\[\text{Benefit} = \left(\text{Trips}_{\text{existing}} + \frac{\text{Trips}_{\text{new}}}{2}\right) \times \Delta\text{Rate} \times \text{Time on Scheme} \times \text{VoT}_{\text{non-work}}\]</span></p>
-<ul>
-<li>Upgrading from “No provision” to “Off-road segregated cycle track” yields an amenity improvement of <strong>16.28 p/min</strong>.</li>
-</ul></li>
-<li><p><strong>Decongestion &amp; Environmental Externalities</strong>:</p>
-<ul>
-<li>Mode-shift from private cars and taxis reduces vehicle-kilometres:</li>
-</ul>
-<p><span class="math display">\[\text{Vehicle-km Reduced} = \text{Trips}_{\text{new}} \times \text{Trip Length} \times \text{Days} \times \left(\frac{\text{Car Divert}}{\text{Car Occupancy}} + \frac{\text{Taxi Divert}}{\text{Taxi Occupancy}}\right)\]</span></p>
-<ul>
-<li>Savings are calculated across 7 marginal external cost streams: highway congestion, infrastructure wear, collision risk, local air quality (<span class="math inline">\(PM_{2.5}\)</span>, <span class="math inline">\(NO_x\)</span>), ambient noise, greenhouse gas emissions (<span class="math inline">\(CO_2e\)</span>), and indirect taxation losses.</li>
-</ul></li>
+<li><p><strong>Premature Death Reduction (Health):</strong> Uses the WHO HEAT dose-response curve adapted for TAG, valued using discounted Years of Life Lost (YLL) at £92,240 per life-year across 5 age bands by sex:</p>
+<p><span class="math display">\[\text{RR} = \max\!\left(0.55,\; \exp\!\left(\frac{\ln(0.90)}{11.25} \times \text{MET-hours/week}\right)\right)\]</span></p></li>
+<li><p><strong>Workplace Absenteeism:</strong> Sickness absence reduction (0.25 days/user/year) applied to employed new users, valued at average regional daily labour output (£267.36/day).</p></li>
+<li><p><strong>Journey Ambience &amp; Quality:</strong> Valued using the <strong>Rule of a Half</strong> for existing and new trips (upgrading from “No provision” to “Off-road segregated cycle track” yields <strong>16.28 p/min</strong>):</p>
+<p><span class="math display">\[
+\begin{aligned}
+\text{Benefit} &amp;= \left(\text{Trips}_{\text{existing}} + \frac{\text{Trips}_{\text{new}}}{2}\right) \\
+               &amp;\quad \times \Delta\text{Rate} \times \text{Time on Scheme} \times \text{VoT}_{\text{non-work}}
+\end{aligned}
+\]</span></p></li>
+<li><p><strong>Decongestion &amp; Environmental Externalities:</strong> Mode shift from cars and taxis reduces vehicle-kilometres across 7 marginal external cost streams (congestion, infrastructure, collisions, local air quality, noise, GHGs, and indirect tax):</p>
+<p><span class="math display">\[
+\begin{aligned}
+\text{Vehicle-km Reduced} &amp;= \text{Trips}_{\text{new}} \times \text{Trip Length} \times \text{Days} \\
+                          &amp;\quad \times \left(\frac{\text{Car Divert}}{\text{Car Occupancy}} + \frac{\text{Taxi Divert}}{\text{Taxi Occupancy}}\right)
+\end{aligned}
+\]</span></p></li>
 </ol>
-<hr>
-</section>
-</section>
-<section id="golden-benchmark-validation" class="level2" data-number="4">
-<h2 data-number="4" class="anchored" data-anchor-id="golden-benchmark-validation"><span class="header-section-number">4</span> Golden Benchmark Validation</h2>
-<p>The economic model is benchmarked against the official DfT worked example (<em>Clifton Road Active Mode Corridor</em>, May 2026 TAG release / 2023 prices):</p>
+<section id="golden-benchmark-validation" class="level3" data-number="4.1">
+<h3 data-number="4.1" class="anchored" data-anchor-id="golden-benchmark-validation"><span class="header-section-number">4.1</span> Golden Benchmark Validation</h3>
+<p>The base-R economic model reproduces the official DfT worked example (<em>Clifton Road Active Mode Corridor</em>, May 2026 TAG Data Book / 2023 prices) to <strong>£0.00</strong> across every stream:</p>
 <table class="caption-top table">
+<caption>Validation of <code>railactive/amat</code> against the official DfT Clifton Road AMAT workbook.</caption>
 <colgroup>
 <col style="width: 25%">
 <col style="width: 25%">
@@ -382,68 +366,394 @@ window.Quarto = {
 <thead>
 <tr class="header">
 <th style="text-align: left;">Metric</th>
-<th style="text-align: left;">Official AMAT Excel</th>
-<th style="text-align: left;">RailActive R Model</th>
-<th style="text-align: left;">Difference</th>
+<th style="text-align: right;">Official AMAT Excel</th>
+<th style="text-align: right;">RailActive R Model</th>
+<th style="text-align: right;">Difference</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td style="text-align: left;"><strong>Congestion</strong></td>
-<td style="text-align: left;">£78,506.72</td>
-<td style="text-align: left;">£78,506.72</td>
-<td style="text-align: left;"><p>£0.00</p></td>
+<td style="text-align: right;">£78,506.72</td>
+<td style="text-align: right;">£78,506.72</td>
+<td style="text-align: right;"><p>£0.00</p></td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"><strong>Accidents</strong></td>
-<td style="text-align: left;">£8,284.88</td>
-<td style="text-align: left;">£8,284.88</td>
-<td style="text-align: left;"><p>£0.00</p></td>
+<td style="text-align: right;">£8,284.88</td>
+<td style="text-align: right;">£8,284.88</td>
+<td style="text-align: right;"><p>£0.00</p></td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;"><strong>Premature Death</strong></td>
-<td style="text-align: left;">£645,027.55</td>
-<td style="text-align: left;">£645,027.55</td>
-<td style="text-align: left;"><p>£0.00</p></td>
+<td style="text-align: right;">£645,027.55</td>
+<td style="text-align: right;">£645,027.55</td>
+<td style="text-align: right;"><p>£0.00</p></td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"><strong>Absenteeism</strong></td>
-<td style="text-align: left;">£132,675.03</td>
-<td style="text-align: left;">£132,675.03</td>
-<td style="text-align: left;"><p>£0.00</p></td>
+<td style="text-align: right;">£132,675.03</td>
+<td style="text-align: right;">£132,675.03</td>
+<td style="text-align: right;"><p>£0.00</p></td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;"><strong>Journey Ambience</strong></td>
-<td style="text-align: left;">£739,062.87</td>
-<td style="text-align: left;">£739,062.87</td>
-<td style="text-align: left;"><p>£0.00</p></td>
+<td style="text-align: right;">£739,062.87</td>
+<td style="text-align: right;">£739,062.87</td>
+<td style="text-align: right;"><p>£0.00</p></td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"><strong>Present Value Benefits (PVB)</strong></td>
-<td style="text-align: left;">£1,611,403.66</td>
-<td style="text-align: left;">£1,611,403.66</td>
-<td style="text-align: left;"><p>£0.00</p></td>
+<td style="text-align: right;">£1,611,403.66</td>
+<td style="text-align: right;">£1,611,403.66</td>
+<td style="text-align: right;"><p>£0.00</p></td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;"><strong>Present Value Costs (PVC)</strong></td>
-<td style="text-align: left;">£567,361.97</td>
-<td style="text-align: left;">£567,361.97</td>
-<td style="text-align: left;"><p>£0.00</p></td>
+<td style="text-align: right;">£567,361.97</td>
+<td style="text-align: right;">£567,361.97</td>
+<td style="text-align: right;"><p>£0.00</p></td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"><strong>Benefit-Cost Ratio (BCR)</strong></td>
-<td style="text-align: left;"><strong>2.840169</strong></td>
-<td style="text-align: left;"><strong>2.840169</strong></td>
-<td style="text-align: left;"><strong>0.00</strong></td>
+<td style="text-align: right;"><strong>2.840169</strong></td>
+<td style="text-align: right;"><strong>2.840169</strong></td>
+<td style="text-align: right;"><strong>0.00</strong></td>
 </tr>
 </tbody>
 </table>
+</section>
+</section>
+<section id="sec-audit" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="sec-audit"><span class="header-section-number">5</span> Audit of Existing RailActive Prototype Work</h2>
+<p>Before specifying the appraisal-ready pipeline, we audited analytical outputs across <code>railactive/pipeline</code>, <code>railactive/hs2cycle</code>, and <code>railactive/amat</code>:</p>
+<ul>
+<li><strong>Harmonised corridor alignment (<code>north_south_corridor_v2.json</code>, v0.5.2):</strong> 805.6 km preferred North–South Greenway spine (385.7 km core HS2 alignment plus Avenue Verte and Stoke–Birkenhead branches) with a 3-tier status taxonomy (<code>preferred</code>, <code>alternative</code>, <code>superseded</code>) and civil-asset classes (<code>Repurposed HS2 TCR</code>, <code>HS2 delivered greenway</code>, <code>Dual Use MATs</code>).</li>
+<li><strong>Multi-purpose network assignment (<code>pipeline</code> Phases 1–4):</strong> Splicing the preferred greenway into a 1.72M-link corridor network in Rust/CSIS <code>netassign</code> (DEM gradients capped at <span class="math inline">\(\pm 2\%\)</span> on engineered alignments) and validating against <strong>7,219 cycling</strong> and <strong>1,439 walking</strong> counters lifted baseline cycling fit from <span class="math inline">\(R^2_{\log 10} = 0.352\)</span> (commute-only) to <strong><span class="math inline">\(0.676\)</span></strong> (<code>56.2%</code> within <span class="math inline">\(2\times\)</span>), and walking fit from <span class="math inline">\(-0.177\)</span> to <strong><span class="math inline">\(0.488\)</span></strong>. Phase 2 separated route diversion (<code>+3,175</code> bike pkm/day) from induced/shifted commute demand (<code>+4,953</code> bike pkm/day); Phase 4 lifted spine cycling from <code>86.7</code> to <code>132.3</code> riders/day (<code>+52.6%</code>).</li>
+</ul>
+<p>Five structural prototype gaps must be resolved before full-corridor business-case modelling:</p>
+<div class="cell" data-tbl-colwidths="[5,33,30,32]">
+<div id="tbl-audit-gaps" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[5,33,30,32]">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-audit-gaps-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;1: Methodological audit of existing railactive prototype uptake scripts and required upgrades.
+</figcaption>
+<div aria-describedby="tbl-audit-gaps-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="cell caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 5%">
+<col style="width: 33%">
+<col style="width: 30%">
+<col style="width: 32%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: right;">#</th>
+<th style="text-align: left;">Current Prototype Implementation</th>
+<th style="text-align: left;">Economic / Appraisal Risk</th>
+<th style="text-align: left;">Required Upgrade</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">Ad-hoc commute uplift (Phase 2): heuristic proximity multipliers (+35% cyclists; up to 7.5% car shift)</td>
+<td style="text-align: left;">Violates joint modelling-valuation alignment: demand does not respond to the same GC attributes valued in appraisal.</td>
+<td style="text-align: left;">Anchor uptake in a transparent GC / logistic propensity specification with corridor-exposure attenuation (omega_ij).</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">Unseparated leisure uplift (Phase 4): hardcoded trail (5.0x vs 2.5x) and campsite weights without separating diversion vs generation</td>
+<td style="text-align: left;">Risks over-crediting leisure generation and mixes Exercise &amp; Pleasure (VTT = 0) with Other Non-Work Utility.</td>
+<td style="text-align: left;">Segment outputs into TAG’s four active-mode trip purposes and separate route reassignment from net generation.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td style="text-align: left;">Static steady-state flows: single daily flow; AMAT applies 100% demand in Year 1 plus 5-yr physiological health lag</td>
+<td style="text-align: left;">Overstates PVB by 10-25% if real-world uptake builds over 3-8 years.</td>
+<td style="text-align: left;">Convolve an explicit Bass behavioural adoption S-curve with AMAT’s 5-year physiological health lag over 40 years.</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4</td>
+<td style="text-align: left;">Census 2021 lockdown distortion: Phase 2 used March 2021 OD matrices (~31% WFH)</td>
+<td style="text-align: left;">Distorts inter-town commuting patterns along rural corridors.</td>
+<td style="text-align: left;">Benchmark against 2011 Census OD (pre-COVID, PCT-compatible), then apply a post-COVID hybrid-working scalar.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">5</td>
+<td style="text-align: left;">Unbridged demand-to-AMAT schema: link flows omit OD trip lengths, prop_on_scheme, diversion shares, and e-bike splits</td>
+<td style="text-align: left;">Economists cannot populate AMAT or TATE3030 without ad-hoc post-processing.</td>
+<td style="text-align: left;">Export a formal 4-table hand-off schema with built-in double-counting checks.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+</section>
+<section id="sec-more-examples" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="sec-more-examples"><span class="header-section-number">6</span> Supplementary Oxfordshire–Uxbridge Diagnostics</h2>
+<div class="cell">
+<div id="tbl-infra" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-infra-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;2: Preferred Oxfordshire–Uxbridge corridor breakdown by infrastructure classification (v0.5.2, Sections 13 to 11).
+</figcaption>
+<div aria-describedby="tbl-infra-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="cell caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Corridor Classification</th>
+<th style="text-align: right;">Links</th>
+<th style="text-align: right;">Length (km)</th>
+<th style="text-align: right;">Share (%)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Repurposed HS2 TCR</td>
+<td style="text-align: right;">87</td>
+<td style="text-align: right;">21.72</td>
+<td style="text-align: right;">19.3%</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Upgrade PROW</td>
+<td style="text-align: right;">25</td>
+<td style="text-align: right;">19.51</td>
+<td style="text-align: right;">17.3%</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">New Greenway</td>
+<td style="text-align: right;">25</td>
+<td style="text-align: right;">19.31</td>
+<td style="text-align: right;">17.2%</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Local Road Quietway</td>
+<td style="text-align: right;">34</td>
+<td style="text-align: right;">18.64</td>
+<td style="text-align: right;">16.6%</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Existing routes</td>
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">13.43</td>
+<td style="text-align: right;">11.9%</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Quiet Lane</td>
+<td style="text-align: right;">19</td>
+<td style="text-align: right;">8.36</td>
+<td style="text-align: right;">7.4%</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Canal Towpath Upgrade</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">7.17</td>
+<td style="text-align: right;">6.4%</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Main Road-Cycle tracks</td>
+<td style="text-align: right;">17</td>
+<td style="text-align: right;">3.98</td>
+<td style="text-align: right;">3.5%</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">HS2 delivered greenway</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.34</td>
+<td style="text-align: right;">0.3%</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-worked-example" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-worked-example-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="methods_files/figure-html/fig-worked-example-1.png" class="img-fluid figure-img" width="2850">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-worked-example-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Zoomed alignment and uptake ladder for King’s Sutton (E01027288) to Banbury Town Centre (E01028435). Both centroids sit within 400 m of the preferred spine with 100% corridor alignment.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div id="tbl-four-examples" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-four-examples-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;3: Worked-example comparison across four corridor-aligned 2011 OD desire lines spanning Oxfordshire, Buckinghamshire, and Uxbridge.
+</figcaption>
+<div aria-describedby="tbl-four-examples-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="cell caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 31%">
+<col style="width: 10%">
+<col style="width: 10%">
+<col style="width: 3%">
+<col style="width: 4%">
+<col style="width: 9%">
+<col style="width: 5%">
+<col style="width: 8%">
+<col style="width: 5%">
+<col style="width: 9%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Desire Line</th>
+<th style="text-align: right;">Dist (km)</th>
+<th style="text-align: right;">Slope (%)</th>
+<th style="text-align: right;">N</th>
+<th style="text-align: right;">Car</th>
+<th style="text-align: right;">Exposure</th>
+<th style="text-align: right;">Base</th>
+<th style="text-align: right;">Central</th>
+<th style="text-align: right;">High</th>
+<th style="text-align: right;">Go Dutch</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">King’s Sutton -&gt; Banbury</td>
+<td style="text-align: right;">7.84</td>
+<td style="text-align: right;">1.50</td>
+<td style="text-align: right;">55</td>
+<td style="text-align: right;">62%</td>
+<td style="text-align: right;">0.81</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">4.7</td>
+<td style="text-align: right;">8.5</td>
+<td style="text-align: right;">11.7</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Weston Turville -&gt; Aylesbury</td>
+<td style="text-align: right;">5.67</td>
+<td style="text-align: right;">0.79</td>
+<td style="text-align: right;">32</td>
+<td style="text-align: right;">72%</td>
+<td style="text-align: right;">0.82</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">4.9</td>
+<td style="text-align: right;">7.0</td>
+<td style="text-align: right;">11.9</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Wendover -&gt; Aylesbury</td>
+<td style="text-align: right;">9.16</td>
+<td style="text-align: right;">1.17</td>
+<td style="text-align: right;">25</td>
+<td style="text-align: right;">72%</td>
+<td style="text-align: right;">0.69</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.6</td>
+<td style="text-align: right;">3.0</td>
+<td style="text-align: right;">4.7</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Denham -&gt; Uxbridge</td>
+<td style="text-align: right;">4.29</td>
+<td style="text-align: right;">0.96</td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">54%</td>
+<td style="text-align: right;">0.65</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2.5</td>
+<td style="text-align: right;">3.1</td>
+<td style="text-align: right;">5.5</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+</section>
+<section id="sec-outputs" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="sec-outputs"><span class="header-section-number">7</span> Standardised Demand-to-AMAT Output Contract</h2>
+<p>To bridge spatial demand outputs cleanly into <a href="https://github.com/railactive/amat"><code>railactive/amat</code></a>, TAG worksheets, and ATE’s forthcoming <strong>TATE3030</strong> tool without manual spreadsheet post-processing, the pipeline exports four standardised tables:</p>
+<div class="cell" data-tbl-colwidths="[20,20,35,25]">
+<div id="tbl-outputs" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[20,20,35,25]">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-outputs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;4: Standardised four-table output contract between the RailActive demand pipeline and economic evaluation tools.
+</figcaption>
+<div aria-describedby="tbl-outputs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="cell caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 35%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Output Dataset</th>
+<th style="text-align: left;">Granularity</th>
+<th style="text-align: left;">Key Fields &amp; Units</th>
+<th style="text-align: left;">Economic Appraisal Consumer</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">1. OD Uptake (od_uptake.parquet)</td>
+<td style="text-align: left;">OD pair x Purpose x Mode x Scenario</td>
+<td style="text-align: left;">o_id, d_id, section_id, rf_dist_km, slope_pct, omega_corr, prop_on_scheme, trips_base, trips_with, trips_new, divert_car, divert_pt, divert_walk, induced_share, delta_met_wk</td>
+<td style="text-align: left;">TAG Unit A5.4 MECs (car-km displaced), TATE3030 MET-hours, Rule-of-a-Half dCS</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2. Link Flows (link_flows.parquet)</td>
+<td style="text-align: left;">Network link x Section x Scenario</td>
+<td style="text-align: left;">link_id, gw_id, section, class, length_km, infra_base, infra_prop, flow_base, flow_diverted, flow_induced, pkm_base, pkm_with, grade_pct, lts_base, lts_prop</td>
+<td style="text-align: left;">Link Journey Ambience (dRate x Time on Scheme), external casualty costs, phasing</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">3. Annual Profile (annual_demand.csv)</td>
+<td style="text-align: left;">Section x Year (2030-2069) x Purpose x Mode</td>
+<td style="text-align: left;">section, year, ramp_share, health_eff, trips_exist_yr, trips_new_yr, vkm_saved_yr, met_hrs_yr</td>
+<td style="text-align: left;">40-yr discounted PVB stream (3.5% transport / 1.5% health) with ramp-up &amp; growth</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">4. AMAT Inputs (amat_inputs.csv)</td>
+<td style="text-align: left;">Section (or Route Case) x Scenario</td>
+<td style="text-align: left;">amat_run() args: cycle_trips_without, cycle_trips_with, cycle_trip_km, cycle_prop_on_scheme, cycle_current_infra, cycle_proposed_infra, annual_days, car_divert, prop_employed, ramp_pv_t, ramp_pv_h</td>
+<td style="text-align: left;">Automated batch appraisal via railactive/amat (zero manual spreadsheet entry)</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+</section>
+<section id="references" class="level2" data-number="8">
+
 
 
 
 </section>
 
-<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">8 References</h2><div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-bass1969" class="csl-entry" role="listitem">
+Bass, Frank M. 1969. <span>“A New Product Growth for Model Consumer Durables.”</span> <em>Management Science</em> 15 (5): 215–27. <a href="https://doi.org/10.1287/mnsc.15.5.215">https://doi.org/10.1287/mnsc.15.5.215</a>.
+</div>
+<div id="ref-lovelace2017" class="csl-entry" role="listitem">
+Lovelace, Robin, Anna Goodman, Rachel Aldred, Nikolai Berkoff, Ali Abbas, and James Woodcock. 2017. <span>“The <span class="nocase">Propensity to Cycle Tool</span>: An Open Source Online System for Sustainable Transport Planning.”</span> <em>Journal of Transport and Land Use</em> 10 (1): 505–28. <a href="https://doi.org/10.5198/jtlu.2016.862">https://doi.org/10.5198/jtlu.2016.862</a>.
+</div>
 <div id="ref-nellthorp2026" class="csl-entry" role="listitem">
 Nellthorp, John, Thijs Dekker, and Richard Batley. 2026. <em>Active Mode Benefits: Theoretical Framework</em>. Report to Active Travel England. Institute for Transport Studies, University of Leeds. <a href="https://www.gov.uk/government/publications/benefits-of-walking-wheeling-and-cycling-theoretical-framework">https://www.gov.uk/government/publications/benefits-of-walking-wheeling-and-cycling-theoretical-framework</a>.
 </div>

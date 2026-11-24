@@ -38,8 +38,7 @@ flowchart TD
 
 ## Documentation Guide
 
-- [**Methodology**](methods.qmd): Empirical trip purpose weighting (NTS & Active Lives Survey), network connectivity, and AMAT economic valuation.
 - [**Uptake Modelling Decision Brief (Ox–Ux)**](uptake_case_study.qmd): Concise first-principles uptake method, Oxfordshire–Uxbridge case study, worked example, and eight choices for economic appraisal.
-- [**Uptake Modelling Technical Appendix**](uptake_appendix.qmd): Prototype audit, full PCT/Bass equations, supplementary diagnostics, and standardised 4-table demand-to-AMAT schema.
+- [**Methods & Technical Appendix**](methods.qmd): Empirical trip purpose evidence (NTS & ALS), PCT/Bass equations, AMAT valuation & Clifton Road validation, prototype audit, supplementary diagnostics, and 4-table output schema.
 - [**Data Dictionary**](data_dictionary.qmd): Formal schema and variable definitions for active datasets (corridor geometries, client GPX tracks, OS OpenRoads, STATS19 safety, OSM, and Sustrans NCN).
 - [**Data Inventory**](data_inventory.qmd): Catalog of primary project assets, John Grimshaw CBE feasibility studies, SAR retention proposals, and spatial archives.

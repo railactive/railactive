@@ -1,39 +1,48 @@
 ---
-title: "Appraisal & Spatial Modeling Methodology"
-subtitle: "Travel Demand Estimation, Empirical Purpose Weighting, and AMAT Economic Valuation"
-author: "Prof Robin Lovelace & hs2cycle Team"
-institute: "Institute for Transport Studies, University of Leeds"
+title: "Appraisal & Uptake Modelling: Methods & Technical Appendix"
+subtitle: "Empirical Purpose Weighting, Model Equations, AMAT Valuation, Prototype Audit & Data Contract"
+author: "RailActive Demand & Appraisal Team (ITS, University of Leeds)"
 date: last-modified
 date-format: "D MMMM YYYY"
+format:
+  html: default
+  pdf:
+    documentclass: scrartcl
+    papersize: a4
+    geometry: [top=20mm, bottom=20mm, left=20mm, right=20mm]
+    fontsize: 10pt
+    toc: true
+    toc-depth: 2
+    number-sections: true
+    colorlinks: true
+    linkcolor: NavyBlue
+    urlcolor: NavyBlue
+    citecolor: NavyBlue
+    fig-pos: 'H'
+    include-in-header: pdf-header.tex
+  docx: default
+format-links: [pdf, docx]
 ---
 
-## Methodological Framework
+```{r setup}
+#| include: false
+source("R/uptake_helpers.R")
+dat <- load_uptake_data("data")
+```
 
-The RailActive appraisal framework integrates spatial network analysis with empirical demand modeling and the UK Department for Transport's (DfT) **Active Mode Appraisal Toolkit (AMAT)**, aligned with Active Travel England's *Active Mode Benefits: Theoretical Framework* [@nellthorp2026]. For the first-principles uptake specification and Oxfordshire–Uxbridge case study, see the [Uptake Modelling Decision Brief](uptake_case_study.qmd).
+This technical reference accompanies the [Oxfordshire–Uxbridge Decision Brief](uptake_case_study.qmd). It brings together the empirical trip-purpose evidence, full Propensity to Cycle Tool (PCT) and temporal ramp-up equations, DfT **Active Mode Appraisal Toolkit (AMAT)** valuation formulas and benchmark validation, the audit of existing `railactive` prototype scripts, supplementary corridor diagnostics, and the standardised 4-table hand-off schema aligned with Active Travel England's *Active Mode Benefits: Theoretical Framework* [@nellthorp2026].
 
-The workflow comprises three interlinked analytical stages:
+## Travel Demand & Empirical Trip Purpose Evidence {#sec-purpose}
 
-- **Spatial Network Categorisation**: Ingestion and classification of civil engineering haul roads, access tracks, and intersecting rights of way.
-- **Empirical Demand Segmentation**: Calibrating baseline active travel uptake across utility (commuting, education, shopping) and leisure purposes using the National Travel Survey (NTS) and Active Lives Survey (ALS).
-- **Multi-Modal Economic Appraisal**: Quantifying 15 appraisal components across health, economy, environment, and capital costs following official TAG guidance.
+Traditional transport appraisal tools frequently focus solely on the commute-to-work (e.g. Census Journey to Work matrices or the PCT commute layer). For a regional or national spine route like the HS2 greenway, this introduces severe undercounting risk. Analysis of recent UK microdata shows how active travel distributes across purposes:
 
----
-
-## Travel Demand & Trip Purpose Modeling
-
-Traditional transport appraisal tools frequently focus solely on the commute-to-work (e.g. Census Journey to Work matrices or the Propensity to Cycle Tool). For a national or regional spine route like the HS2 corridor, this introduces a severe undercounting risk.
-
-### Empirical Insights from National Datasets
-
-Analysis of recent microdata from the UK Data Service reveals the true distribution of active travel in England:
-
-- **National Travel Survey (NTS, 2022–2024)**:
-  - **Leisure Cycling ({{< var nts_cycle_leisure_pct >}})**: The single largest purpose for cycling, outstripping commuting ({{< var nts_cycle_commute_pct >}}).
-  - **Leisure Walking ({{< var nts_walk_leisure_pct >}})**: Walking for leisure or exercise ("just walk") accounts for 42.5% of walking trips, whereas commuting walking represents only {{< var nts_walk_commute_pct >}}.
-  - **Trip Distance & Duration**: Leisure cycle trips average **4.20 miles ({{< var nts_cycle_leisure_km >}}) and 29.9 minutes**, compared to **3.43 miles ({{< var nts_cycle_commute_km >}}) and 22.9 minutes** for commuting. Leisure cyclists spend 31% more time per journey exercising.
-- **Sport England Active Lives Survey (ALS, Year 9, 2023–2024)**:
-  - **Participation**: 31.9% of adults cycle for leisure and sport annually, compared to 11.3% for travel.
-  - **Activity Volume**: Leisure accounts for **{{< var als_cycle_leisure_time_pct >}} of total cycling minutes** and **61.5% of total walking minutes** across the population.
+- **National Travel Survey (NTS, 2022–2024):**
+  - **Leisure cycling ({{< var nts_cycle_leisure_pct >}})** is the single largest cycling purpose, outstripping commuting ({{< var nts_cycle_commute_pct >}}).
+  - **Leisure walking ({{< var nts_walk_leisure_pct >}})** dominates walking trips (42.5% "just walk"), whereas commuting accounts for only {{< var nts_walk_commute_pct >}}.
+  - **Trip length & duration:** Leisure cycle trips average **4.20 miles ({{< var nts_cycle_leisure_km >}}) and 29.9 minutes**, versus **3.43 miles ({{< var nts_cycle_commute_km >}}) and 22.9 minutes** for commuting (31% longer per trip).
+- **Sport England Active Lives Survey (ALS, Year 9, 2023–2024):**
+  - **Participation:** 31.9% of adults cycle for leisure/sport annually versus 11.3% for travel.
+  - **Activity volume:** Leisure represents **{{< var als_cycle_leisure_time_pct >}} of total cycling minutes** and **61.5% of total walking minutes**.
 
 | Metric | Leisure / Exercise | Commute / Travel |
 | :--- | :---: | :---: |
@@ -43,46 +52,80 @@ Analysis of recent microdata from the UK Data Service reveals the true distribut
 
 : Active mode demand composition across national datasets.
 
----
+## PCT Logistic Propensity Specification {#sec-pct-details}
 
-## Economic Benefits Appraisal (DfT AMAT)
+Under Random Utility Maximisation (RUM), commute cycling share $p_{ij}$ on $(i, j)$ follows a logistic function of utility difference $\Delta V_{ij} = -\lambda\,(GC^{\text{cycle}}_{ij} - GC^{\text{alt}}_{ij})$:
 
-Economic benefits are evaluated using a concise, verified base-R implementation of AMAT ([`railactive/amat`](https://github.com/railactive/amat)).
+$$
+\text{logit}\bigl(p_{ij}\bigr) = \ln\!\left(\frac{p_{ij}}{1 - p_{ij}}\right) = \alpha(q_{ij}) + f(d_{ij},\, g_{ij})
+$$ {#eq-logit}
 
-### Appraisal Components
+In the UK Propensity to Cycle Tool [@lovelace2017], calibrated on 2011 Census OD flows across England and Wales, the baseline distance–hilliness decay function for fastest-route distance $d_{ij}$ (km) and average gradient $g_{ij}$ (%) is:
 
-1. **Premature Death Reduction (Health)**:
-   - Uses the WHO Health Economic Assessment Tool (HEAT) dose-response curve adapted for TAG:
+$$
+\begin{aligned}
+\text{logit}\bigl(p^{\text{base}}_{ij}\bigr) &= -3.818 - 0.652\,d_{ij} + 2.084\sqrt{d_{ij}} + 0.00878\,d_{ij}^2 \\
+&\quad - 0.256\,g_{ij} + 0.0199\,d_{ij}g_{ij} - 0.123\sqrt{d_{ij}}\,g_{ij}
+\end{aligned}
+$$ {#eq-pct-base}
 
-   $$\text{RR} = \max\left(0.55, \exp\left(\frac{\ln(0.90)}{11.25} \times \text{MET-hours/week}\right)\right)$$
+Area-wide transformation to *Go Dutch* shifts the infrastructure-quality intercept ($\Delta \alpha_{\text{Dutch}} = +2.552$, with slope term $-0.079\,d_{ij}$), while *E-bikes* additionally attenuates distance and gradient exertion penalties $e(t)$ [@nellthorp2026, §4.2.3].
 
-   - Attributable deaths avoided are calculated across 5 age bands for males and females and valued using discounted Years of Life Lost (YLL) at £92,240 per life-year.
+## Temporal Adoption & Health-Lag Equations {#sec-temporal-equations}
 
-2. **Workplace Absenteeism**:
-   - Sickness absence reduction (0.25 days per user per year) applied to employed new users, valued at average regional daily labor output (£267.36/day).
+Cumulative behavioural adoption $r(t) \in [0, 1]$ at $t$ years post-opening follows a **Bass diffusion S-curve** [@bass1969] with innovation parameter $p$ and imitation parameter $q$:
 
-3. **Journey Ambience & Quality**:
-   - Valued using the **Rule of a Half** for existing users and new switchers:
+$$
+r(t) = \frac{1 - e^{-(p + q)t}}{1 + \frac{q}{p}\,e^{-(p + q)t}}
+$$ {#eq-bass}
 
-   $$\text{Benefit} = \left(\text{Trips}_{\text{existing}} + \frac{\text{Trips}_{\text{new}}}{2}\right) \times \Delta\text{Rate} \times \text{Time on Scheme} \times \text{VoT}_{\text{non-work}}$$
+In appraisal year $y \ge oy$ (mid-year $t_y = y - oy + 0.5$), daily trips equal:
 
-   - Upgrading from "No provision" to "Off-road segregated cycle track" yields an amenity improvement of **{{< var ambience_offroad_rate >}}**.
+$$
+\Delta T_y = \Delta T^{*} \cdot r(t_y) \cdot (1 + g_{\text{bg}})^{\min(y - oy,\, 20)}
+$$ {#eq-annual-trips}
 
-4. **Decongestion & Environmental Externalities**:
-   - Mode-shift from private cars and taxis reduces vehicle-kilometres:
+where $\Delta T^{*}$ is steady-state uptake and $g_{\text{bg}} = 0.0075$ is AMAT's annual background growth rate. Convolving annual conversion cohorts $\Delta r_j = r(t_j) - r(t_{j-1})$ with AMAT's 5-year linear physiological mortality lag gives the effective health-benefit share $H^{\text{eff}}_k$ in operational year $k$:
 
-   $$\text{Vehicle-km Reduced} = \text{Trips}_{\text{new}} \times \text{Trip Length} \times \text{Days} \times \left(\frac{\text{Car Divert}}{\text{Car Occupancy}} + \frac{\text{Taxi Divert}}{\text{Taxi Occupancy}}\right)$$
+$$
+H^{\text{eff}}_k = \sum_{j=1}^{k} \Delta r_j \cdot \min\!\bigl(1,\; 0.2\,(k - j + 1)\bigr)
+$$ {#eq-conv}
 
-   - Savings are calculated across 7 marginal external cost streams: highway congestion, infrastructure wear, collision risk, local air quality ($PM_{2.5}$, $NO_x$), ambient noise, greenhouse gas emissions ($CO_2e$), and indirect taxation losses.
+Sensitivity profiles evaluated in the Decision Brief use $(p=0.22, q=0.70)$ for Fast (3-yr), $(p=0.10, q=0.55)$ for Central (5-yr), and $(p=0.05, q=0.35)$ for Slow (8-yr) maturity.
 
----
+## Economic Benefits Appraisal (DfT AMAT) & Validation {#sec-amat}
 
-## Golden Benchmark Validation
+Economic benefits are evaluated using a verified base-R implementation of DfT AMAT ([`railactive/amat`](https://github.com/railactive/amat)) across four main benefit streams:
 
-The economic model is benchmarked against the official DfT worked example (*Clifton Road Active Mode Corridor*, May 2026 TAG release / 2023 prices):
+1. **Premature Death Reduction (Health):** Uses the WHO HEAT dose-response curve adapted for TAG, valued using discounted Years of Life Lost (YLL) at £92,240 per life-year across 5 age bands by sex:
+
+   $$\text{RR} = \max\!\left(0.55,\; \exp\!\left(\frac{\ln(0.90)}{11.25} \times \text{MET-hours/week}\right)\right)$$
+
+2. **Workplace Absenteeism:** Sickness absence reduction (0.25 days/user/year) applied to employed new users, valued at average regional daily labour output (£267.36/day).
+3. **Journey Ambience & Quality:** Valued using the **Rule of a Half** for existing and new trips (upgrading from "No provision" to "Off-road segregated cycle track" yields **{{< var ambience_offroad_rate >}}**):
+
+   $$
+   \begin{aligned}
+   \text{Benefit} &= \left(\text{Trips}_{\text{existing}} + \frac{\text{Trips}_{\text{new}}}{2}\right) \\
+                  &\quad \times \Delta\text{Rate} \times \text{Time on Scheme} \times \text{VoT}_{\text{non-work}}
+   \end{aligned}
+   $$
+
+4. **Decongestion & Environmental Externalities:** Mode shift from cars and taxis reduces vehicle-kilometres across 7 marginal external cost streams (congestion, infrastructure, collisions, local air quality, noise, GHGs, and indirect tax):
+
+   $$
+   \begin{aligned}
+   \text{Vehicle-km Reduced} &= \text{Trips}_{\text{new}} \times \text{Trip Length} \times \text{Days} \\
+                             &\quad \times \left(\frac{\text{Car Divert}}{\text{Car Occupancy}} + \frac{\text{Taxi Divert}}{\text{Taxi Occupancy}}\right)
+   \end{aligned}
+   $$
+
+### Golden Benchmark Validation
+
+The base-R economic model reproduces the official DfT worked example (*Clifton Road Active Mode Corridor*, May 2026 TAG Data Book / 2023 prices) to **{{< var amat_diff_benchmark >}}** across every stream:
 
 | Metric | Official AMAT Excel | RailActive R Model | Difference |
-| :--- | :--- | :--- | :--- |
+| :--- | ---: | ---: | ---: |
 | **Congestion** | £78,506.72 | £78,506.72 | {{< var amat_diff_benchmark >}} |
 | **Accidents** | £8,284.88 | £8,284.88 | {{< var amat_diff_benchmark >}} |
 | **Premature Death** | £645,027.55 | £645,027.55 | {{< var amat_diff_benchmark >}} |
@@ -91,3 +134,58 @@ The economic model is benchmarked against the official DfT worked example (*Clif
 | **Present Value Benefits (PVB)** | £1,611,403.66 | £1,611,403.66 | {{< var amat_diff_benchmark >}} |
 | **Present Value Costs (PVC)** | £567,361.97 | £567,361.97 | {{< var amat_diff_benchmark >}} |
 | **Benefit-Cost Ratio (BCR)** | **{{< var amat_bcr_benchmark >}}** | **{{< var amat_bcr_benchmark >}}** | **0.00** |
+
+: Validation of `railactive/amat` against the official DfT Clifton Road AMAT workbook.
+
+## Audit of Existing RailActive Prototype Work {#sec-audit}
+
+Before specifying the appraisal-ready pipeline, we audited analytical outputs across `railactive/pipeline`, `railactive/hs2cycle`, and `railactive/amat`:
+
+- **Harmonised corridor alignment (`north_south_corridor_v2.json`, {{< var corridor_version >}}):** {{< var corridor_total_km >}} km preferred North–South Greenway spine ({{< var corridor_hs2_km >}} km core HS2 alignment plus Avenue Verte and Stoke–Birkenhead branches) with a 3-tier status taxonomy (`preferred`, `alternative`, `superseded`) and civil-asset classes (`Repurposed HS2 TCR`, `HS2 delivered greenway`, `Dual Use MATs`).
+- **Multi-purpose network assignment (`pipeline` Phases 1–4):** Splicing the preferred greenway into a 1.72M-link corridor network in Rust/CSIS `netassign` (DEM gradients capped at $\pm 2\%$ on engineered alignments) and validating against **7,219 cycling** and **1,439 walking** counters lifted baseline cycling fit from $R^2_{\log 10} = 0.352$ (commute-only) to **$0.676$** (`56.2%` within $2\times$), and walking fit from $-0.177$ to **$0.488$**. Phase 2 separated route diversion (`+3,175` bike pkm/day) from induced/shifted commute demand (`+4,953` bike pkm/day); Phase 4 lifted spine cycling from `86.7` to `132.3` riders/day (`+52.6%`).
+
+Five structural prototype gaps must be resolved before full-corridor business-case modelling:
+
+```{r tbl-audit-gaps}
+#| tbl-colwidths: [5, 33, 30, 32]
+tbl_from_csv(
+  "data/uptake_audit_gaps.csv",
+  caption = "Methodological audit of existing railactive prototype uptake scripts and required upgrades.",
+  align = c("r", "l", "l", "l"),
+  col_names = c("#", "Current Prototype Implementation", "Economic / Appraisal Risk", "Required Upgrade")
+)
+```
+
+## Supplementary Oxfordshire–Uxbridge Diagnostics {#sec-more-examples}
+
+```{r tbl-infra}
+tbl_infra(dat)
+```
+
+```{r fig-worked-example}
+#| fig-cap: "Zoomed alignment and uptake ladder for King's Sutton (E01027288) to Banbury Town Centre (E01028435). Both centroids sit within 400 m of the preferred spine with 100% corridor alignment."
+#| fig-width: 9.5
+#| fig-height: 4.3
+#| dpi: 300
+plot_worked_example(dat)
+```
+
+```{r tbl-four-examples}
+tbl_four_examples(dat)
+```
+
+## Standardised Demand-to-AMAT Output Contract {#sec-outputs}
+
+To bridge spatial demand outputs cleanly into [`railactive/amat`](https://github.com/railactive/amat), TAG worksheets, and ATE's forthcoming **TATE3030** tool without manual spreadsheet post-processing, the pipeline exports four standardised tables:
+
+```{r tbl-outputs}
+#| tbl-colwidths: [20, 20, 35, 25]
+tbl_from_csv(
+  "data/uptake_outputs_schema.csv",
+  caption = "Standardised four-table output contract between the RailActive demand pipeline and economic evaluation tools.",
+  align = c("l", "l", "l", "l"),
+  col_names = c("Output Dataset", "Granularity", "Key Fields & Units", "Economic Appraisal Consumer")
+)
+```
+
+## References

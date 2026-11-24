@@ -161,24 +161,13 @@ window.Quarto = {
 <span class="menu-text">Overview</span></a>
   </li>  
   <li class="nav-item">
+    <a class="nav-link active" href="./uptake_case_study.html" aria-current="page"> 
+<span class="menu-text">Uptake Brief</span></a>
+  </li>  
+  <li class="nav-item">
     <a class="nav-link" href="./methods.html"> 
-<span class="menu-text">Methodology</span></a>
+<span class="menu-text">Methods &amp; Appendix</span></a>
   </li>  
-  <li class="nav-item dropdown ">
-    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-uptake-modelling" role="link" data-bs-toggle="dropdown" aria-expanded="false">
- <span class="menu-text">Uptake Modelling</span>
-    </a>
-    <ul class="dropdown-menu" aria-labelledby="nav-menu-uptake-modelling">    
-        <li>
-    <a class="dropdown-item" href="./uptake_case_study.html">
- <span class="dropdown-text">Decision Brief (Ox–Ux)</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="./uptake_appendix.html">
- <span class="dropdown-text">Technical Appendix</span></a>
-  </li>  
-    </ul>
-  </li>
   <li class="nav-item">
     <a class="nav-link" href="./data_dictionary.html"> 
 <span class="menu-text">Data Dictionary</span></a>
@@ -266,7 +255,7 @@ window.Quarto = {
 <i class="callout-icon"></i>
 </div>
 <div class="callout-body-container">
-<p><strong>Purpose and companion files.</strong> This brief is prepared for the consultancy economics team and Dr John Nellthorp (ITS, University of Leeds). It sets out a concise, first-principles active travel uptake method aligned with <em>Active Mode Benefits: Theoretical Framework</em> <span class="citation" data-cites="nellthorp2026">(<a href="#ref-nellthorp2026" role="doc-biblioref">Nellthorp et al. 2026</a>)</span>, illustrates it on the <strong>112.5 km Oxfordshire-to-Uxbridge</strong> section, and highlights eight modelling decisions to agree before scaling to the full 805.6 km North–South Greenway. Prototype audits, full PCT/Bass equations, supplementary diagnostics, and the 4-table data contract sit in the <a href="./uptake_appendix.html">Technical Appendix</a>.</p>
+<p><strong>Purpose and companion files.</strong> This brief is prepared for the consultancy economics team and Dr John Nellthorp (ITS, University of Leeds). It sets out a concise, first-principles active travel uptake method aligned with <em>Active Mode Benefits: Theoretical Framework</em> <span class="citation" data-cites="nellthorp2026">(<a href="#ref-nellthorp2026" role="doc-biblioref">Nellthorp et al. 2026</a>)</span>, illustrates it on the <strong>112.5 km Oxfordshire-to-Uxbridge</strong> section, and highlights eight modelling decisions to agree before scaling to the full 805.6 km North–South Greenway. Prototype audits, full PCT/Bass equations, AMAT validation, supplementary diagnostics, and the 4-table data contract sit in <a href="./methods.html">Methods &amp; Appendix</a>.</p>
 </div>
 </div>
 </div>
@@ -382,11 +371,11 @@ GC_{ij,r} &amp;= \sum_{n \in r} \Bigl( m\,v_t\,t_n + v_s\,s_n + v_e\,e_n + v_c\,
 <p><span id="eq-corridor-uptake"><span class="math display">\[
 C^{1}_{ij} = \min\!\Bigl(N_{ij},\; C^{0}_{ij} + \kappa\,\omega_{ij}\,\max\bigl(0,\; C^{\text{ref}}_{ij} - C^{0}_{ij}\bigr)\Bigr)
 \tag{3}\]</span></span></p>
-<p>Full PCT logistic equations and an audit of the existing <code>railactive</code> prototype scripts are given in <a href="./uptake_appendix.html#sec-audit">Appendix §1–2</a>.</p>
+<p>Full PCT logistic equations and an audit of the existing <code>railactive</code> prototype scripts are given in <a href="./methods.html#sec-pct-details">Methods &amp; Appendix</a> (see also the <a href="./methods.html#sec-audit">prototype audit</a>).</p>
 </section>
 <section id="sec-casestudy" class="level2" data-number="3">
 <h2 data-number="3" class="anchored" data-anchor-id="sec-casestudy"><span class="header-section-number">3</span> Oxfordshire–Uxbridge Case Study (112.5 km)</h2>
-<p>We test the framework on the <strong>112.5 km Oxfordshire-to-Uxbridge</strong> spine (v0.5.2, Sections <code>13</code> to <code>11</code>, 234 links from Banbury via Brackley, Calvert, Aylesbury, Wendover, and Amersham to Uxbridge). Over <strong>64% (72 km)</strong> consists of off-road or segregated assets (detailed breakdown in <a href="./uptake_appendix.html#sec-more-examples">Appendix Table 2</a>).</p>
+<p>We test the framework on the <strong>112.5 km Oxfordshire-to-Uxbridge</strong> spine (v0.5.2, Sections <code>13</code> to <code>11</code>, 234 links from Banbury via Brackley, Calvert, Aylesbury, Wendover, and Amersham to Uxbridge). Over <strong>64% (72 km)</strong> consists of off-road or segregated assets (detailed breakdown in <a href="./methods.html#sec-more-examples">Methods &amp; Appendix</a>).</p>
 <div class="cell">
 <div class="cell-output-display">
 <div id="fig-corridor-map" class="quarto-float quarto-figure quarto-figure-center anchored">
@@ -523,11 +512,11 @@ Figure&nbsp;2: 2011 commute cycling uptake in the 3 km catchment: (A) new cyclis
 <li><strong>PCT propensities &amp; corridor uptake:</strong> Evaluating <a href="#eq-corridor-uptake" class="quarto-xref">Equation&nbsp;3</a> between observed baseline (<code>0</code>), <em>Go Dutch</em> (<span class="math inline">\(p^{\text{Dutch}} = 21.29\%\)</span>, 11.71 cyclists), and <em>E-bikes</em> (<span class="math inline">\(p^{\text{ebike}} = 31.82\%\)</span>, 17.50 cyclists) yields <strong>4.72 steady-state commute cyclists</strong> (8.6% share) under <strong>Corridor Central</strong> (8.97 one-way trips/day at AMAT’s <code>1.9</code> return factor, <strong>15,471 cycle-km/yr</strong> over <code>220</code> days) and <strong>8.47 cyclists</strong> (16.09 trips/day) under <strong>Corridor High (E-bikes)</strong>.</li>
 <li><strong>Car diversion sensitivity:</strong> Proportional non-cycle diversion implies <strong>61.8%</strong> (2.92 cyclists) divert from car driver — more than double AMAT’s <code>24%</code> national urban default (<code>+6%</code> taxi; <span class="citation" data-cites="dft2025amat">Department for Transport (<a href="#ref-dft2025amat" role="doc-biblioref">2025</a>)</span>).</li>
 </ul>
-<p>Further diagnostic plots for this pair and three Buckinghamshire/Uxbridge comparisons appear in <a href="./uptake_appendix.html#sec-more-examples">Appendix §3</a>.</p>
+<p>Further diagnostic plots for this pair and three Buckinghamshire/Uxbridge comparisons appear in <a href="./methods.html#sec-more-examples">Methods &amp; Appendix</a>.</p>
 </section>
 <section id="extending-to-leisure-exercisepleasure-trips" class="level3" data-number="4.2">
 <h3 data-number="4.2" class="anchored" data-anchor-id="extending-to-leisure-exercisepleasure-trips"><span class="header-section-number">4.2</span> Extending to Leisure &amp; Exercise/Pleasure Trips</h3>
-<p>As documented in <a href="./methods.html">Methodology</a>, commuting accounts for only <strong>29.9%</strong> of cycling trips (NTS) and <strong>29.5%</strong> of cycling time (ALS), whereas leisure represents <strong>39.7%</strong> of trips and <strong>70.5%</strong> of minutes. Following <span class="citation" data-cites="nellthorp2026">Nellthorp et al. (<a href="#ref-nellthorp2026" role="doc-biblioref">2026</a>)</span> (§1.4.1, Table 2), appraisal must separate <strong>Exercise &amp; Pleasure</strong> (marginal <span class="math inline">\(VTT = 0\)</span>, full Journey Ambience &amp; health benefits, lower car-diversion MECs) from <strong>Other Non-Work Utility</strong> (shopping, education, station access). We propose a two-tier extension:</p>
+<p>As documented in <a href="./methods.html#sec-purpose">Methods &amp; Appendix</a>, commuting accounts for only <strong>29.9%</strong> of cycling trips (NTS) and <strong>29.5%</strong> of cycling time (ALS), whereas leisure represents <strong>39.7%</strong> of trips and <strong>70.5%</strong> of minutes. Following <span class="citation" data-cites="nellthorp2026">Nellthorp et al. (<a href="#ref-nellthorp2026" role="doc-biblioref">2026</a>)</span> (§1.4.1, Table 2), appraisal must separate <strong>Exercise &amp; Pleasure</strong> (marginal <span class="math inline">\(VTT = 0\)</span>, full Journey Ambience &amp; health benefits, lower car-diversion MECs) from <strong>Other Non-Work Utility</strong> (shopping, education, station access). We propose a two-tier extension:</p>
 <ul>
 <li><strong>Tier 1 (Screening):</strong> Apply calibrated purpose multipliers (<code>1.5×</code> local leisure + <code>0.5×</code> other utility on <code>King's Sutton–Banbury</code> adds <code>+13.5</code> leisure and <code>+4.5</code> other-utility trips/day to <code>8.97</code> commute trips).</li>
 <li><strong>Tier 2 (Full corridor):</strong> Run a spatial gravity model linking LSOAs, rail stations, and OSM campsites to greenway attractors with longer leisure decay (<span class="math inline">\(L \approx 6\text{–}9\text{ km}\)</span>) calibrated to rural trail counters.</li>
@@ -535,7 +524,7 @@ Figure&nbsp;2: 2011 commute cycling uptake in the 3 km catchment: (A) new cyclis
 </section>
 <section id="behavioural-ramp-up-convolved-with-amat-health-lags" class="level3" data-number="4.3">
 <h3 data-number="4.3" class="anchored" data-anchor-id="behavioural-ramp-up-convolved-with-amat-health-lags"><span class="header-section-number">4.3</span> Behavioural Ramp-Up Convolved with AMAT Health Lags</h3>
-<p>Over ATE’s <strong>40-year appraisal period</strong> (3.5% transport / 1.5% health discounting; <span class="citation" data-cites="nellthorp2026">Nellthorp et al. (<a href="#ref-nellthorp2026" role="doc-biblioref">2026</a>)</span> §2.3; <span class="citation" data-cites="hmt2026greenbook">HM Treasury (<a href="#ref-hmt2026greenbook" role="doc-biblioref">2026</a>)</span>), AMAT applies 100% demand in Year 1 plus a 5-year linear physiological health lag. Because real-world route uptake builds over 3–8 years <span class="citation" data-cites="goodman2014">(<a href="#ref-goodman2014" role="doc-biblioref">Goodman et al. 2014</a>)</span>, we convolve a <strong>Bass diffusion S-curve</strong> <span class="citation" data-cites="bass1969">(<a href="#ref-bass1969" role="doc-biblioref">Bass 1969</a>)</span> with AMAT’s 5-year health lag (equations in <a href="./uptake_appendix.html#sec-temporal-equations">Appendix §4</a>).</p>
+<p>Over ATE’s <strong>40-year appraisal period</strong> (3.5% transport / 1.5% health discounting; <span class="citation" data-cites="nellthorp2026">Nellthorp et al. (<a href="#ref-nellthorp2026" role="doc-biblioref">2026</a>)</span> §2.3; <span class="citation" data-cites="hmt2026greenbook">HM Treasury (<a href="#ref-hmt2026greenbook" role="doc-biblioref">2026</a>)</span>), AMAT applies 100% demand in Year 1 plus a 5-year linear physiological health lag. Because real-world route uptake builds over 3–8 years <span class="citation" data-cites="goodman2014">(<a href="#ref-goodman2014" role="doc-biblioref">Goodman et al. 2014</a>)</span>, we convolve a <strong>Bass diffusion S-curve</strong> <span class="citation" data-cites="bass1969">(<a href="#ref-bass1969" role="doc-biblioref">Bass 1969</a>)</span> with AMAT’s 5-year health lag (equations in <a href="./methods.html#sec-temporal-equations">Methods &amp; Appendix</a>).</p>
 <div class="cell">
 <div class="cell-output-display">
 <div id="fig-lag" class="quarto-float quarto-figure quarto-figure-center anchored">
@@ -691,7 +680,7 @@ Table&nbsp;4: Illustrative 40-year PVB (2023 prices, Core Aligned commute subset
 </figure>
 </div>
 </div>
-<p>Because <strong>86%</strong> of core commute PVB sits in Health and Journey Ambience, all outputs will enforce <span class="citation" data-cites="nellthorp2026">Nellthorp et al. (<a href="#ref-nellthorp2026" role="doc-biblioref">2026</a>)</span> (Table 13) double-counting rules via the 4-table hand-off schema in <a href="./uptake_appendix.html#sec-outputs">Appendix §5</a>:</p>
+<p>Because <strong>86%</strong> of core commute PVB sits in Health and Journey Ambience, all outputs will enforce <span class="citation" data-cites="nellthorp2026">Nellthorp et al. (<a href="#ref-nellthorp2026" role="doc-biblioref">2026</a>)</span> (Table 13) double-counting rules via the 4-table hand-off schema in <a href="./methods.html#sec-outputs">Methods &amp; Appendix</a>:</p>
 <div class="callout callout-style-default callout-important callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">

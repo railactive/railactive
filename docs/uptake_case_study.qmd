@@ -32,7 +32,7 @@ s   <- dat$stats
 ```
 
 ::: {.callout-note appearance="simple"}
-**Purpose and companion files.** This brief is prepared for the consultancy economics team and Dr John Nellthorp (ITS, University of Leeds). It sets out a concise, first-principles active travel uptake method aligned with *Active Mode Benefits: Theoretical Framework* [@nellthorp2026], illustrates it on the **`r s$tot_len_km` km Oxfordshire-to-Uxbridge** section, and highlights eight modelling decisions to agree before scaling to the full {{< var corridor_total_km >}} km North–South Greenway. Prototype audits, full PCT/Bass equations, supplementary diagnostics, and the 4-table data contract sit in the [Technical Appendix](uptake_appendix.qmd).
+**Purpose and companion files.** This brief is prepared for the consultancy economics team and Dr John Nellthorp (ITS, University of Leeds). It sets out a concise, first-principles active travel uptake method aligned with *Active Mode Benefits: Theoretical Framework* [@nellthorp2026], illustrates it on the **`r s$tot_len_km` km Oxfordshire-to-Uxbridge** section, and highlights eight modelling decisions to agree before scaling to the full {{< var corridor_total_km >}} km North–South Greenway. Prototype audits, full PCT/Bass equations, AMAT validation, supplementary diagnostics, and the 4-table data contract sit in [Methods & Appendix](methods.qmd).
 :::
 
 ## Executive Summary & Decisions to Agree {#sec-decisions}
@@ -83,11 +83,11 @@ $$
 C^{1}_{ij} = \min\!\Bigl(N_{ij},\; C^{0}_{ij} + \kappa\,\omega_{ij}\,\max\bigl(0,\; C^{\text{ref}}_{ij} - C^{0}_{ij}\bigr)\Bigr)
 $$ {#eq-corridor-uptake}
 
-Full PCT logistic equations and an audit of the existing `railactive` prototype scripts are given in [Appendix §1–2](uptake_appendix.qmd#sec-audit).
+Full PCT logistic equations and an audit of the existing `railactive` prototype scripts are given in [Methods & Appendix](methods.qmd#sec-pct-details) (see also the [prototype audit](methods.qmd#sec-audit)).
 
 ## Oxfordshire–Uxbridge Case Study (`r s$tot_len_km` km) {#sec-casestudy}
 
-We test the framework on the **`r s$tot_len_km` km Oxfordshire-to-Uxbridge** spine ({{< var corridor_version >}}, Sections `13` to `11`, `r s$n_links` links from Banbury via Brackley, Calvert, Aylesbury, Wendover, and Amersham to Uxbridge). Over **`r sprintf("%.0f%%", s$offroad_pct)` (`r s$offroad_km` km)** consists of off-road or segregated assets (detailed breakdown in [Appendix Table 2](uptake_appendix.qmd#sec-more-examples)).
+We test the framework on the **`r s$tot_len_km` km Oxfordshire-to-Uxbridge** spine ({{< var corridor_version >}}, Sections `13` to `11`, `r s$n_links` links from Banbury via Brackley, Calvert, Aylesbury, Wendover, and Amersham to Uxbridge). Over **`r sprintf("%.0f%%", s$offroad_pct)` (`r s$offroad_km` km)** consists of off-road or segregated assets (detailed breakdown in [Methods & Appendix](methods.qmd#sec-more-examples)).
 
 ```{r fig-corridor-map}
 #| fig-cap: "Oxfordshire–Uxbridge corridor case study: (A) Preferred alignment by infrastructure class and 3 km buffer; (B) 2011 Census LSOA commute uptake desire lines (Corridor Central >= 2.5 new cyclists; King's Sutton to Banbury highlighted)."
@@ -125,18 +125,18 @@ plot_dist_lad(dat)
 - **PCT propensities & corridor uptake:** Evaluating @eq-corridor-uptake between observed baseline (`0`), *Go Dutch* ($p^{\text{Dutch}} = `r sprintf("%.2f", s$ex_p_dutch)`\%$, `r sprintf("%.2f", s$ex_dutch)` cyclists), and *E-bikes* ($p^{\text{ebike}} = `r sprintf("%.2f", s$ex_p_ebike)`\%$, `r sprintf("%.2f", s$ex_ebike)` cyclists) yields **`r sprintf("%.2f", s$ex_cc)` steady-state commute cyclists** (`r sprintf("%.1f%%", s$ex_cc_share)` share) under **Corridor Central** (`r sprintf("%.2f", s$ex_trips_day)` one-way trips/day at AMAT's `1.9` return factor, **`r comma(round(s$ex_km_yr))` cycle-km/yr** over `220` days) and **`r sprintf("%.2f", s$ex_ch)` cyclists** (`r sprintf("%.2f", s$ex_ch_trips_day)` trips/day) under **Corridor High (E-bikes)**.
 - **Car diversion sensitivity:** Proportional non-cycle diversion implies **`r sprintf("%.1f%%", s$ex_car_div_pct)`** (`r sprintf("%.2f", s$ex_car_div_cyc)` cyclists) divert from car driver — more than double AMAT's `24%` national urban default (`+6%` taxi; @dft2025amat).
 
-Further diagnostic plots for this pair and three Buckinghamshire/Uxbridge comparisons appear in [Appendix §3](uptake_appendix.qmd#sec-more-examples).
+Further diagnostic plots for this pair and three Buckinghamshire/Uxbridge comparisons appear in [Methods & Appendix](methods.qmd#sec-more-examples).
 
 ### Extending to Leisure & Exercise/Pleasure Trips
 
-As documented in [Methodology](methods.qmd), commuting accounts for only **{{< var nts_cycle_commute_pct >}}** of cycling trips (NTS) and **{{< var als_cycle_travel_time_pct >}}** of cycling time (ALS), whereas leisure represents **{{< var nts_cycle_leisure_pct >}}** of trips and **{{< var als_cycle_leisure_time_pct >}}** of minutes. Following @nellthorp2026 (§1.4.1, Table 2), appraisal must separate **Exercise & Pleasure** (marginal $VTT = 0$, full Journey Ambience & health benefits, lower car-diversion MECs) from **Other Non-Work Utility** (shopping, education, station access). We propose a two-tier extension:
+As documented in [Methods & Appendix](methods.qmd#sec-purpose), commuting accounts for only **{{< var nts_cycle_commute_pct >}}** of cycling trips (NTS) and **{{< var als_cycle_travel_time_pct >}}** of cycling time (ALS), whereas leisure represents **{{< var nts_cycle_leisure_pct >}}** of trips and **{{< var als_cycle_leisure_time_pct >}}** of minutes. Following @nellthorp2026 (§1.4.1, Table 2), appraisal must separate **Exercise & Pleasure** (marginal $VTT = 0$, full Journey Ambience & health benefits, lower car-diversion MECs) from **Other Non-Work Utility** (shopping, education, station access). We propose a two-tier extension:
 
 - **Tier 1 (Screening):** Apply calibrated purpose multipliers (`1.5×` local leisure + `0.5×` other utility on `King's Sutton–Banbury` adds `+13.5` leisure and `+4.5` other-utility trips/day to `8.97` commute trips).
 - **Tier 2 (Full corridor):** Run a spatial gravity model linking LSOAs, rail stations, and OSM campsites to greenway attractors with longer leisure decay ($L \approx 6\text{–}9\text{ km}$) calibrated to rural trail counters.
 
 ### Behavioural Ramp-Up Convolved with AMAT Health Lags
 
-Over ATE's **40-year appraisal period** (3.5% transport / 1.5% health discounting; @nellthorp2026 §2.3; @hmt2026greenbook), AMAT applies 100% demand in Year 1 plus a 5-year linear physiological health lag. Because real-world route uptake builds over 3–8 years [@goodman2014], we convolve a **Bass diffusion S-curve** [@bass1969] with AMAT's 5-year health lag (equations in [Appendix §4](uptake_appendix.qmd#sec-temporal-equations)).
+Over ATE's **40-year appraisal period** (3.5% transport / 1.5% health discounting; @nellthorp2026 §2.3; @hmt2026greenbook), AMAT applies 100% demand in Year 1 plus a 5-year linear physiological health lag. Because real-world route uptake builds over 3–8 years [@goodman2014], we convolve a **Bass diffusion S-curve** [@bass1969] with AMAT's 5-year health lag (equations in [Methods & Appendix](methods.qmd#sec-temporal-equations)).
 
 ```{r fig-lag}
 #| fig-cap: "40-year trajectory (2030–2069) on King's Sutton–Banbury (Corridor Central): (A) annual commute trips under instant jump vs 3-, 5-, and 8-yr Bass ramp-up; (B) effective health-benefit share after convolving behavioural adoption with AMAT's 5-yr health lag."
@@ -161,7 +161,7 @@ Passing just the **core aligned commute subset** (`r comma(s$n_pairs_core)` pair
 tbl_amat_scale(dat)
 ```
 
-Because **`r sprintf("%.0f%%", s$health_amb_pct)`** of core commute PVB sits in Health and Journey Ambience, all outputs will enforce @nellthorp2026 (Table 13) double-counting rules via the 4-table hand-off schema in [Appendix §5](uptake_appendix.qmd#sec-outputs):
+Because **`r sprintf("%.0f%%", s$health_amb_pct)`** of core commute PVB sits in Health and Journey Ambience, all outputs will enforce @nellthorp2026 (Table 13) double-counting rules via the 4-table hand-off schema in [Methods & Appendix](methods.qmd#sec-outputs):
 
 ::: {.callout-important}
 ### Double-Counting Compliance Summary (Nellthorp et al. 2026, Table 13)

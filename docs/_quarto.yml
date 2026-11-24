@@ -21,14 +21,10 @@ website:
         href: "../"
       - text: "Overview"
         href: index.qmd
-      - text: "Methodology"
+      - text: "Uptake Brief"
+        href: uptake_case_study.qmd
+      - text: "Methods & Appendix"
         href: methods.qmd
-      - text: "Uptake Modelling"
-        menu:
-          - text: "Decision Brief (Ox–Ux)"
-            href: uptake_case_study.qmd
-          - text: "Technical Appendix"
-            href: uptake_appendix.qmd
       - text: "Data Dictionary"
         href: data_dictionary.qmd
       - text: "Data Inventory"
