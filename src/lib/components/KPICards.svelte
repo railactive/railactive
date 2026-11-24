@@ -67,7 +67,7 @@
 
   .bar {
     height: 10px;
-    background: rgba(255, 255, 255, 0.08);
+    background: var(--bg-muted);
     border-radius: 9999px;
     overflow: hidden;
     display: flex;

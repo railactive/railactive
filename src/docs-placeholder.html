@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RailActive — Documentation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg-primary: #f8fafc;
+        --bg-surface: #ffffff;
+        --bg-secondary: #f1f5f9;
+        --border-color: #e2e8f0;
+        --text-primary: #0f172a;
+        --text-secondary: #475569;
+        --text-muted: #64748b;
+        --accent-civic: #1d4ed8;
+        --accent-civic-hover: #1e40af;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      header {
+        background: var(--bg-surface);
+        border-bottom: 1px solid var(--border-color);
+        padding: 12px 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 700;
+        font-size: 15px;
+        color: var(--text-primary);
+        text-decoration: none;
+      }
+
+      .brand-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        border-radius: 7px;
+        background: var(--accent-civic);
+        color: #ffffff;
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 14px;
+        border-radius: 6px;
+        background: var(--accent-civic);
+        color: #ffffff;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: background-color 0.15s ease;
+      }
+
+      .back-link:hover {
+        background: var(--accent-civic-hover);
+      }
+
+      main {
+        flex: 1;
+        max-width: 680px;
+        width: 100%;
+        margin: 48px auto;
+        padding: 0 20px;
+      }
+
+      .card {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 32px;
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+      }
+
+      .status-pill {
+        display: inline-block;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        padding: 3px 9px;
+        border-radius: 999px;
+        background: #eff6ff;
+        color: var(--accent-civic);
+        border: 1px solid #bfdbfe;
+        margin-bottom: 14px;
+      }
+
+      h1 {
+        font-size: 24px;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+        margin-bottom: 8px;
+      }
+
+      .subtitle {
+        font-size: 15px;
+        color: var(--text-secondary);
+        margin-bottom: 20px;
+      }
+
+      p {
+        font-size: 14px;
+        color: var(--text-secondary);
+        margin-bottom: 16px;
+      }
+
+      .guide-box {
+        margin-top: 24px;
+        padding-top: 20px;
+        border-top: 1px solid var(--border-color);
+      }
+
+      .guide-box h2 {
+        font-size: 13px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--text-muted);
+        margin-bottom: 10px;
+      }
+
+      ul {
+        padding-left: 18px;
+        font-size: 13.5px;
+        color: var(--text-secondary);
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      footer {
+        text-align: center;
+        padding: 20px;
+        font-size: 12px;
+        color: var(--text-muted);
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <a class="brand" href="../">
+        <span class="brand-badge">R</span>
+        <span>RailActive</span>
+      </a>
+      <a class="back-link" href="../">← Back to Map App</a>
+    </header>
+
+    <main>
+      <div class="card">
+        <span class="status-pill">Documentation in preparation</span>
+        <h1>RailActive Project Documentation</h1>
+        <p class="subtitle">
+          North-South Active Travel Corridor Opportunity Mapping &amp; Appraisal
+        </p>
+        <p>
+          Full technical documentation — covering corridor alignment methodology, route
+          classification schemas, the spatial data dictionary, and Active Mode Appraisal Toolkit
+          (AMAT) economic assessment — is currently being finalised and will be published here.
+        </p>
+
+        <div class="guide-box">
+          <h2>Using the Interactive Map</h2>
+          <ul>
+            <li>
+              <strong>Colour by:</strong> Switch between <em>Delivery category</em>,
+              <em>Infrastructure type</em>, <em>Lead developer</em>, and <em>Alignment status</em>
+              in the sidebar legend, or click <em>only</em> beside any row to isolate a category.
+            </li>
+            <li>
+              <strong>Reference layers:</strong> Toggle the HS2 railway alignment, junction /
+              intervention points, National Cycle Network, OS OpenRoads (10 km), and study area
+              buffer.
+            </li>
+            <li>
+              <strong>Inspect &amp; share:</strong> Click any route segment or point for full
+              attributes and external street-level links, or copy the page URL to share the exact
+              map view and active filters.
+            </li>
+          </ul>
+        </div>
+      </div>
+    </main>
+
+    <footer>Institute for Transport Studies (ITS), University of Leeds</footer>
+  </body>
+</html>
