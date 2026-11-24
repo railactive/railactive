@@ -113,6 +113,10 @@ npm run build
 npm run preview
 ```
 
+### Documentation
+
+Project methodology, economic appraisal, and dataset documentation live in the private [`railactive/docs`](https://github.com/railactive/docs) repository. During `npm run deploy:dev`, `scripts/sync-docs.mjs` optionally copies a locally rendered `../docs/_site/` into `dist/docs/` if present.
+
 ## License
 
 This project is licensed under the MIT License. Comments, issues, and community

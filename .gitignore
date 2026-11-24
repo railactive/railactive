@@ -12,7 +12,6 @@ node_modules/
 dist/
 dist-ssr/
 *.local
-.quarto/
 
 # Data files (strictly excluded from git - except minimal example dataset)
 public/data/*
@@ -23,8 +22,6 @@ public/data/*
 *.duckdb
 *.pmtiles
 *.csv
-!docs/data/*.csv
-!docs/data/*.geojson
 *.tsv
 *.xlsx
 *.zip
@@ -46,9 +43,5 @@ Thumbs.db
 .env.*
 !.env.example
 
-# Built documentation outputs
+# Optional local dev docs sync
 public/docs/
-docs/_freeze/
-docs/*_files/
-*.pdf
-*.docx

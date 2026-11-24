@@ -1,6 +1,9 @@
 <script lang="ts">
   import BasemapControl from './BasemapControl.svelte';
   import PlaceSearch from './PlaceSearch.svelte';
+  import { isDevEnvironment } from '../urlState';
+
+  const isDev = isDevEnvironment();
 
   interface Props {
     sidebarOpen: boolean;
@@ -114,20 +117,22 @@
   </div>
 
   <div class="right-section">
-    <a
-      href="/docs/"
-      target="_blank"
-      rel="noreferrer"
-      class="outline-btn nav-btn"
-      title="View Project Documentation, Methodology, and Data Dictionary"
-      aria-label="View project documentation"
-    >
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-      </svg>
-      <span>Docs</span>
-    </a>
+    {#if isDev}
+      <a
+        href="/docs/"
+        target="_blank"
+        rel="noreferrer"
+        class="outline-btn nav-btn"
+        title="View Project Documentation, Methodology, and Data Dictionary"
+        aria-label="View project documentation"
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+        </svg>
+        <span>Docs</span>
+      </a>
+    {/if}
     <button
       class="outline-btn nav-btn print-nav-btn"
       onclick={onEnterPrintView}
