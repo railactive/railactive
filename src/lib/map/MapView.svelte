@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount, onDestroy } from 'svelte';
+  import { onMount, onDestroy, untrack } from 'svelte';
   import maplibregl from 'maplibre-gl';
   import * as pmtiles from 'pmtiles';
   import type { 
@@ -13,13 +13,24 @@
     classificationSynonyms,
     colorExpression,
     effectiveHiddenGroups,
+    formatStatusLabel,
     hiddenGroupExpressions,
     INTERVENTION_COLOR,
+    INTERVENTION_LEGACY_COLOR,
+    INTERVENTION_LEGACY_OPACITY,
+    INTERVENTION_LEGACY_THRESHOLD_M,
+    isLegacyIntervention,
+    isPending,
     isSuperseded,
     normalizeClassification,
+    PENDING_COLOR,
     REFERENCE_COLORS,
+    showsPending,
+    showsSuperseded,
     statusFilterExpressions
   } from '../palette';
+  import { mapButtonsHtml } from '../components/MapButtons.svelte';
+  import { isMobileViewport } from '../urlState';
 
   const NCN_SOURCE_ID = 'ncn-data';
   const NCN_LINE_LAYER_ID = 'ncn-lines';
@@ -69,13 +80,20 @@
     sidebarOpen: boolean;
     hasInitialMapView: boolean;
     selectedSegment: CyclewaySegmentProperties | null;
-    onSelectSegment: (segment: CyclewaySegmentProperties | null) => void;
+    onSelectSegment: (segment: CyclewaySegmentProperties | null, center?: [number, number] | null) => void;
+    showHs2Railway?: boolean;
+    showInterventions?: boolean;
+    showActivePoints?: boolean;
+    showSupersededPoints?: boolean;
+    showPendingPoints?: boolean;
     showNcn?: boolean;
     ncnPmtilesUrl?: string;
     showOpenRoads: boolean;
     openRoadsPmtilesUrl?: string;
     showStudyArea?: boolean;
     studyAreaGeojsonUrl?: string;
+    showPlaceNames?: boolean;
+    printMode?: 'legend' | 'clean' | null;
   }
 
   let {
@@ -86,12 +104,19 @@
     hasInitialMapView,
     selectedSegment,
     onSelectSegment,
+    showHs2Railway = true,
+    showInterventions = false,
+    showActivePoints = true,
+    showSupersededPoints = false,
+    showPendingPoints = false,
     showNcn = false,
     ncnPmtilesUrl = './data/ncn.pmtiles',
     showOpenRoads,
     openRoadsPmtilesUrl = './data/openroads.pmtiles',
     showStudyArea = false,
-    studyAreaGeojsonUrl = './data/study_area.geojson'
+    studyAreaGeojsonUrl = './data/study_area.geojson?v=0.4.3',
+    showPlaceNames = true,
+    printMode = null
   }: Props = $props();
 
   let mapContainer: HTMLDivElement;
@@ -117,125 +142,123 @@
     else showGeoMessage('Your location could not be determined.');
   }
 
-  // High-performance raster basemap styles (clean, keyless, zero watermarks)
+  // Split label-free base cartography + top-level place-name overlay (keyless, zero watermarks)
   const basemapStyles: Record<string, any> = {
-    dark: {
-      version: 8,
-      sources: {
-        'esri-dark-base': {
-          type: 'raster',
-          tiles: [
-            'https://services.arcgisonline.com/arcgis/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}'
-          ],
-          tileSize: 256,
-          attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ'
-        },
-        'esri-dark-labels': {
-          type: 'raster',
-          tiles: [
-            'https://services.arcgisonline.com/arcgis/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}'
-          ],
-          tileSize: 256
-        }
-      },
-      layers: [
-        {
-          id: 'esri-dark-base-layer',
-          type: 'raster',
-          source: 'esri-dark-base',
-          minzoom: 0,
-          maxzoom: 18
-        },
-        {
-          id: 'esri-dark-labels-layer',
-          type: 'raster',
-          source: 'esri-dark-labels',
-          minzoom: 0,
-          maxzoom: 18
-        }
-      ]
-    },
     light: {
       version: 8,
       sources: {
-        'esri-light-base': {
+        'basemap-base': {
           type: 'raster',
-          tiles: [
-            'https://services.arcgisonline.com/arcgis/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}'
-          ],
+          tiles: ['https://services.arcgisonline.com/arcgis/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}'],
           tileSize: 256,
+          maxzoom: 16,
           attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ'
         },
-        'esri-light-labels': {
+        'basemap-labels': {
           type: 'raster',
-          tiles: [
-            'https://services.arcgisonline.com/arcgis/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}'
-          ],
-          tileSize: 256
+          tiles: ['https://services.arcgisonline.com/arcgis/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}'],
+          tileSize: 256,
+          maxzoom: 16
         }
       },
       layers: [
-        {
-          id: 'esri-light-base-layer',
+        { id: 'basemap-base-layer', type: 'raster', source: 'basemap-base', minzoom: 0, maxzoom: 22 }
+      ]
+    },
+    dark: {
+      version: 8,
+      sources: {
+        'basemap-base': {
           type: 'raster',
-          source: 'esri-light-base',
-          minzoom: 0,
-          maxzoom: 18
+          tiles: ['https://services.arcgisonline.com/arcgis/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}'],
+          tileSize: 256,
+          maxzoom: 16,
+          attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ'
         },
-        {
-          id: 'esri-light-labels-layer',
+        'basemap-labels': {
           type: 'raster',
-          source: 'esri-light-labels',
-          minzoom: 0,
-          maxzoom: 18
+          tiles: ['https://services.arcgisonline.com/arcgis/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}'],
+          tileSize: 256,
+          maxzoom: 16
         }
+      },
+      layers: [
+        { id: 'basemap-base-layer', type: 'raster', source: 'basemap-base', minzoom: 0, maxzoom: 22 }
       ]
     },
     satellite: {
       version: 8,
       sources: {
-        'esri-sat': {
+        'basemap-base': {
           type: 'raster',
-          tiles: [
-            'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
-          ],
+          tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
           tileSize: 256,
-          attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+          attribution: 'Tiles &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community'
+        },
+        'basemap-labels': {
+          type: 'raster',
+          tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}'],
+          tileSize: 256
         }
       },
       layers: [
-        {
-          id: 'esri-sat-layer',
+        { id: 'basemap-base-layer', type: 'raster', source: 'basemap-base', minzoom: 0, maxzoom: 19 }
+      ]
+    },
+    opencyclemap: {
+      version: 8,
+      sources: {
+        'basemap-base': {
           type: 'raster',
-          source: 'esri-sat',
-          minzoom: 0,
-          maxzoom: 19
+          tiles: ['https://tile.thunderforest.com/cycle/{z}/{x}/{y}@2x.png?apikey=e26a96d14f5e41d78dd4842ac12f458c'],
+          tileSize: 256,
+          attribution: 'Maps &copy; <a href="https://www.thunderforest.com" target="_blank" rel="noopener noreferrer">Thunderforest</a>, Data &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap contributors</a> &middot; <a href="https://www.opencyclemap.org/docs/" target="_blank" rel="noopener noreferrer">see legend</a>'
         }
+      },
+      layers: [
+        { id: 'basemap-bg', type: 'background', paint: { 'background-color': '#f4f4f4' } },
+        { id: 'basemap-base-layer', type: 'raster', source: 'basemap-base', minzoom: 0, maxzoom: 22, paint: { 'raster-opacity': 0.72 } }
       ]
     },
     osm: {
       version: 8,
       sources: {
-        'osm-base': {
+        'basemap-base': {
           type: 'raster',
-          tiles: [
-            'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
-          ],
+          tiles: ['https://tile.thunderforest.com/outdoors/{z}/{x}/{y}@2x.png?apikey=e26a96d14f5e41d78dd4842ac12f458c'],
           tileSize: 256,
-          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          attribution: 'Maps &copy; <a href="https://www.thunderforest.com" target="_blank" rel="noopener noreferrer">Thunderforest</a>, Data &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap contributors</a> &middot; <a href="https://www.opencyclemap.org/docs/" target="_blank" rel="noopener noreferrer">see legend</a>'
         }
       },
       layers: [
-        {
-          id: 'osm-base-layer',
-          type: 'raster',
-          source: 'osm-base',
-          minzoom: 0,
-          maxzoom: 19
-        }
+        { id: 'basemap-bg', type: 'background', paint: { 'background-color': '#f4f4f4' } },
+        { id: 'basemap-base-layer', type: 'raster', source: 'basemap-base', minzoom: 0, maxzoom: 22, paint: { 'raster-opacity': 0.78 } }
       ]
     }
   };
+
+  function searchFilterExpression(searchTerm: string): any | null {
+    const term = searchTerm ? searchTerm.trim().toLowerCase() : '';
+    if (!term) return null;
+    return [
+      'any',
+      ['>=', ['index-of', term, ['downcase', ['to-string', ['coalesce', ['get', 'name'], '']]]], 0],
+      ['>=', ['index-of', term, ['downcase', ['to-string', ['coalesce', ['get', 'link_id'], '']]]], 0],
+      ['>=', ['index-of', term, ['downcase', ['to-string', ['coalesce', ['get', 'remarks'], '']]]], 0]
+    ];
+  }
+
+  function cyclewayCasingWidthExpression(hasSearch: boolean): any {
+    return hasSearch
+      ? ['interpolate', ['linear'], ['zoom'], 5, 10.0, 8, 13.0, 12, 15.5, 16, 19.0]
+      : ['interpolate', ['linear'], ['zoom'], 5, 5.5, 8, 7.5, 12, 10.5, 16, 15.0];
+  }
+
+  function cyclewayLineWidthExpression(hasSearch: boolean): any {
+    return hasSearch
+      ? ['interpolate', ['linear'], ['zoom'], 5, 6.5, 8, 9.0, 12, 11.5, 16, 15.0]
+      : ['interpolate', ['linear'], ['zoom'], 5, 3.5, 8, 5.0, 12, 7.5, 16, 12.0];
+  }
 
   function getActiveFilterExpression(f: FilterState): any {
     const expressions: any[] = [
@@ -258,6 +281,10 @@
     if (f.section) {
       expressions.push(['==', ['coalesce', ['get', 'section'], ''], f.section]);
     }
+    const searchExpr = searchFilterExpression(f.searchTerm);
+    if (searchExpr) {
+      expressions.push(searchExpr);
+    }
 
     // Interactive legend: exclude unchecked colour groups
     expressions.push(...hiddenGroupExpressions(f.colorBy, effectiveHiddenGroups(f)));
@@ -265,27 +292,76 @@
     return expressions;
   }
 
-  function getPointFilterExpression(f: FilterState): any {
-    const expressions: any[] = [
-      'all',
-      ['==', '$type', 'Point'],
-      ...statusFilterExpressions(f)
-    ];
+  const pendingPointExpr: any = [
+    'any',
+    ['==', ['coalesce', ['get', 'folder'], ''], 'Pending'],
+    ['==', ['coalesce', ['get', 'status'], ''], 'pending']
+  ];
 
-    return expressions;
+  const legacyPointExpr: any = [
+    'all',
+    ['!', pendingPointExpr],
+    [
+      'any',
+      ['==', ['coalesce', ['get', 'folder'], ''], 'Superseded'],
+      ['==', ['coalesce', ['get', 'status'], ''], 'superseded'],
+      ['==', ['coalesce', ['get', 'category'], ''], 'Old active travel route alignment'],
+      ['==', ['coalesce', ['get', 'classification'], ''], 'Old active travel route alignment'],
+      ['>', ['coalesce', ['get', 'dist_to_route_m'], 0], INTERVENTION_LEGACY_THRESHOLD_M]
+    ]
+  ];
+
+  const activePointExpr: any = [
+    'all',
+    ['!', pendingPointExpr],
+    ['!', legacyPointExpr]
+  ];
+
+  function getPointFilterExpression(
+    f: FilterState,
+    ptsActive: boolean,
+    ptsSuperseded: boolean,
+    ptsPending: boolean
+  ): any {
+    const allowActive = ptsActive;
+    const allowSuperseded = ptsSuperseded || showsSuperseded(f);
+    const allowPending = ptsPending || showsPending(f);
+
+    const clauses: any[] = [];
+    if (allowActive) clauses.push(activePointExpr);
+    if (allowSuperseded) clauses.push(legacyPointExpr);
+    if (allowPending) clauses.push(pendingPointExpr);
+
+    if (clauses.length === 0) {
+      return ['==', 1, 0];
+    }
+
+    const expr: any[] = [
+      'all',
+      ['==', ['geometry-type'], 'Point'],
+      clauses.length === 1 ? clauses[0] : ['any', ...clauses]
+    ];
+    const searchExpr = searchFilterExpression(f.searchTerm);
+    if (searchExpr) {
+      expr.push(searchExpr);
+    }
+    return expr;
   }
 
+  let styleReady = false;
+  let loadedDataRef: CyclewayFeatureCollection | null = null;
+
   function ensureLayers() {
-    if (!map || !data) return;
-    if (!map.isStyleLoaded()) {
-      map.once('style.load', setupMapLayers);
-      return;
-    }
+    if (!map || !data || !styleReady) return;
     setupMapLayers();
   }
 
+  function isTouchOnlyDevice(): boolean {
+    return typeof window !== 'undefined' && window.matchMedia('(hover: none)').matches;
+  }
+
   function handleCyclewayMouseMove(e: maplibregl.MapLayerMouseEvent) {
-    if (!map || !e.features || e.features.length === 0) return;
+    if (!map || !e.features || e.features.length === 0 || isTouchOnlyDevice()) return;
     map.getCanvas().style.cursor = 'pointer';
 
     const feat = e.features[0];
@@ -307,7 +383,7 @@
         <div class="tooltip-title">${properties.name || `Link ${properties.link_id || properties.id}`}</div>
         <div class="tooltip-meta">
           <span class="badge-sec">${properties.section || 'Corridor'}</span>
-          ${properties.status ? `<span class="badge-sec badge-${properties.status.toLowerCase()}">${properties.status}</span>` : ''}
+          ${properties.status ? `<span class="badge-sec badge-${properties.status.toLowerCase()}">${formatStatusLabel(properties.status)}</span>` : ''}
           <span class="tooltip-len">${length}</span>
         </div>
         <div class="tooltip-cat">${classification}</div>
@@ -328,12 +404,15 @@
 
   function handleCyclewayClick(e: maplibregl.MapLayerMouseEvent) {
     if (e.features && e.features.length > 0) {
-      onSelectSegment(e.features[0].properties as CyclewaySegmentProperties);
+      onSelectSegment(
+        e.features[0].properties as CyclewaySegmentProperties,
+        [e.lngLat.lng, e.lngLat.lat]
+      );
     }
   }
 
   function handleRailwayMouseMove(e: maplibregl.MapLayerMouseEvent) {
-    if (!map || !e.features || e.features.length === 0) return;
+    if (!map || !e.features || e.features.length === 0 || isTouchOnlyDevice()) return;
     map.getCanvas().style.cursor = 'pointer';
     const properties = e.features[0].properties as Record<string, string>;
     const html = `
@@ -369,26 +448,38 @@
   }
 
   function handlePointMouseMove(e: maplibregl.MapLayerMouseEvent) {
-    if (!map || !e.features || e.features.length === 0) return;
+    if (!map || !e.features || e.features.length === 0 || isTouchOnlyDevice()) return;
     map.getCanvas().style.cursor = 'pointer';
 
     const feat = e.features[0];
     const properties = feat.properties as CyclewaySegmentProperties;
 
+    const pending = isPending(properties);
     const superseded = isSuperseded(properties);
+    const legacy = !pending && isLegacyIntervention(properties);
+    const distM = typeof properties.dist_to_route_m === 'number' ? properties.dist_to_route_m : null;
+    const distText = distM !== null
+      ? (distM >= 1000 ? `${(distM / 1000).toFixed(1)} km from route` : `${distM} m from route`)
+      : '';
 
     const title = properties.name || 'Junction Treatment';
     const folder = properties.folder ? properties.folder.replace(' - Interventions', '') : 'Intervention';
-    const classification = superseded ? 'Old active travel route alignment' : (properties.classification || 'Intervention Point');
+    const classification = pending
+      ? 'Pending northern extension intervention'
+      : superseded
+        ? 'Old active travel route alignment'
+        : legacy
+          ? `Legacy intervention (> ${INTERVENTION_LEGACY_THRESHOLD_M} m from active route)`
+          : (properties.classification || 'Intervention Point');
     const remarks = properties.remarks ? `<div class="tooltip-remarks">${escapeHtml(properties.remarks)}</div>` : '';
 
     const html = `
       <div class="tooltip-content point-tooltip">
         <div class="tooltip-title">${escapeHtml(title)}</div>
         <div class="tooltip-meta">
-          <span class="badge-sec">${escapeHtml(folder)}</span>
-          ${properties.status ? `<span class="badge-sec badge-${properties.status.toLowerCase()}">${properties.status}</span>` : ''}
-          <span class="tooltip-len">ID: ${properties.id}</span>
+          <span class="badge-sec ${legacy ? 'badge-superseded' : ''}">${escapeHtml(legacy && !superseded ? 'Legacy' : folder)}</span>
+          ${properties.status && !legacy ? `<span class="badge-sec badge-${properties.status.toLowerCase()}">${formatStatusLabel(properties.status)}</span>` : ''}
+          <span class="tooltip-len">${distText || `ID: ${escapeHtml(String(properties.link_id || properties.id))}`}</span>
         </div>
         <div class="tooltip-cat">${escapeHtml(classification)}</div>
         ${remarks}
@@ -413,48 +504,62 @@
       clickPopup = null;
     }
 
+    const pending = isPending(properties);
     const superseded = isSuperseded(properties);
+    const legacy = !pending && isLegacyIntervention(properties);
+    const distM = typeof properties.dist_to_route_m === 'number' ? properties.dist_to_route_m : null;
+    const distLabel = distM !== null
+      ? (distM >= 1000 ? `${(distM / 1000).toFixed(2)} km` : `${distM} m`)
+      : null;
 
     const title = popupValue(properties.name, 'Junction Treatment');
     const folder = popupValue(properties.folder ? properties.folder.replace(' - Interventions', '') : '', 'Intervention');
-    const classification = superseded ? 'Old active travel route alignment' : popupValue(properties.classification, 'Active Route Treatment');
+    const classification = pending
+      ? 'Pending northern extension intervention'
+      : superseded
+        ? 'Old active travel route alignment'
+        : legacy
+          ? `Legacy (> ${INTERVENTION_LEGACY_THRESHOLD_M} m from route)`
+          : popupValue(properties.classification, 'Active Route Treatment');
 
     const html = `
-      <div class="point-popup-card">
-        <div class="point-popup-header">
-          <div class="point-badge-group">
-            <span class="point-badge ${superseded ? 'point-superseded' : 'point-type'}">
-              ${superseded ? 'Old Alignment' : 'Intervention'}
+      <div class="map-popup-card">
+        <div class="map-popup-header">
+          <div class="map-badge-group">
+            <span class="map-badge ${superseded || legacy ? 'warning' : 'civic'}">
+              ${pending ? 'Pending' : superseded ? 'Old Alignment' : legacy ? 'Legacy Point' : 'Intervention'}
             </span>
-            <span class="point-badge point-sub">${folder}</span>
+            <span class="map-badge">${folder}</span>
           </div>
         </div>
-        <h4 class="point-popup-title">${title}</h4>
-        <div class="point-popup-table">
-          <div class="point-cell"><span class="k">Point ID:</span><span class="v font-mono">${properties.id}</span></div>
-          <div class="point-cell"><span class="k">Type:</span><span class="v">${title}</span></div>
-          <div class="point-cell"><span class="k">Status:</span><span class="v">${classification}</span></div>
-          <div class="point-cell full"><span class="k">Corridor Section:</span><span class="v">${folder}</span></div>
-          ${properties.remarks ? `<div class="point-cell full"><span class="k">Remarks:</span><span class="v">${escapeHtml(properties.remarks)}</span></div>` : ''}
+        <h4 class="map-popup-title">${title}</h4>
+        <div class="map-popup-table">
+          <div class="map-cell"><span class="k">Point ID:</span><span class="v font-mono">${escapeHtml(String(properties.link_id || properties.id))}</span></div>
+          <div class="map-cell"><span class="k">Type:</span><span class="v">${title}</span></div>
+          <div class="map-cell"><span class="k">Status:</span><span class="v">${classification}</span></div>
+          ${distLabel ? `<div class="map-cell"><span class="k">Distance to route:</span><span class="v font-mono">${distLabel}</span></div>` : ''}
+          <div class="map-cell full"><span class="k">Corridor Section:</span><span class="v">${folder}</span></div>
+          ${properties.remarks ? `<div class="map-cell full"><span class="k">Remarks:</span><span class="v">${escapeHtml(properties.remarks)}</span></div>` : ''}
         </div>
+        ${mapButtonsHtml(e.lngLat.lng, e.lngLat.lat)}
       </div>
     `;
 
     clickPopup = new maplibregl.Popup({
       closeButton: true,
       closeOnClick: true,
-      maxWidth: '320px',
+      maxWidth: 'min(320px, calc(100vw - 24px))',
       className: 'point-click-popup'
     })
       .setLngLat(e.lngLat)
       .setHTML(html)
       .addTo(map);
 
-    onSelectSegment(properties);
+    onSelectSegment(properties, [e.lngLat.lng, e.lngLat.lat]);
   }
 
   function handleNcnMouseMove(e: maplibregl.MapLayerMouseEvent) {
-    if (!map || !e.features || e.features.length === 0) return;
+    if (!map || !e.features || e.features.length === 0 || isTouchOnlyDevice()) return;
     map.getCanvas().style.cursor = 'pointer';
     const props = e.features[0].properties as NcnProperties;
     const routeNum = props.RouteNo === undefined ? '' : `Route ${popupValue(props.RouteNo, '')}`;
@@ -509,32 +614,33 @@
       : 'National Cycle Network';
 
     const html = `
-      <div class="ncn-popup-card">
-        <div class="ncn-popup-header">
-          <div class="ncn-badge-group">
-            <span class="ncn-badge ncn-type">${routeType} ${routeNum}</span>
-            <span class="ncn-badge ${isTrafficFree ? 'ncn-trafficfree' : 'ncn-onroad'}">${isTrafficFree ? 'Traffic-Free' : 'On-Road'}</span>
-            ${isGreenway ? '<span class="ncn-badge ncn-greenway">Greenway</span>' : ''}
+      <div class="map-popup-card">
+        <div class="map-popup-header">
+          <div class="map-badge-group">
+            <span class="map-badge civic">${routeType} ${routeNum}</span>
+            <span class="map-badge ${isTrafficFree ? 'success' : 'danger'}">${isTrafficFree ? 'Traffic-Free' : 'On-Road'}</span>
+            ${isGreenway ? '<span class="map-badge success">Greenway</span>' : ''}
           </div>
         </div>
-        <h4 class="ncn-popup-title">${routeCategory}</h4>
-        <div class="ncn-popup-table">
-          <div class="ncn-cell"><span class="k">Traffic:</span><span class="v">${desc}</span></div>
-          <div class="ncn-cell"><span class="k">Surface:</span><span class="v">${popupValue(props.Surface, 'Unspecified')}</span></div>
-          <div class="ncn-cell"><span class="k">Quality:</span><span class="v">${popupValue(props.Quality, 'Standard')}</span></div>
-          <div class="ncn-cell"><span class="k">Lighting:</span><span class="v">${popupValue(props.Lighting, 'Not lit')}</span></div>
-          ${props.RoadClass ? `<div class="ncn-cell"><span class="k">Road Class:</span><span class="v">${popupValue(props.RoadClass, '')}</span></div>` : ''}
-          <div class="ncn-cell"><span class="k">Open Status:</span><span class="v">${popupValue(props.OpenStatus, 'Open')}</span></div>
-          <div class="ncn-cell"><span class="k">Segment ID:</span><span class="v font-mono">${popupValue(props.SegmentID, 'N/A')}</span></div>
-          <div class="ncn-cell full"><span class="k">Global ID:</span><span class="v font-mono text-xs">${popupValue(props.GlobalID, 'N/A')}</span></div>
+        <h4 class="map-popup-title">${routeCategory}</h4>
+        <div class="map-popup-table">
+          <div class="map-cell"><span class="k">Traffic:</span><span class="v">${desc}</span></div>
+          <div class="map-cell"><span class="k">Surface:</span><span class="v">${popupValue(props.Surface, 'Unspecified')}</span></div>
+          <div class="map-cell"><span class="k">Quality:</span><span class="v">${popupValue(props.Quality, 'Standard')}</span></div>
+          <div class="map-cell"><span class="k">Lighting:</span><span class="v">${popupValue(props.Lighting, 'Not lit')}</span></div>
+          ${props.RoadClass ? `<div class="map-cell"><span class="k">Road Class:</span><span class="v">${popupValue(props.RoadClass, '')}</span></div>` : ''}
+          <div class="map-cell"><span class="k">Open Status:</span><span class="v">${popupValue(props.OpenStatus, 'Open')}</span></div>
+          <div class="map-cell"><span class="k">Segment ID:</span><span class="v font-mono">${popupValue(props.SegmentID, 'N/A')}</span></div>
+          <div class="map-cell full"><span class="k">Global ID:</span><span class="v font-mono text-xs">${popupValue(props.GlobalID, 'N/A')}</span></div>
         </div>
+        ${mapButtonsHtml(e.lngLat.lng, e.lngLat.lat)}
       </div>
     `;
 
     clickPopup = new maplibregl.Popup({
       closeButton: true,
       closeOnClick: true,
-      maxWidth: '320px',
+      maxWidth: 'min(320px, calc(100vw - 24px))',
       className: 'ncn-click-popup'
     })
       .setLngLat(e.lngLat)
@@ -638,7 +744,7 @@
   }
 
   function handleOpenRoadsMouseMove(e: maplibregl.MapLayerMouseEvent) {
-    if (!map || !e.features || e.features.length === 0) return;
+    if (!map || !e.features || e.features.length === 0 || isTouchOnlyDevice()) return;
     map.getCanvas().style.cursor = 'pointer';
     const props = e.features[0].properties as OpenRoadsProperties;
     const name = props.name_1 || props.road_classification_number || 'Unnamed Road';
@@ -681,35 +787,36 @@
     const roadClass = popupValue(props.road_classification, 'Unclassified');
     const roadFunc = popupValue(props.road_function, 'Local Road');
     const haulageBasis = props.possible_haulage_basis
-      ? `<div class="openroads-cell full"><span class="k">Haulage evidence:</span><span class="v">${popupValue(props.possible_haulage_basis, '')}</span></div>`
+      ? `<div class="map-cell full"><span class="k">Haulage evidence:</span><span class="v">${popupValue(props.possible_haulage_basis, '')}</span></div>`
       : '';
     const formOfWay = popupValue(props.form_of_way, 'Single Carriageway');
     const lengthStr = props.length ? `${Math.round(Number(props.length))} m` : 'N/A';
 
     const html = `
-      <div class="openroads-popup-card">
-        <div class="openroads-popup-header">
-          <div class="openroads-badge-group">
-            <span class="openroads-badge openroads-type">${roadNum || roadClass}</span>
-            <span class="openroads-badge openroads-func">${roadFunc}</span>
+      <div class="map-popup-card">
+        <div class="map-popup-header">
+          <div class="map-badge-group">
+            <span class="map-badge civic">${roadNum || roadClass}</span>
+            <span class="map-badge">${roadFunc}</span>
           </div>
         </div>
-        <h4 class="openroads-popup-title">${name}</h4>
-        <div class="openroads-popup-table">
-          <div class="openroads-cell"><span class="k">Classification:</span><span class="v">${roadClass}</span></div>
-          <div class="openroads-cell"><span class="k">Function:</span><span class="v">${roadFunc}</span></div>
-          <div class="openroads-cell"><span class="k">Form of Way:</span><span class="v">${formOfWay}</span></div>
-          <div class="openroads-cell"><span class="k">Link Length:</span><span class="v">${lengthStr}</span></div>
+        <h4 class="map-popup-title">${name}</h4>
+        <div class="map-popup-table">
+          <div class="map-cell"><span class="k">Classification:</span><span class="v">${roadClass}</span></div>
+          <div class="map-cell"><span class="k">Function:</span><span class="v">${roadFunc}</span></div>
+          <div class="map-cell"><span class="k">Form of Way:</span><span class="v">${formOfWay}</span></div>
+          <div class="map-cell"><span class="k">Link Length:</span><span class="v">${lengthStr}</span></div>
           ${haulageBasis}
-          ${props.id ? `<div class="openroads-cell full"><span class="k">Link ID:</span><span class="v font-mono text-xs">${popupValue(props.id, '')}</span></div>` : ''}
+          ${props.id ? `<div class="map-cell full"><span class="k">Link ID:</span><span class="v font-mono text-xs">${popupValue(props.id, '')}</span></div>` : ''}
         </div>
+        ${mapButtonsHtml(e.lngLat.lng, e.lngLat.lat)}
       </div>
     `;
 
     clickPopup = new maplibregl.Popup({
       closeButton: true,
       closeOnClick: true,
-      maxWidth: '320px',
+      maxWidth: 'min(320px, calc(100vw - 24px))',
       className: 'openroads-click-popup'
     })
       .setLngLat(e.lngLat)
@@ -897,16 +1004,23 @@
 
     const existingSource = map.getSource('cycleway-data') as maplibregl.GeoJSONSource;
     if (existingSource) {
-      existingSource.setData(data as any);
-      fitInitialBounds();
+      if (loadedDataRef !== data) {
+        loadedDataRef = data;
+        existingSource.setData(data as any);
+        fitInitialBounds();
+      }
       return;
     }
 
+    loadedDataRef = data;
+
     try {
+      const pathVersion = data.version || data.metadata?.version || 'v0.4.0';
       map.addSource('cycleway-data', {
         type: 'geojson',
         data: data as any,
-        generateId: true
+        generateId: true,
+        attribution: `North-South Greenway file version ${pathVersion}`
       });
 
       // ==========================================
@@ -961,10 +1075,11 @@
         id: 'hs2-rail-casing',
         type: 'line',
         source: 'cycleway-data',
-        filter: ['==', ['coalesce', ['get', 'layer_type'], ''], 'hs2_railway'],
+        filter: ['all', ['==', ['coalesce', ['get', 'layer_type'], ''], 'hs2_railway'], ['!=', ['coalesce', ['get', 'status'], ''], 'pending']],
         layout: {
           'line-cap': 'butt',
-          'line-join': 'miter'
+          'line-join': 'miter',
+          'visibility': showHs2Railway ? 'visible' : 'none'
         },
         paint: {
           'line-color': '#000000',
@@ -985,10 +1100,11 @@
         id: 'hs2-rail-ties',
         type: 'line',
         source: 'cycleway-data',
-        filter: ['==', ['coalesce', ['get', 'layer_type'], ''], 'hs2_railway'],
+        filter: ['all', ['==', ['coalesce', ['get', 'layer_type'], ''], 'hs2_railway'], ['!=', ['coalesce', ['get', 'status'], ''], 'pending']],
         layout: {
           'line-cap': 'butt',
-          'line-join': 'miter'
+          'line-join': 'miter',
+          'visibility': showHs2Railway ? 'visible' : 'none'
         },
         paint: {
           'line-color': '#ffffff',
@@ -1009,6 +1125,8 @@
       // ==========================================
       // B. ACTIVE TRAVEL NETWORK (Walking, Wheeling, Cycling)
       // ==========================================
+      const hasSearch = Boolean(filters.searchTerm.trim());
+
       // 1. High-Contrast Outer Casing Layer
       map.addLayer({
         id: 'cycleway-casing',
@@ -1020,16 +1138,8 @@
           'line-join': 'round'
         },
         paint: {
-          'line-color': '#020617',
-          'line-width': [
-            'interpolate',
-            ['linear'],
-            ['zoom'],
-            5, 5.5,
-            8, 7.5,
-            12, 10.5,
-            16, 15.0
-          ],
+          'line-color': basemap === 'dark' ? '#0f172a' : '#ffffff',
+          'line-width': cyclewayCasingWidthExpression(hasSearch),
           'line-opacity': 0.95
         }
       });
@@ -1046,15 +1156,7 @@
         },
         paint: {
           'line-color': colorExpression(filters.colorBy),
-          'line-width': [
-            'interpolate',
-            ['linear'],
-            ['zoom'],
-            5, 3.5,
-            8, 5.0,
-            12, 7.5,
-            16, 12.0
-          ],
+          'line-width': cyclewayLineWidthExpression(hasSearch),
           'line-opacity': 1.0
         }
       });
@@ -1064,14 +1166,41 @@
         id: 'cycleway-points',
         type: 'circle',
         source: 'cycleway-data',
-        filter: getPointFilterExpression(filters),
+        filter: getPointFilterExpression(filters, showActivePoints, showSupersededPoints, showPendingPoints),
+        layout: {
+          visibility: showInterventions ? 'visible' : 'none',
+          'circle-sort-key': ['case', legacyPointExpr, 0, pendingPointExpr, 1, 2]
+        },
         paint: {
           'circle-radius': ['interpolate', ['linear'], ['zoom'], 6, 4, 12, 7, 16, 11],
-          'circle-color': INTERVENTION_COLOR,
-          'circle-stroke-width': 1.5,
-          'circle-stroke-color': '#0f172a'
+          'circle-color': [
+            'case',
+            pendingPointExpr,
+            PENDING_COLOR,
+            legacyPointExpr,
+            INTERVENTION_LEGACY_COLOR,
+            INTERVENTION_COLOR
+          ],
+          'circle-opacity': ['case', legacyPointExpr, INTERVENTION_LEGACY_OPACITY, 1.0],
+          'circle-stroke-width': ['case', legacyPointExpr, 1.5, 2],
+          'circle-stroke-color': basemap === 'dark' ? '#0f172a' : '#ffffff',
+          'circle-stroke-opacity': ['case', legacyPointExpr, INTERVENTION_LEGACY_OPACITY, 1.0]
         }
       });
+
+      // 4. Top-level Place Names Overlay Layer (sits above route lines, toggled via showPlaceNames)
+      if (map.getSource('basemap-labels') && !map.getLayer('basemap-labels-layer')) {
+        map.addLayer({
+          id: 'basemap-labels-layer',
+          type: 'raster',
+          source: 'basemap-labels',
+          minzoom: 0,
+          maxzoom: 20,
+          layout: {
+            visibility: showPlaceNames ? 'visible' : 'none'
+          }
+        });
+      }
 
       // Hover Popup Initialization
       if (!hoverPopup) {
@@ -1113,7 +1242,9 @@
         loadOpenRoadsSourceAndLayers();
       }
 
+      map.resize();
       fitInitialBounds();
+      map.triggerRepaint();
     } catch (err) {
       console.error('Error in setupMapLayers:', err);
     }
@@ -1125,7 +1256,7 @@
     const bounds = new maplibregl.LngLatBounds();
     
     for (const f of data.features) {
-      if (isSuperseded(f.properties)) continue;
+      if (isSuperseded(f.properties) || isPending(f.properties)) continue;
       const geom = f.geometry;
       if (geom.type === 'LineString') {
         for (const c of geom.coordinates) bounds.extend(c as [number, number]);
@@ -1140,13 +1271,16 @@
     }
 
     if (!bounds.isEmpty()) {
+      const isMobile = isMobileViewport();
       map.fitBounds(bounds, {
-        padding: {
-          left: sidebarOpen ? 360 : 40,
-          right: 40,
-          top: 40,
-          bottom: 40
-        },
+        padding: isMobile
+          ? { left: 24, right: 24, top: 24, bottom: 36 }
+          : {
+              left: (sidebarOpen && !printMode) ? 360 : (printMode === 'legend' ? 300 : 40),
+              right: 40,
+              top: 40,
+              bottom: 40
+            },
         maxZoom: 12,
         duration: 800
       });
@@ -1154,27 +1288,37 @@
   }
 
   function fitInitialBounds() {
-    if (!shouldFitInitialBounds) return;
+    if (!shouldFitInitialBounds) {
+      map?.easeTo({ zoom: map.getZoom() + 0.001, duration: 800 });
+      return;
+    }
     shouldFitInitialBounds = false;
     fitCorridorBounds();
   }
 
   export function zoomToSegment(id: number) {
-    if (!map || !data) return;
+    zoomToFeatures([id]);
+  }
+
+  export function zoomToFeatures(ids: number[]) {
+    if (!map || !data || ids.length === 0) return;
     map.resize();
-    const feature = data.features.find(f => f.properties.id === id);
-    if (!feature) return;
+    const idSet = new Set(ids);
+    const features = data.features.filter(f => idSet.has(f.properties.id));
+    if (features.length === 0) return;
 
     const bounds = new maplibregl.LngLatBounds();
-    const geom = feature.geometry;
-    if (geom.type === 'LineString') {
-      for (const c of geom.coordinates) bounds.extend(c as [number, number]);
-    } else if (geom.type === 'MultiLineString') {
-      for (const line of geom.coordinates) {
-        for (const c of line) bounds.extend(c as [number, number]);
+    for (const feature of features) {
+      const geom = feature.geometry;
+      if (geom.type === 'LineString') {
+        for (const c of geom.coordinates) bounds.extend(c as [number, number]);
+      } else if (geom.type === 'MultiLineString') {
+        for (const line of geom.coordinates) {
+          for (const c of line) bounds.extend(c as [number, number]);
+        }
+      } else if (geom.type === 'Point') {
+        bounds.extend(geom.coordinates as [number, number]);
       }
-    } else if (geom.type === 'Point') {
-      bounds.extend(geom.coordinates as [number, number]);
     }
 
     if (!bounds.isEmpty()) {
@@ -1189,19 +1333,39 @@
     map.fitBounds([[bbox[0], bbox[1]], [bbox[2], bbox[3]]], { padding: zoomPadding(), maxZoom: 14, duration: 1200 });
   }
 
+  export function exportMapCanvasPng(filename = 'railactive-map.png'): string | null {
+    if (!map) return null;
+    map.triggerRepaint();
+    const dataUrl = map.getCanvas().toDataURL('image/png');
+    const a = document.createElement('a');
+    a.href = dataUrl;
+    a.download = filename;
+    a.click();
+    return dataUrl;
+  }
+
   function zoomPadding() {
-    return { left: sidebarOpen ? 380 : 80, right: 80, top: 80, bottom: 80 };
+    if (isMobileViewport()) {
+      return {
+        left: 32,
+        right: 32,
+        top: 32,
+        bottom: selectedSegment ? 220 : 48
+      };
+    }
+    return { left: (sidebarOpen && !printMode) ? 380 : 80, right: 80, top: 80, bottom: 80 };
   }
 
   onMount(() => {
     shouldFitInitialBounds = !hasInitialMapView;
     map = new maplibregl.Map({
       container: mapContainer,
-      style: basemapStyles[basemap] || basemapStyles.dark,
+      style: basemapStyles[basemap] || basemapStyles.light,
       center: [-1.4, 52.3],
       zoom: 7.8,
       pitch: 0,
-      hash: 'map'
+      hash: 'map',
+      preserveDrawingBuffer: true
     });
 
     (window as any)._map = map;
@@ -1222,10 +1386,15 @@
     map.addControl(new maplibregl.ScaleControl({ maxWidth: 120, unit: 'metric' }), 'bottom-left');
 
     map.on('load', () => {
+      styleReady = true;
       ensureLayers();
     });
 
-    map.on('style.load', setupMapLayers);
+    map.on('style.load', () => {
+      styleReady = true;
+      loadedDataRef = null;
+      setupMapLayers();
+    });
   });
 
   onDestroy(() => {
@@ -1258,7 +1427,7 @@
   // Watch Study Area visibility reactively
   $effect(() => {
     const studyVisible = showStudyArea ? 'visible' : 'none';
-    if (!map || !map.isStyleLoaded()) return;
+    if (!map || !styleReady) return;
     if (map.getLayer('study-area-fill')) {
       map.setLayoutProperty('study-area-fill', 'visibility', studyVisible);
     }
@@ -1267,10 +1436,51 @@
     }
   });
 
-  // Watch data updates reactively
+  // Watch HS2 Railway alignment visibility reactively
   $effect(() => {
-    if (map && data) {
-      ensureLayers();
+    const hs2Visible = showHs2Railway ? 'visible' : 'none';
+    if (!map) return;
+    if (map.getLayer('hs2-rail-casing')) {
+      map.setLayoutProperty('hs2-rail-casing', 'visibility', hs2Visible);
+    }
+    if (map.getLayer('hs2-rail-ties')) {
+      map.setLayoutProperty('hs2-rail-ties', 'visibility', hs2Visible);
+    }
+    if (!showHs2Railway) {
+      hoverPopup?.remove();
+    }
+    map.triggerRepaint();
+  });
+
+  // Watch Junction / intervention points visibility reactively
+  $effect(() => {
+    const ptsVisible = showInterventions ? 'visible' : 'none';
+    if (!map) return;
+    if (map.getLayer('cycleway-points')) {
+      map.setLayoutProperty('cycleway-points', 'visibility', ptsVisible);
+    }
+    if (!showInterventions) {
+      hoverPopup?.remove();
+      clickPopup?.remove();
+      clickPopup = null;
+    }
+    map.triggerRepaint();
+  });
+
+  // Watch Place Names visibility reactively
+  $effect(() => {
+    const labelsVisible = showPlaceNames ? 'visible' : 'none';
+    if (!map || !styleReady) return;
+    if (map.getLayer('basemap-labels-layer')) {
+      map.setLayoutProperty('basemap-labels-layer', 'visibility', labelsVisible);
+    }
+  });
+
+  // Watch data updates reactively (untrack setupMapLayers so filter/UI reads inside it do not re-trigger this effect)
+  $effect(() => {
+    const currentData = data;
+    if (map && currentData) {
+      untrack(() => ensureLayers());
     }
   });
 
@@ -1282,47 +1492,82 @@
     const _cat = filters.category;
     const _cls = filters.classification;
     const _sec = filters.section;
+    const _status = filters.status;
+    const _search = filters.searchTerm;
     const _colorBy = filters.colorBy;
     const _superseded = filters.showSuperseded;
+    const _pending = filters.showPending;
+    const _ptsActive = showActivePoints;
+    const _ptsSuperseded = showSupersededPoints;
+    const _ptsPending = showPendingPoints;
 
-    if (map && map.isStyleLoaded() && map.getLayer('cycleway-lines')) {
+    if (map && map.getLayer('cycleway-lines')) {
       const filterExpr = getActiveFilterExpression(filters);
+      const hasSearch = Boolean(_search.trim());
       map.setFilter('cycleway-lines', filterExpr);
-      map.setFilter('cycleway-casing', filterExpr);
+      if (map.getLayer('cycleway-casing')) {
+        map.setFilter('cycleway-casing', filterExpr);
+        map.setPaintProperty('cycleway-casing', 'line-width', cyclewayCasingWidthExpression(hasSearch));
+      }
       
       if (map.getLayer('cycleway-points')) {
-        map.setFilter('cycleway-points', getPointFilterExpression(filters));
+        map.setFilter('cycleway-points', getPointFilterExpression(filters, _ptsActive, _ptsSuperseded, _ptsPending));
       }
       
       const colorExpr = colorExpression(filters.colorBy);
       map.setPaintProperty('cycleway-lines', 'line-color', colorExpr);
+      map.setPaintProperty('cycleway-lines', 'line-width', cyclewayLineWidthExpression(hasSearch));
+      map.triggerRepaint();
     }
   });
 
-  // Reactive update for basemap
+  // Reactive update for basemap (skip redundant setStyle on initial mount)
+  let appliedBasemap = '';
   $effect(() => {
-    if (map && basemapStyles[basemap]) {
-      const currentCenter = map.getCenter();
-      const currentZoom = map.getZoom();
-      const currentPitch = map.getPitch();
-      const currentBearing = map.getBearing();
-
-      map.setStyle(basemapStyles[basemap], { diff: false });
-      map.once('style.load', () => {
-        if (map) {
-          map.setCenter(currentCenter);
-          map.setZoom(currentZoom);
-          map.setPitch(currentPitch);
-          map.setBearing(currentBearing);
-        }
-      });
+    if (!map || !basemapStyles[basemap]) return;
+    if (!appliedBasemap) {
+      appliedBasemap = basemap;
+      return;
     }
+    if (appliedBasemap === basemap) return;
+    appliedBasemap = basemap;
+
+    const currentCenter = map.getCenter();
+    const currentZoom = map.getZoom();
+    const currentPitch = map.getPitch();
+    const currentBearing = map.getBearing();
+
+    styleReady = false;
+    map.setStyle(basemapStyles[basemap], { diff: false });
+    map.once('style.load', () => {
+      styleReady = true;
+      if (map) {
+        map.setCenter(currentCenter);
+        map.setZoom(currentZoom);
+        map.setPitch(currentPitch);
+        map.setBearing(currentBearing);
+      }
+    });
+  });
+
+  // Resize MapLibre canvas when toggling print mode (header height changes)
+  $effect(() => {
+    const _mode = printMode;
+    if (!map) return;
+    requestAnimationFrame(() => {
+      map?.resize();
+    });
   });
 </script>
 
-<div class="map-wrapper" class:sidebar-open={sidebarOpen} bind:this={mapContainer}></div>
+<div
+  class="map-wrapper"
+  class:sidebar-open={sidebarOpen && !printMode}
+  class:print-mode={Boolean(printMode)}
+  bind:this={mapContainer}
+></div>
 
-{#if geoMessage}
+{#if geoMessage && !printMode}
   <div class="geo-message" role="status">{geoMessage}</div>
 {/if}
 
@@ -1335,7 +1580,7 @@
     z-index: 30;
     max-width: min(420px, 90%);
     padding: 8px 12px;
-    background: rgba(15, 23, 42, 0.95);
+    background: var(--bg-surface);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-sm);
     box-shadow: var(--shadow-panel);
@@ -1352,7 +1597,7 @@
   }
 
   .map-wrapper :global(.maplibregl-ctrl-bottom-left) {
-    bottom: 54px;
+    bottom: 14px;
     left: 14px;
     transition: left 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   }
@@ -1361,31 +1606,65 @@
     left: 350px;
   }
 
+  @media (max-width: 767px) {
+    .map-wrapper :global(.maplibregl-ctrl-bottom-left) {
+      bottom: 10px;
+      left: 10px;
+    }
+
+    .map-wrapper.sidebar-open :global(.maplibregl-ctrl-bottom-left) {
+      left: 10px;
+    }
+
+    .map-wrapper :global(.maplibregl-ctrl-attrib) {
+      font-size: 10px;
+      line-height: 1.25;
+      background: rgba(255, 255, 255, 0.85);
+    }
+  }
+
+  .map-wrapper.print-mode :global(.maplibregl-ctrl-top-right) {
+    display: none !important;
+  }
+
+  .map-wrapper.print-mode :global(.maplibregl-ctrl-bottom-left) {
+    left: 14px !important;
+  }
+
+  @media print {
+    .map-wrapper :global(.maplibregl-ctrl-top-right) {
+      display: none !important;
+    }
+
+    .map-wrapper :global(.maplibregl-ctrl-bottom-left) {
+      left: 14px !important;
+    }
+  }
+
   :global(.hover-tooltip-popup .maplibregl-popup-content) {
-    background: rgba(15, 23, 42, 0.95) !important;
-    backdrop-filter: blur(8px) !important;
-    border: 1px solid rgba(255, 255, 255, 0.15) !important;
-    border-radius: 8px !important;
+    background: #ffffff !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: var(--radius-sm) !important;
     padding: 8px 10px !important;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4) !important;
+    box-shadow: var(--shadow-md) !important;
     pointer-events: none;
   }
 
   :global(.hover-tooltip-popup .maplibregl-popup-tip) {
-    border-top-color: rgba(15, 23, 42, 0.95) !important;
+    border-top-color: #ffffff !important;
   }
 
   :global(.tooltip-content) {
     display: flex;
     flex-direction: column;
-    gap: 3px;
+    gap: 2px;
     font-family: 'Inter', sans-serif;
   }
 
   :global(.tooltip-title) {
     font-size: 12px;
-    font-weight: 600;
-    color: #f8fafc;
+    font-weight: 700;
+    color: var(--text-primary);
   }
 
   :global(.tooltip-meta) {
@@ -1396,8 +1675,9 @@
   }
 
   :global(.badge-sec) {
-    background: rgba(59, 130, 246, 0.2);
-    color: #60a5fa;
+    background: #eff6ff;
+    color: var(--accent-civic);
+    border: 1px solid #bfdbfe;
     padding: 1px 4px;
     border-radius: 3px;
     font-weight: 600;
@@ -1405,324 +1685,50 @@
 
   :global(.tooltip-len) {
     font-family: 'JetBrains Mono', monospace;
-    color: #94a3b8;
+    color: var(--text-secondary);
   }
 
   :global(.tooltip-cat) {
     font-size: 10px;
-    color: #cbd5e1;
-  }
-
-  :global(.badge-preferred) {
-    background: rgba(16, 185, 129, 0.25) !important;
-    color: #34d399 !important;
-  }
-
-  :global(.badge-alternative) {
-    background: rgba(245, 158, 11, 0.25) !important;
-    color: #fbbf24 !important;
-  }
-
-  :global(.badge-superseded) {
-    background: rgba(148, 163, 184, 0.25) !important;
-    color: #94a3b8 !important;
-  }
-
-  :global(.badge-trafficfree) {
-    background: rgba(14, 116, 144, 0.3) !important;
-    color: #a5f3fc !important;
-  }
-
-  :global(.badge-onroad) {
-    background: rgba(220, 38, 38, 0.2) !important;
-    color: #fecaca !important;
-  }
-
-  :global(.ncn-popup-card) {
-    font-family: 'Inter', sans-serif;
-    color: #f8fafc;
-    min-width: 220px;
-  }
-
-  :global(.ncn-popup-header) {
-    margin-bottom: 6px;
-  }
-
-  :global(.ncn-badge-group) {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 5px;
-  }
-
-  :global(.ncn-badge) {
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    padding: 2px 6px;
-    border-radius: 4px;
-  }
-
-  :global(.ncn-type) {
-    background: #0e7490;
-    color: #ffffff;
-  }
-
-  :global(.ncn-trafficfree) {
-    background: rgba(14, 116, 144, 0.3);
-    color: #a5f3fc;
-    border: 1px solid rgba(14, 116, 144, 0.5);
-  }
-
-  :global(.ncn-onroad) {
-    background: rgba(220, 38, 38, 0.2);
-    color: #fecaca;
-    border: 1px solid rgba(220, 38, 38, 0.5);
-  }
-
-  :global(.ncn-greenway) {
-    background: rgba(148, 163, 184, 0.2);
-    color: #e2e8f0;
-    border: 1px solid rgba(148, 163, 184, 0.4);
-  }
-
-  :global(.ncn-popup-title) {
-    margin: 4px 0 8px 0;
-    font-size: 13px;
-    font-weight: 600;
-    color: #f1f5f9;
-  }
-
-  :global(.ncn-popup-table) {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    font-size: 11px;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    padding-top: 6px;
-  }
-
-  :global(.ncn-cell) {
-    display: flex;
-    justify-content: space-between;
-    gap: 8px;
-  }
-
-  :global(.ncn-cell.full) {
-    flex-direction: column;
-    gap: 1px;
-  }
-
-  :global(.ncn-cell .k) {
-    color: #94a3b8;
-  }
-
-  :global(.ncn-cell .v) {
-    color: #e2e8f0;
-    text-align: right;
-  }
-
-  :global(.ncn-cell.full .v) {
-    text-align: left;
-    word-break: break-all;
-  }
-
-  :global(.ncn-click-popup .maplibregl-popup-content) {
-    padding: 12px 14px !important;
-    background: rgba(15, 23, 42, 0.96) !important;
-    backdrop-filter: blur(16px) !important;
-    border: 1px solid rgba(14, 116, 144, 0.55) !important;
-    border-radius: 10px !important;
-    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.6) !important;
-  }
-
-  :global(.badge-openroads) {
-    background: rgba(148, 163, 184, 0.25) !important;
-    color: #e2e8f0 !important;
-  }
-
-  :global(.openroads-popup-card) {
-    font-family: 'Inter', sans-serif;
-    color: #f8fafc;
-    min-width: 220px;
-  }
-
-  :global(.openroads-popup-header) {
-    margin-bottom: 6px;
-  }
-
-  :global(.openroads-badge-group) {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 5px;
-  }
-
-  :global(.openroads-badge) {
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    padding: 2px 6px;
-    border-radius: 4px;
-  }
-
-  :global(.openroads-type) {
-    background: #475569;
-    color: #ffffff;
-  }
-
-  :global(.openroads-func) {
-    background: rgba(148, 163, 184, 0.2);
-    color: #e2e8f0;
-    border: 1px solid rgba(148, 163, 184, 0.4);
-  }
-
-  :global(.openroads-popup-title) {
-    margin: 4px 0 8px 0;
-    font-size: 13px;
-    font-weight: 600;
-    color: #f1f5f9;
-  }
-
-  :global(.openroads-popup-table) {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    font-size: 11px;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    padding-top: 6px;
-  }
-
-  :global(.openroads-cell) {
-    display: flex;
-    justify-content: space-between;
-    gap: 8px;
-  }
-
-  :global(.openroads-cell.full) {
-    flex-direction: column;
-    gap: 1px;
-  }
-
-  :global(.openroads-cell .k) {
-    color: #94a3b8;
-  }
-
-  :global(.openroads-cell .v) {
-    color: #e2e8f0;
-    text-align: right;
-  }
-
-  :global(.openroads-cell.full .v) {
-    text-align: left;
-    word-break: break-all;
-  }
-
-  :global(.openroads-click-popup .maplibregl-popup-content) {
-    padding: 12px 14px !important;
-    background: rgba(15, 23, 42, 0.96) !important;
-    backdrop-filter: blur(16px) !important;
-    border: 1px solid rgba(148, 163, 184, 0.45) !important;
-    border-radius: 10px !important;
-    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.6) !important;
-  }
-
-  :global(.point-popup-card) {
-    font-family: 'Inter', sans-serif;
-    color: #f8fafc;
-    min-width: 220px;
-  }
-
-  :global(.point-popup-header) {
-    margin-bottom: 6px;
-  }
-
-  :global(.point-badge-group) {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 5px;
-  }
-
-  :global(.point-badge) {
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    padding: 2px 6px;
-    border-radius: 4px;
-  }
-
-  :global(.point-type) {
-    background: #3b82f6;
-    color: #ffffff;
-  }
-
-  :global(.point-superseded) {
-    background: #64748b;
-    color: #f1f5f9;
-  }
-
-  :global(.point-sub) {
-    background: rgba(148, 163, 184, 0.25);
-    color: #cbd5e1;
-    border: 1px solid rgba(148, 163, 184, 0.4);
-  }
-
-  :global(.point-popup-title) {
-    margin: 4px 0 8px 0;
-    font-size: 13px;
-    font-weight: 600;
-    color: #f1f5f9;
-    text-transform: capitalize;
-  }
-
-  :global(.point-popup-table) {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    font-size: 11px;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    padding-top: 6px;
-  }
-
-  :global(.point-cell) {
-    display: flex;
-    justify-content: space-between;
-    gap: 8px;
-  }
-
-  :global(.point-cell.full) {
-    flex-direction: column;
-    gap: 1px;
-  }
-
-  :global(.point-cell .k) {
-    color: #94a3b8;
-  }
-
-  :global(.point-cell .v) {
-    color: #e2e8f0;
-    text-align: right;
-  }
-
-  :global(.point-cell.full .v) {
-    text-align: left;
-    word-break: break-all;
-  }
-
-  :global(.point-click-popup .maplibregl-popup-content) {
-    padding: 12px 14px !important;
-    background: rgba(15, 23, 42, 0.96) !important;
-    backdrop-filter: blur(16px) !important;
-    border: 1px solid rgba(59, 130, 246, 0.45) !important;
-    border-radius: 10px !important;
-    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.6) !important;
+    color: var(--text-muted);
   }
 
   :global(.tooltip-remarks) {
     font-size: 10px;
-    color: #94a3b8;
+    color: var(--text-muted);
     margin-top: 2px;
     font-style: italic;
   }
+
+  :global(.badge-preferred) {
+    background: #eff6ff !important;
+    color: #1d4ed8 !important;
+    border-color: #bfdbfe !important;
+  }
+
+  :global(.badge-alternative) {
+    background: #fffbeb !important;
+    color: #b45309 !important;
+  }
+
+  :global(.badge-superseded) {
+    background: #f1f5f9 !important;
+    color: #64748b !important;
+  }
+
+  :global(.badge-pending) {
+    background: #faf5ff !important;
+    color: #9333ea !important;
+  }
+
+  :global(.badge-trafficfree) {
+    background: #ecfdf5 !important;
+    color: #059669 !important;
+  }
+
+  :global(.badge-onroad) {
+    background: #fef2f2 !important;
+    color: #b91c1c !important;
+  }
+
 </style>

@@ -3,52 +3,144 @@
   import KPICards from './KPICards.svelte';
   import Legend from './Legend.svelte';
   import FilterPanel from './FilterPanel.svelte';
+  import DataDownloadPanel from './DataDownloadPanel.svelte';
+  import { isDevEnvironment } from '../urlState';
   import type { FilterState, CyclewayStats } from '../types/cycleway';
 
+  const isDev = isDevEnvironment();
+
   type LegendProps = Omit<ComponentProps<typeof Legend>, 'colorBy'>;
+  type DownloadProps = Omit<ComponentProps<typeof DataDownloadPanel>, 'colorBy'>;
 
   interface Props {
     open: boolean;
+    onClose?: () => void;
     stats: CyclewayStats;
     filters: FilterState;
     legend: LegendProps;
+    download: DownloadProps;
     availableDevelopers: string[];
     availableCategories: string[];
     availableClassifications: string[];
     availableSections: string[];
+    searchMatchCount?: number;
+    onZoomToSearch?: () => void;
     onResetFilters: () => void;
   }
 
   let {
     open,
+    onClose = () => {},
     stats,
     filters = $bindable(),
     legend,
+    download,
     availableDevelopers,
     availableCategories,
     availableClassifications,
     availableSections,
+    searchMatchCount = 0,
+    onZoomToSearch,
     onResetFilters
   }: Props = $props();
+
+  let activeFilterCount = $derived(
+    [filters.developer, filters.category, filters.classification, filters.section, filters.status, filters.searchTerm.trim()]
+      .filter(Boolean).length
+  );
+  let filtersOpen = $state(false);
+  let downloadOpen = $state(false);
+
+  $effect(() => {
+    if (filters.searchTerm.trim()) {
+      filtersOpen = true;
+    }
+  });
 </script>
+
+{#if open}
+  <div class="sidebar-backdrop" onclick={onClose} aria-hidden="true"></div>
+{/if}
 
 <aside class="sidebar" class:closed={!open}>
   <div class="sidebar-content">
-    <div class="section-title">Corridor Metrics</div>
+    <div class="sidebar-top-row">
+      <div class="section-title">Corridor Metrics</div>
+      <button
+        type="button"
+        class="mobile-close-btn"
+        onclick={onClose}
+        aria-label="Close side panel"
+        title="Close side panel"
+      >
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+        <span>Map</span>
+      </button>
+    </div>
     <KPICards {stats} />
 
     <div class="section-title">Map Layers</div>
     <Legend bind:colorBy={filters.colorBy} {...legend} />
 
-    <div class="section-title">Filters</div>
-    <FilterPanel
-      bind:filters={filters}
-      {availableDevelopers}
-      {availableCategories}
-      {availableClassifications}
-      {availableSections}
-      {onResetFilters}
-    />
+    <button
+      type="button"
+      class="section-title filters-toggle"
+      onclick={() => filtersOpen = !filtersOpen}
+      aria-expanded={filtersOpen}
+    >
+      <span>{isDev ? 'Filters' : 'Filter by Link / ID'}{#if activeFilterCount > 0} ({activeFilterCount}){/if}</span>
+      <svg
+        class="chevron"
+        class:open={filtersOpen}
+        width="14"
+        height="14"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <polyline points="6 9 12 15 18 9"></polyline>
+      </svg>
+    </button>
+    {#if filtersOpen}
+      <FilterPanel
+        bind:filters={filters}
+        {availableDevelopers}
+        {availableCategories}
+        {availableClassifications}
+        {availableSections}
+        {searchMatchCount}
+        {onZoomToSearch}
+        {onResetFilters}
+      />
+    {/if}
+
+    <button
+      type="button"
+      class="section-title filters-toggle"
+      onclick={() => downloadOpen = !downloadOpen}
+      aria-expanded={downloadOpen}
+    >
+      <span>Data download</span>
+      <svg
+        class="chevron"
+        class:open={downloadOpen}
+        width="14"
+        height="14"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <polyline points="6 9 12 15 18 9"></polyline>
+      </svg>
+    </button>
+    {#if downloadOpen}
+      <DataDownloadPanel colorBy={filters.colorBy} {...download} />
+    {/if}
   </div>
 </aside>
 
@@ -60,9 +152,9 @@
     bottom: 0;
     width: 340px;
     max-width: calc(100vw - 32px);
-    background: rgba(15, 23, 42, 0.95);
-    backdrop-filter: blur(16px);
+    background: var(--bg-surface);
     border-right: 1px solid var(--border-color);
+    box-shadow: 2px 0 12px rgba(15, 23, 42, 0.04);
     z-index: 20;
     transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     display: flex;
@@ -87,6 +179,109 @@
     text-transform: uppercase;
     letter-spacing: 0.05em;
     color: var(--text-muted);
-    margin-bottom: 8px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 4px;
+    margin-bottom: 10px;
+    margin-top: 4px;
+  }
+
+  .filters-toggle {
+    width: 100%;
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    padding: 4px 0 6px 0;
+    font-family: inherit;
+    transition: color 0.15s ease;
+  }
+
+  .filters-toggle:hover {
+    color: var(--text-primary);
+  }
+
+  .chevron {
+    transition: transform 0.18s ease;
+  }
+
+  .chevron.open {
+    transform: rotate(180deg);
+  }
+
+  .sidebar-backdrop {
+    display: none;
+  }
+
+  .sidebar-top-row {
+    display: block;
+  }
+
+  .mobile-close-btn {
+    display: none;
+  }
+
+  @media (max-width: 767px) {
+    .sidebar-backdrop {
+      display: block;
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.32);
+      backdrop-filter: blur(1px);
+      z-index: 19;
+    }
+
+    .sidebar {
+      width: min(320px, calc(100vw - 48px));
+      max-width: calc(100vw - 48px);
+      box-shadow: 4px 0 20px rgba(15, 23, 42, 0.16);
+    }
+
+    .sidebar-content {
+      padding: 14px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .sidebar-top-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 6px;
+      margin-bottom: 10px;
+    }
+
+    .sidebar-top-row .section-title {
+      border-bottom: none;
+      padding-bottom: 0;
+      margin-bottom: 0;
+      margin-top: 0;
+    }
+
+    .mobile-close-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      border-radius: var(--radius-sm);
+      padding: 4px 8px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .mobile-close-btn:active {
+      background: var(--bg-muted);
+      color: var(--text-primary);
+    }
+
+    .filters-toggle {
+      padding: 8px 0;
+    }
   }
 </style>

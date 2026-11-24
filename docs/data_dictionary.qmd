@@ -67,12 +67,12 @@ overview |>
 
 ## Detailed Variable Dictionaries by Dataset
 
-### North-South Active Travel Corridor (v1 / v2)
+### North-South Greenway (v1 / v2)
 
 The central spinal active travel corridor running along the HS2 civil engineering alignment from London through the Midlands to Liverpool and Manchester, incorporating regional arterial links.
 
 ```{r}
-show_dict_table("north_south_corridor", "Table 2: North-South Active Travel Corridor Variable Dictionary")
+show_dict_table("north_south_corridor", "Table 2: North-South Greenway Variable Dictionary")
 ```
 
 ### Custom Re-alignments (Shane Snow GPX)

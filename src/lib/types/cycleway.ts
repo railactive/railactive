@@ -13,6 +13,12 @@ export interface CyclewaySegmentProperties {
   layer_type?: string;
   folder?: string;
   status?: string;
+  osm_infrastructure?: string;
+  osm_highway?: string;
+  osm_surface?: string;
+  dist_to_route_m?: number;
+  geocoded_from_id?: boolean;
+  location_precision?: string;
 }
 
 export interface CyclewayFeature {
@@ -26,6 +32,13 @@ export interface CyclewayFeature {
 
 export interface CyclewayFeatureCollection {
   type: 'FeatureCollection';
+  version?: string;
+  generated_at?: string;
+  metadata?: {
+    version?: string;
+    generated_at?: string;
+    release_url?: string;
+  };
   features: CyclewayFeature[];
 }
 
@@ -36,10 +49,12 @@ export interface FilterState {
   section: string;
   status: string;
   searchTerm: string;
-  colorBy: 'category' | 'classification' | 'developer' | 'status' | 'kml';
+  colorBy: 'category' | 'classification' | 'infrastructure_type_detailed' | 'detailed_classification' | 'osm_infrastructure' | 'developer' | 'status' | 'kml';
   hiddenLegendItems: string[];
   /** Show superseded alignments (only offered when colouring by status). */
   showSuperseded: boolean;
+  /** Show pending alignments north of Crewe (only offered when colouring by status). */
+  showPending: boolean;
 }
 
 export interface CyclewayStats {

@@ -1,6 +1,15 @@
 <script lang="ts">
-  import { REFERENCE_COLORS as ref } from '../palette';
+  import {
+    INTERVENTION_COLOR,
+    INTERVENTION_LEGACY_COLOR,
+    INTERVENTION_LEGACY_OPACITY,
+    PENDING_COLOR,
+    REFERENCE_COLORS as ref
+  } from '../palette';
+  import { isDevEnvironment } from '../urlState';
   import type { FilterState } from '../types/cycleway';
+
+  const showDetailedColorOptions = isDevEnvironment();
 
   interface LegendItem {
     label: string;
@@ -15,6 +24,21 @@
     onToggleItem: (label: string) => void;
     onIsolateItem: (label: string) => void;
     onShowAll: () => void;
+    showHs2Railway?: boolean;
+    hs2RailwayKm?: number;
+    onToggleHs2Railway?: () => void;
+    showInterventions?: boolean;
+    interventionCount?: number;
+    activePointCount?: number;
+    supersededPointCount?: number;
+    pendingPointCount?: number;
+    showActivePoints?: boolean;
+    showSupersededPoints?: boolean;
+    showPendingPoints?: boolean;
+    onToggleInterventions?: () => void;
+    onToggleActivePoints?: () => void;
+    onToggleSupersededPoints?: () => void;
+    onTogglePendingPoints?: () => void;
     showNcn: boolean;
     onToggleNcn: () => void;
     showOpenRoads: boolean;
@@ -30,6 +54,21 @@
     onToggleItem,
     onIsolateItem,
     onShowAll,
+    showHs2Railway = true,
+    hs2RailwayKm = 0,
+    onToggleHs2Railway,
+    showInterventions = false,
+    interventionCount = 0,
+    activePointCount = 0,
+    supersededPointCount = 0,
+    pendingPointCount = 0,
+    showActivePoints = true,
+    showSupersededPoints = false,
+    showPendingPoints = false,
+    onToggleInterventions,
+    onToggleActivePoints,
+    onToggleSupersededPoints,
+    onTogglePendingPoints,
     showNcn,
     onToggleNcn,
     showOpenRoads,
@@ -60,11 +99,20 @@
   <div class="colorby-row">
     <label for="colorby-select">Colour by</label>
     <select id="colorby-select" bind:value={colorBy}>
-      <option value="classification">Classification</option>
-      <option value="category">Category</option>
+      <option value="classification">Delivery category</option>
+      {#if showDetailedColorOptions}
+        <option value="infrastructure_type_detailed">Delivery category (detailed)</option>
+        <option value="detailed_classification">Detailed classification</option>
+      {/if}
+      <option value="category">Infrastructure type</option>
+      {#if showDetailedColorOptions}
+        <option value="osm_infrastructure">Current infrastructure (OSM)</option>
+      {/if}
       <option value="developer">Lead developer</option>
       <option value="status">Alignment status</option>
-      <option value="kml">Original KML colours</option>
+      {#if showDetailedColorOptions}
+        <option value="kml">Original KML colours</option>
+      {/if}
     </select>
     {#if hiddenItems.length > 0}
       <button class="show-all-btn" onclick={onShowAll}>Show all</button>
@@ -97,17 +145,78 @@
 
   <div class="subheading">Reference layers</div>
   <div class="legend-items">
+    <div class="legend-row" class:hidden-layer={!showHs2Railway}>
+      <button class="legend-item-btn" onclick={onToggleHs2Railway} aria-pressed={showHs2Railway}>
+        {@render checkbox(showHs2Railway)}
+        <span class="color-bar hs2-color-bar"></span>
+        <span class="item-label">HS2 railway alignment</span>
+        {#if hs2RailwayKm > 0}
+          <span class="item-km">{hs2RailwayKm.toFixed(1)} km</span>
+        {/if}
+      </button>
+    </div>
+
+    <div class="legend-row" class:hidden-layer={!showInterventions}>
+      <button class="legend-item-btn" onclick={onToggleInterventions} aria-pressed={showInterventions}>
+        {@render checkbox(showInterventions)}
+        <span class="point-swatch-wrap"><span class="point-swatch" style="background-color: {INTERVENTION_COLOR};"></span></span>
+        <span class="item-label">Point interventions</span>
+        <span class="item-km">{interventionCount.toLocaleString()} pts</span>
+      </button>
+    </div>
+    {#if showInterventions}
+      <div class="sublegend sublegend-checks">
+        <button
+          type="button"
+          class="subcheck-btn"
+          class:unchecked={!showActivePoints}
+          onclick={onToggleActivePoints}
+          aria-pressed={showActivePoints}
+        >
+          {@render checkbox(showActivePoints)}
+          <span class="point-swatch point-swatch-sm" style="background-color: {INTERVENTION_COLOR};"></span>
+          <span class="subcheck-label">Active route ({activePointCount.toLocaleString()})</span>
+        </button>
+        <button
+          type="button"
+          class="subcheck-btn"
+          class:unchecked={!showSupersededPoints}
+          onclick={onToggleSupersededPoints}
+          aria-pressed={showSupersededPoints}
+        >
+          {@render checkbox(showSupersededPoints)}
+          <span
+            class="point-swatch point-swatch-sm"
+            style="background-color: {INTERVENTION_LEGACY_COLOR}; opacity: {INTERVENTION_LEGACY_OPACITY};"
+          ></span>
+          <span class="subcheck-label">Superseded / legacy ({supersededPointCount.toLocaleString()})</span>
+        </button>
+        <button
+          type="button"
+          class="subcheck-btn"
+          class:unchecked={!showPendingPoints}
+          onclick={onTogglePendingPoints}
+          aria-pressed={showPendingPoints}
+        >
+          {@render checkbox(showPendingPoints)}
+          <span class="point-swatch point-swatch-sm" style="background-color: {PENDING_COLOR};"></span>
+          <span class="subcheck-label">Pending ({pendingPointCount.toLocaleString()})</span>
+        </button>
+      </div>
+    {/if}
+
     <div class="legend-row" class:hidden-layer={!showNcn}>
       <button class="legend-item-btn" onclick={onToggleNcn} aria-pressed={showNcn}>
         {@render checkbox(showNcn)}
         <span class="color-bar ncn-color-bar"></span>
         <span class="item-label">National Cycle Network</span>
+        <span class="item-km">19,752 km</span>
       </button>
     </div>
     {#if showNcn}
       <div class="sublegend">
-        <div class="sublegend-item"><span class="sample ncn-sample-solid"></span>Traffic-free</div>
-        <div class="sublegend-item"><span class="sample ncn-sample-on-road"></span>On-road</div>
+        <div class="sublegend-item"><span class="sample ncn-sample-solid"></span>Traffic-free (8,315 km)</div>
+        <div class="sublegend-item"><span class="sample ncn-sample-on-road"></span>On-road (11,383 km)</div>
       </div>
     {/if}
 
@@ -116,6 +225,7 @@
         {@render checkbox(showOpenRoads)}
         <span class="color-bar openroads-color-bar"></span>
         <span class="item-label">OS OpenRoads (10 km)</span>
+        <span class="item-km">39,356 km</span>
       </button>
     </div>
     {#if showOpenRoads}
@@ -132,6 +242,7 @@
         {@render checkbox(showStudyArea)}
         <span class="color-bar studyarea-color-bar"></span>
         <span class="item-label">Study area (10 km)</span>
+        <span class="item-km">12,009 km²</span>
       </button>
     </div>
   </div>
@@ -159,8 +270,8 @@
   .colorby-row select {
     flex: 1;
     min-width: 0;
-    background: rgba(15, 23, 42, 0.6);
-    border: 1px solid var(--border-color);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-strong);
     border-radius: var(--radius-sm);
     color: var(--text-primary);
     padding: 5px 8px;
@@ -169,13 +280,13 @@
   }
 
   .colorby-row select:focus {
-    border-color: var(--accent-blue);
+    border-color: var(--accent-civic);
   }
 
   .show-all-btn {
     background: none;
     border: none;
-    color: #60a5fa;
+    color: var(--accent-civic);
     font-size: 11px;
     font-weight: 600;
     cursor: pointer;
@@ -183,7 +294,8 @@
   }
 
   .show-all-btn:hover {
-    color: var(--text-primary);
+    color: var(--accent-civic-hover);
+    text-decoration: underline;
   }
 
   .subheading {
@@ -207,7 +319,7 @@
   }
 
   .legend-row:hover {
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--bg-secondary);
   }
 
   .legend-row.hidden-layer {
@@ -231,7 +343,8 @@
     width: 13px;
     height: 13px;
     border-radius: 3px;
-    border: 1.5px solid var(--text-secondary);
+    border: 1.5px solid var(--border-strong);
+    background: var(--bg-surface);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -239,9 +352,9 @@
   }
 
   .toggle-box.checked {
-    background: var(--text-primary);
-    border-color: var(--text-primary);
-    color: #0f172a;
+    background: var(--accent-civic);
+    border-color: var(--accent-civic);
+    color: #ffffff;
   }
 
   .color-bar {
@@ -268,8 +381,8 @@
 
   .solo-btn {
     opacity: 0;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
     color: var(--text-secondary);
     font-size: 10px;
     font-weight: 600;
@@ -277,6 +390,7 @@
     border-radius: 3px;
     cursor: pointer;
     margin-right: 4px;
+    box-shadow: var(--shadow-sm);
   }
 
   .legend-row:hover .solo-btn,
@@ -284,9 +398,32 @@
     opacity: 1;
   }
 
+  @media (hover: none), (max-width: 767px) {
+    .colorby-row select {
+      padding: 7px 8px;
+      font-size: 13px;
+    }
+
+    .legend-item-btn {
+      padding: 7px 4px;
+      min-height: 34px;
+    }
+
+    .toggle-box {
+      width: 15px;
+      height: 15px;
+    }
+
+    .solo-btn {
+      opacity: 1;
+      padding: 3px 7px;
+      font-size: 10.5px;
+    }
+  }
+
   .solo-btn:hover {
-    background: var(--accent-blue);
-    border-color: var(--accent-blue);
+    background: var(--accent-civic);
+    border-color: var(--accent-civic);
     color: #ffffff;
   }
 
@@ -297,6 +434,41 @@
     padding: 0 4px 6px 47px;
     font-size: 11px;
     color: var(--text-secondary);
+  }
+
+  .sublegend-checks {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    gap: 1px;
+    padding: 1px 4px 6px 26px;
+  }
+
+  .subcheck-btn {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 3px 4px;
+    font-size: 11.5px;
+    color: var(--text-primary);
+    cursor: pointer;
+    text-align: left;
+  }
+
+  .subcheck-btn:hover {
+    background: var(--bg-secondary);
+  }
+
+  .subcheck-btn.unchecked {
+    opacity: 0.58;
+  }
+
+  .subcheck-label {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .sublegend-item {
@@ -313,6 +485,18 @@
 
   .ncn-color-bar {
     background: linear-gradient(90deg, var(--ncn-off) 50%, var(--ncn-on) 50%);
+  }
+
+  .hs2-color-bar {
+    border-radius: 1px;
+    background: repeating-linear-gradient(
+      90deg,
+      #000000 0px,
+      #000000 3px,
+      #ffffff 3px,
+      #ffffff 5px
+    );
+    border: 1px solid #000000;
   }
 
   .ncn-sample-solid {
@@ -349,5 +533,27 @@
     height: 8px;
     background: color-mix(in srgb, var(--study-area) 35%, transparent);
     border: 1px dashed var(--study-area-outline);
+  }
+
+  .point-swatch-wrap {
+    width: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .point-swatch {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    border: 1.5px solid #ffffff;
+    box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.28);
+    flex-shrink: 0;
+  }
+
+  .point-swatch-sm {
+    width: 8px;
+    height: 8px;
   }
 </style>

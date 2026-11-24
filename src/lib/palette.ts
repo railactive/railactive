@@ -1,4 +1,4 @@
-import type { CyclewaySegmentProperties, FilterState } from './types/cycleway';
+import type { CyclewayFeatureCollection, CyclewaySegmentProperties, FilterState } from './types/cycleway';
 
 // Single source of truth for every colour drawn on the map, the legend and
 // the sidebar composition bar. Raw attribute values are grouped into a small
@@ -6,7 +6,7 @@ import type { CyclewaySegmentProperties, FilterState } from './types/cycleway';
 // popups and the detail panel.
 
 export type ColorBy = FilterState['colorBy'];
-type GroupField = 'classification' | 'category' | 'developer' | 'status';
+type GroupField = 'classification' | 'category' | 'osm_infrastructure' | 'developer' | 'status';
 
 export interface ColorGroup {
   label: string;
@@ -22,63 +22,150 @@ interface ColorScheme {
   groups: ColorGroup[];
 }
 
-const HS2_ORANGE = '#f97316';
-const HS2_GREENWAY = '#84cc16';
-const HS2_MAT = '#fb923c';
-const GREEN = '#22c55e';
-const BLUE = '#3b82f6';
-const TEAL = '#2dd4bf';
-const YELLOW = '#eab308';
-const GREY = '#94a3b8';
+const HS2_ORANGE = '#c2410c';
+const HS2_GREENWAY = '#0e7490';
+const HS2_MAT = '#d97706';
+const GREEN = '#15803d';
+const LIGHT_GREEN = '#0d9488';
+const BLUE = '#1d4ed8';
+const TEAL = '#0891b2';
+const PURPLE = '#7c3aed';
+const MAGENTA = '#a21caf';
+const YELLOW = '#b45309';
+const GREY = '#64748b';
 
-const SUPERSEDED_COLOR = '#64748b';
+const SUPERSEDED_COLOR = '#94a3b8';
+export const PENDING_COLOR = '#9333ea';
 const OLD_ALIGNMENT = 'Old active travel route alignment';
 export const SUPERSEDED_LABEL = 'Superseded';
-export const INTERVENTION_COLOR = '#f8fafc';
+export const PENDING_LABEL = 'Pending';
+export const INTERVENTION_COLOR = '#d97706';
+export const INTERVENTION_LEGACY_THRESHOLD_M = 500;
+export const INTERVENTION_LEGACY_COLOR = '#64748b';
+export const INTERVENTION_LEGACY_OPACITY = 0.3;
+
+export function formatStatusLabel(status?: string): string {
+  if (!status) return '';
+  if (status.toLowerCase() === 'alternative') return 'Complimentary';
+  if (status.toLowerCase() === 'pending') return 'Pending';
+  return status;
+}
+
+const SENTENCE_CASE_CLASSIFICATIONS: Record<string, string> = {
+  'New Greenway': 'New greenway',
+  'Canal Towpath Upgrade': 'Canal towpath upgrade',
+  'Local Road Quietway': 'Local road quietway',
+  'Quiet Lane': 'Quiet lane',
+  'Main Road-Cycle tracks': 'Main road - cycle tracks',
+  'Existing Footway Level Cycle Track': 'Existing footway level cycle track',
+  'Proposed Footway Level Cycle Track': 'Proposed footway level cycle track'
+};
 
 export function normalizeClassification(c?: string): string {
   if (!c) return '';
   if (
-    c === 'HS2 Delivery'
-    || c === 'HS2 Haulage'
+    c === 'HS2 aligned route'
+    || c === 'HS2 Aligned Route'
+    || c === 'HS2 aligned greenway'
+    || c === 'HS2 Aligned Greenway'
+    || c === 'Repurposed HS2 TCR'
     || c === 'Repurposed HS2 temporary construction road (TCR)'
+    || c === 'HS2 Delivery'
+    || c === 'HS2 Haulage'
+    || c === 'HS2 delivered greenway'
+    || c === 'HS2 Legacy'
+    || c === 'Dual Use of HS2 Maintenance Access Tracks (MATs)'
+    || c === 'Dual use of HS2 maintenance access tracks (MATs)'
+    || c === 'HS2 MAT'
   ) {
-    return 'Repurposed HS2 TCR';
+    return 'HS2 aligned route';
   }
-  if (c === 'HS2 Legacy') {
-    return 'HS2 delivered greenway';
-  }
-  if (c === 'HS2 MAT') {
-    return 'Dual Use of HS2 Maintenance Access Tracks (MATs)';
-  }
-  return c;
+  return SENTENCE_CASE_CLASSIFICATIONS[c] || c;
 }
 
 export function classificationSynonyms(c: string): string[] {
   if (
-    c === 'Repurposed HS2 TCR'
+    c === 'HS2 aligned route'
+    || c === 'HS2 Aligned Route'
+    || c === 'HS2 aligned greenway'
+    || c === 'HS2 Aligned Greenway'
+    || c === 'Repurposed HS2 TCR'
     || c === 'Repurposed HS2 temporary construction road (TCR)'
     || c === 'HS2 Haulage'
     || c === 'HS2 Delivery'
+    || c === 'HS2 delivered greenway'
+    || c === 'HS2 Legacy'
+    || c === 'Dual Use of HS2 Maintenance Access Tracks (MATs)'
+    || c === 'Dual use of HS2 maintenance access tracks (MATs)'
+    || c === 'HS2 MAT'
   ) {
     return [
+      'HS2 aligned route',
+      'HS2 Aligned Route',
+      'HS2 aligned greenway',
+      'HS2 Aligned Greenway',
       'Repurposed HS2 TCR',
       'Repurposed HS2 temporary construction road (TCR)',
       'HS2 Haulage',
-      'HS2 Delivery'
+      'HS2 Delivery',
+      'HS2 delivered greenway',
+      'HS2 Legacy',
+      'Dual Use of HS2 Maintenance Access Tracks (MATs)',
+      'Dual use of HS2 maintenance access tracks (MATs)',
+      'HS2 MAT'
     ];
   }
-  if (c === 'HS2 delivered greenway' || c === 'HS2 Legacy') {
-    return ['HS2 delivered greenway', 'HS2 Legacy'];
-  }
-  if (c === 'Dual Use of HS2 Maintenance Access Tracks (MATs)' || c === 'HS2 MAT') {
-    return ['Dual Use of HS2 Maintenance Access Tracks (MATs)', 'HS2 MAT'];
+  for (const [raw, normalized] of Object.entries(SENTENCE_CASE_CLASSIFICATIONS)) {
+    if (c === raw || c === normalized) {
+      return [raw, normalized];
+    }
   }
   return [c];
 }
 
-const SCHEMES: Record<GroupField, ColorScheme> = {
+const SCHEMES: Record<Exclude<ColorBy, 'kml'>, ColorScheme> = {
   classification: {
+    field: 'classification',
+    groups: [
+      {
+        label: 'HS2 aligned route',
+        color: HS2_ORANGE,
+        alwaysShow: true,
+        values: [
+          'HS2 aligned route',
+          'HS2 Aligned Route',
+          'HS2 aligned greenway',
+          'HS2 Aligned Greenway',
+          'Repurposed HS2 TCR',
+          'Repurposed HS2 temporary construction road (TCR)',
+          'HS2 Haulage',
+          'HS2 Delivery',
+          'HS2 delivered greenway',
+          'HS2 Legacy',
+          'Dual Use of HS2 Maintenance Access Tracks (MATs)',
+          'Dual use of HS2 maintenance access tracks (MATs)',
+          'HS2 MAT'
+        ]
+      },
+      { label: 'New greenway', color: GREEN, values: ['New Greenway', 'New greenway'] },
+      { label: 'Path & towpath upgrades', color: LIGHT_GREEN, values: ['Upgrade PROW', 'Canal Towpath Upgrade', 'Canal towpath upgrade'] },
+      { label: 'Quiet roads & lanes', color: BLUE, values: ['Local Road Quietway', 'Local road quietway', 'Quiet Lane', 'Quiet lane', 'Town or village centre'] },
+      {
+        label: 'Cycle tracks',
+        color: PURPLE,
+        values: [
+          'Main Road-Cycle tracks',
+          'Main road - cycle tracks',
+          'Existing Footway Level Cycle Track',
+          'Existing footway level cycle track',
+          'Proposed Footway Level Cycle Track',
+          'Proposed footway level cycle track'
+        ]
+      },
+      { label: 'Existing routes', color: GREY }
+    ]
+  },
+  infrastructure_type_detailed: {
     field: 'classification',
     groups: [
       {
@@ -96,21 +183,84 @@ const SCHEMES: Record<GroupField, ColorScheme> = {
         label: 'HS2 delivered greenway',
         color: HS2_GREENWAY,
         alwaysShow: true,
-        values: ['HS2 delivered greenway', 'HS2 Legacy']
+        values: [
+          'HS2 delivered greenway',
+          'HS2 Legacy'
+        ]
       },
       {
-        label: 'Dual Use of HS2 Maintenance Access Tracks (MATs)',
+        label: 'Dual use of HS2 maintenance access tracks (MATs)',
         color: HS2_MAT,
-        alwaysShow: true,
-        values: ['Dual Use of HS2 Maintenance Access Tracks (MATs)', 'HS2 MAT']
+        values: [
+          'Dual Use of HS2 Maintenance Access Tracks (MATs)',
+          'Dual use of HS2 maintenance access tracks (MATs)',
+          'HS2 MAT'
+        ]
       },
-      { label: 'New greenway', color: GREEN, values: ['New Greenway'] },
-      { label: 'Path & towpath upgrade', color: TEAL, values: ['Upgrade PROW', 'Canal Towpath Upgrade'] },
-      { label: 'Quiet roads & lanes', color: BLUE, values: ['Local Road Quietway', 'Quiet Lane', 'Town or village centre'] },
+      { label: 'New greenway', color: GREEN, values: ['New Greenway', 'New greenway'] },
+      { label: 'Path & towpath upgrades', color: LIGHT_GREEN, values: ['Upgrade PROW', 'Canal Towpath Upgrade', 'Canal towpath upgrade'] },
+      { label: 'Quiet roads & lanes', color: BLUE, values: ['Local Road Quietway', 'Local road quietway', 'Quiet Lane', 'Quiet lane', 'Town or village centre'] },
       {
         label: 'Cycle tracks',
-        color: YELLOW,
-        values: ['Main Road-Cycle tracks', 'Existing Footway Level Cycle Track', 'Proposed Footway Level Cycle Track']
+        color: PURPLE,
+        values: [
+          'Main Road-Cycle tracks',
+          'Main road - cycle tracks',
+          'Existing Footway Level Cycle Track',
+          'Existing footway level cycle track',
+          'Proposed Footway Level Cycle Track',
+          'Proposed footway level cycle track'
+        ]
+      },
+      { label: 'Existing routes', color: GREY }
+    ]
+  },
+  detailed_classification: {
+    field: 'classification',
+    groups: [
+      {
+        label: 'Repurposed HS2 TCR',
+        color: HS2_ORANGE,
+        alwaysShow: true,
+        values: [
+          'Repurposed HS2 TCR',
+          'Repurposed HS2 temporary construction road (TCR)',
+          'HS2 Haulage',
+          'HS2 Delivery'
+        ]
+      },
+      {
+        label: 'HS2 delivered greenway',
+        color: HS2_GREENWAY,
+        alwaysShow: true,
+        values: [
+          'HS2 delivered greenway',
+          'HS2 Legacy'
+        ]
+      },
+      {
+        label: 'Dual use of HS2 maintenance access tracks (MATs)',
+        color: HS2_MAT,
+        values: [
+          'Dual Use of HS2 Maintenance Access Tracks (MATs)',
+          'Dual use of HS2 maintenance access tracks (MATs)',
+          'HS2 MAT'
+        ]
+      },
+      { label: 'New greenway', color: GREEN, values: ['New Greenway', 'New greenway'] },
+      { label: 'Path & towpath upgrades', color: LIGHT_GREEN, values: ['Upgrade PROW', 'Canal Towpath Upgrade', 'Canal towpath upgrade'] },
+      { label: 'Quiet roads & lanes', color: BLUE, values: ['Local Road Quietway', 'Local road quietway', 'Quiet Lane', 'Quiet lane', 'Town or village centre'] },
+      {
+        label: 'Cycle tracks',
+        color: PURPLE,
+        values: [
+          'Main Road-Cycle tracks',
+          'Main road - cycle tracks',
+          'Existing Footway Level Cycle Track',
+          'Existing footway level cycle track',
+          'Proposed Footway Level Cycle Track',
+          'Proposed footway level cycle track'
+        ]
       },
       { label: 'Existing routes', color: GREY }
     ]
@@ -119,41 +269,44 @@ const SCHEMES: Record<GroupField, ColorScheme> = {
     field: 'category',
     groups: [
       {
-        label: 'Repurposed HS2 temporary construction road (TCR)',
-        color: HS2_ORANGE,
-        alwaysShow: true,
+        label: 'Traffic-free path',
+        color: GREEN,
         values: [
+          'Traffic-free path away from highway',
+          'HS2 aligned route',
           'Repurposed HS2 temporary construction road (TCR)',
           'Repurposed HS2 TCR',
-          'Cycleway beside HS2'
+          'Cycleway beside HS2',
+          'HS2 delivered greenway',
+          'Dual Use of HS2 Maintenance Access Tracks (MATs)',
+          'Dual use of HS2 maintenance access tracks (MATs)'
         ]
       },
-      {
-        label: 'HS2 delivered greenway',
-        color: HS2_GREENWAY,
-        alwaysShow: true,
-        values: ['HS2 delivered greenway']
-      },
-      {
-        label: 'Dual Use of HS2 Maintenance Access Tracks (MATs)',
-        color: HS2_MAT,
-        alwaysShow: true,
-        values: ['Dual Use of HS2 Maintenance Access Tracks (MATs)']
-      },
-      { label: 'Traffic-free path', color: GREEN, values: ['Traffic-free path away from highway'] },
-      { label: 'Canal towpath', color: TEAL, values: ['Canal tow path or new path close by canal'] },
+      { label: 'Canal towpath', color: LIGHT_GREEN, values: ['Canal tow path or new path close by canal'] },
       { label: '20mph / protected on-road', color: BLUE, values: ['20mph and traffic calmed or protected cycle lane'] },
       { label: 'Other', color: GREY }
+    ]
+  },
+  osm_infrastructure: {
+    field: 'osm_infrastructure',
+    groups: [
+      { label: 'Cycle track / cycleway', color: PURPLE, values: ['Cycle track / cycleway'] },
+      { label: 'Shared path / bridleway', color: GREEN, values: ['Shared path / bridleway'] },
+      { label: 'Canal towpath', color: LIGHT_GREEN, values: ['Canal towpath'] },
+      { label: 'Footpath / farm track', color: HS2_MAT, values: ['Footpath / farm track'] },
+      { label: 'Quiet / local road', color: BLUE, values: ['Quiet / local road'] },
+      { label: 'Main road (A / B / C road)', color: '#dc2626', values: ['Main road (A / B / C road)'] },
+      { label: 'Greenfield / no existing way', color: GREY }
     ]
   },
   developer: {
     field: 'developer',
     groups: [
       { label: 'HS2', color: HS2_ORANGE, values: ['HS2'] },
-      { label: 'Local Authority', color: GREEN, values: ['Local Authority'] },
+      { label: 'Local authority', color: GREEN, values: ['Local Authority'] },
       { label: 'Canal & River Trust', color: TEAL, values: ['Canals & River Trust', 'Canals &amp; River Trust'] },
       { label: 'DfT', color: BLUE, values: ['DfT'] },
-      { label: 'Sustrans', color: YELLOW, values: ['Sustrans'] },
+      { label: 'Walk Wheel Cycle Trust', color: MAGENTA, values: ['Walk Wheel Cycle Trust', 'Sustrans'] },
       { label: 'Other', color: GREY }
     ]
   },
@@ -162,7 +315,8 @@ const SCHEMES: Record<GroupField, ColorScheme> = {
     groups: [
       // Unset status is treated as preferred, matching the status filter
       { label: 'Preferred', color: BLUE },
-      { label: 'Alternative', color: YELLOW, values: ['alternative'] },
+      { label: 'Complimentary', color: YELLOW, values: ['alternative'] },
+      { label: PENDING_LABEL, color: PENDING_COLOR, values: ['pending'] },
       { label: SUPERSEDED_LABEL, color: SUPERSEDED_COLOR, values: ['superseded'] }
     ]
   }
@@ -170,16 +324,16 @@ const SCHEMES: Record<GroupField, ColorScheme> = {
 
 /** Reference (context) layers: kept off the route hues so they never read as proposed routes. */
 export const REFERENCE_COLORS = {
-  // NCN: dark blue-green traffic-free, dark red on-road
-  ncnOffRoad: '#0e7490',
-  ncnOnRoad: '#b91c1c',
-  roadHaulage: '#f8fafc',
-  roadMajor: '#cbd5e1',
-  roadMinor: '#94a3b8',
-  roadLocal: '#64748b',
-  roadCasing: '#0f172a',
-  studyArea: '#8b5cf6',
-  studyAreaOutline: '#7c3aed'
+  // NCN: muted deep pine (traffic-free) & muted rose-brick (on-road)
+  ncnOffRoad: '#115e59',
+  ncnOnRoad: '#9f1239',
+  roadHaulage: '#9a3412',
+  roadMajor: '#475569',
+  roadMinor: '#64748b',
+  roadLocal: '#94a3b8',
+  roadCasing: '#ffffff',
+  studyArea: '#4f46e5',
+  studyAreaOutline: '#4338ca'
 };
 
 export function isSuperseded(props: CyclewaySegmentProperties): boolean {
@@ -187,6 +341,71 @@ export function isSuperseded(props: CyclewaySegmentProperties): boolean {
     || props.status === 'superseded'
     || props.category === OLD_ALIGNMENT
     || props.classification === OLD_ALIGNMENT;
+}
+
+export function isPending(props: CyclewaySegmentProperties): boolean {
+  return props.folder === 'Pending' || props.status === 'pending';
+}
+
+export function isLegacyIntervention(props: CyclewaySegmentProperties): boolean {
+  return isSuperseded(props)
+    || (typeof props.dist_to_route_m === 'number' && props.dist_to_route_m > INTERVENTION_LEGACY_THRESHOLD_M);
+}
+
+/**
+ * Annotates every Point feature with `dist_to_route_m` (planar distance in metres
+ * to the nearest active, non-superseded, non-pending corridor route segment).
+ */
+export function annotatePointRouteDistances(collection: CyclewayFeatureCollection): CyclewayFeatureCollection {
+  const segs: [number, number, number, number][] = [];
+  for (const feat of collection.features) {
+    const g = feat.geometry;
+    if (!g || (g.type !== 'LineString' && g.type !== 'MultiLineString')) continue;
+    const p = feat.properties;
+    if (p.layer_type === 'hs2_railway' || isSuperseded(p) || isPending(p)) continue;
+
+    const lines: number[][][] = g.type === 'LineString' ? [g.coordinates] : g.coordinates;
+    for (const coords of lines) {
+      for (let i = 0; i < coords.length - 1; i++) {
+        segs.push([coords[i][0], coords[i][1], coords[i + 1][0], coords[i + 1][1]]);
+      }
+    }
+  }
+
+  if (segs.length === 0) return collection;
+
+  for (const feat of collection.features) {
+    if (!feat.geometry || feat.geometry.type !== 'Point') continue;
+    const [lon, lat] = feat.geometry.coordinates as [number, number];
+    const kx = 111320 * Math.cos((lat * Math.PI) / 180);
+    const ky = 111132;
+    let best2 = Infinity;
+    let best = Infinity;
+
+    for (let i = 0; i < segs.length; i++) {
+      const [x1, y1, x2, y2] = segs[i];
+      if (Math.abs(lon - x1) * kx > best && Math.abs(lon - x2) * kx > best) continue;
+      if (Math.abs(lat - y1) * ky > best && Math.abs(lat - y2) * ky > best) continue;
+
+      const dx = (x2 - x1) * kx;
+      const dy = (y2 - y1) * ky;
+      const px = (lon - x1) * kx;
+      const py = (lat - y1) * ky;
+      const l2 = dx * dx + dy * dy;
+      const t = l2 === 0 ? 0 : Math.max(0, Math.min(1, (px * dx + py * dy) / l2));
+      const projX = px - t * dx;
+      const projY = py - t * dy;
+      const d2 = projX * projX + projY * projY;
+      if (d2 < best2) {
+        best2 = d2;
+        best = Math.sqrt(d2);
+      }
+    }
+
+    feat.properties.dist_to_route_m = Math.round(best);
+  }
+
+  return collection;
 }
 
 const SUPERSEDED_EXPRESSION = [
@@ -197,27 +416,44 @@ const SUPERSEDED_EXPRESSION = [
   ['==', ['coalesce', ['get', 'classification'], ''], OLD_ALIGNMENT]
 ];
 
-// Superseded (old) alignments are opt-in: they appear only when their row is ticked in
+const PENDING_EXPRESSION = [
+  'any',
+  ['==', ['coalesce', ['get', 'folder'], ''], 'Pending'],
+  ['==', ['coalesce', ['get', 'status'], ''], 'pending']
+];
+
+// Superseded (old) and Pending alignments are opt-in: they appear only when their row is ticked in
 // the alignment-status legend, and are absent from every other view
 export function showsSuperseded(f: FilterState): boolean {
   return f.colorBy === 'status' && f.showSuperseded;
 }
 
-/** Legend groups switched off, including the opt-in Superseded group while unticked. */
-export function effectiveHiddenGroups(f: FilterState): string[] {
-  return f.colorBy === 'status' && !f.showSuperseded
-    ? [...f.hiddenLegendItems, SUPERSEDED_LABEL]
-    : f.hiddenLegendItems;
+export function showsPending(f: FilterState): boolean {
+  return f.colorBy === 'status' && f.showPending;
 }
 
-/** MapLibre filter clauses for superseded visibility and the alignment status filter. */
+/** Legend groups switched off, including the opt-in Superseded and Pending groups while unticked. */
+export function effectiveHiddenGroups(f: FilterState): string[] {
+  const hidden = [...f.hiddenLegendItems];
+  if (f.colorBy === 'status') {
+    if (!f.showPending && !hidden.includes(PENDING_LABEL)) hidden.push(PENDING_LABEL);
+    if (!f.showSuperseded && !hidden.includes(SUPERSEDED_LABEL)) hidden.push(SUPERSEDED_LABEL);
+  }
+  return hidden;
+}
+
+/** MapLibre filter clauses for superseded/pending visibility and the alignment status filter. */
 export function statusFilterExpressions(f: FilterState): any[] {
   const expressions: any[] = [];
   if (!showsSuperseded(f)) expressions.push(['!', SUPERSEDED_EXPRESSION]);
+  if (!showsPending(f)) expressions.push(['!', PENDING_EXPRESSION]);
   if (f.status) {
-    // The status filter narrows current alignments; ticked superseded ones stay visible
+    // The status filter narrows current alignments; ticked superseded/pending ones stay visible
     const match = ['==', ['coalesce', ['get', 'status'], 'preferred'], f.status];
-    expressions.push(showsSuperseded(f) ? ['any', SUPERSEDED_EXPRESSION, match] : match);
+    const optIn: any[] = [match];
+    if (showsSuperseded(f)) optIn.push(SUPERSEDED_EXPRESSION);
+    if (showsPending(f)) optIn.push(PENDING_EXPRESSION);
+    expressions.push(optIn.length > 1 ? ['any', ...optIn] : match);
   }
   return expressions;
 }
