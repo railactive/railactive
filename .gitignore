@@ -26,6 +26,7 @@ public/data/*
 !public/data/ncn.pmtiles
 *.csv
 !docs/data/*.csv
+!docs/data/*.geojson
 *.tsv
 *.xlsx
 *.zip
@@ -46,3 +47,6 @@ Thumbs.db
 .env
 .env.*
 !.env.example
+
+# Prevent stray raw .qmd copies in rendered docs output from single-file Quarto previews
+public/docs/*.qmd
