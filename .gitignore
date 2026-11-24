@@ -22,8 +22,6 @@ public/data/*
 *.parquet
 *.duckdb
 *.pmtiles
-!public/data/openroads.pmtiles
-!public/data/ncn.pmtiles
 *.csv
 !docs/data/*.csv
 !docs/data/*.geojson
@@ -48,5 +46,9 @@ Thumbs.db
 .env.*
 !.env.example
 
-# Prevent stray raw .qmd copies in rendered docs output from single-file Quarto previews
-public/docs/*.qmd
+# Built documentation outputs
+public/docs/
+docs/_freeze/
+docs/*_files/
+*.pdf
+*.docx

@@ -72,6 +72,7 @@ The application provides:
 
 - Node.js 18 or later
 - npm, Bun, or pnpm
+- [GitHub CLI (`gh`)](https://cli.github.com/) (to download externalised PMTiles map layers)
 
 ### Installation and Local Development
 
@@ -83,11 +84,16 @@ cd railactive
 # Install dependencies
 npm install
 
+# Download externalised PMTiles map layers into public/data/
+gh release download data-v1 -R railactive/railactive -D public/data
+
 # Start the local development server
 npm run dev
 ```
 
 Open [http://localhost:5173](http://localhost:5173) in your browser.
+
+> **Note:** Large PMTiles layers (`openroads.pmtiles`, `ncn.pmtiles`) are hosted on the [`data-v1`](https://github.com/railactive/railactive/releases/tag/data-v1) GitHub release rather than tracked in git. Run `gh release download data-v1 -R railactive/railactive -D public/data` to populate `public/data/` for local development or deployment.
 
 ### Sharing a View
 
