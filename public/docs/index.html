@@ -2,22 +2,25 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.9.38">
+<meta name="generator" content="quarto-1.11.9">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Prof Robin Lovelace, Dr John Nellthorp &amp; Project Team">
-<meta name="dcterms.date" content="2026-10-01">
+<meta name="dcterms.date" content="2026-11-24">
 
 <title>RailActive Project Documentation – RailActive Documentation</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
 */
-code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -25,7 +28,26 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
-</style>
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
 <script src="site_libs/quarto-nav/quarto-nav.js"></script>
@@ -37,14 +59,15 @@ ul.task-list li input[type="checkbox"] {
 <meta name="quarto:offset" content="./">
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/scrollable-regions/scrollable-regions.js" type="module"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-63b5708e65d6cd79cd7618c58d0c21e7.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-b369c03b595828d15008a012e77f3fc9.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-4b369b1e5e7ffcf7d65df592f5b0952c.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -73,24 +96,32 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 <style>html{ scroll-behavior: smooth; }</style>
+<script async="" src="https://hypothes.is/embed.js"></script>
+<script>
+  window.document.addEventListener("DOMContentLoaded", function (_event) {
+    document.body.classList.add('hypothesis-enabled');
+  });
+</script>
+<script src="site_libs/quarto-diagram/mermaid.min.js"></script>
+<script src="site_libs/quarto-diagram/mermaid-init.js"></script>
+<link href="site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
 
 
 <link rel="stylesheet" href="styles.css">
 </head>
 
-<body class="nav-fixed quarto-light">
+<body class="nav-fixed quarto-light"><a id="quarto-skip-link" class="visually-hidden-focusable" href="#quarto-document-content">Skip to main content</a>
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
-    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark" aria-label="Site">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="./index.html">
     <span class="navbar-title">RailActive Documentation</span>
     </a>
   </div>
-            <div id="quarto-search" class="" title="Search"></div>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
   <span class="navbar-toggler-icon"></span>
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
@@ -107,10 +138,21 @@ ul.task-list li input[type="checkbox"] {
     <a class="nav-link" href="./methods.html"> 
 <span class="menu-text">Methodology</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./uptake_case_study.html"> 
-<span class="menu-text">Uptake Case Study</span></a>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-uptake-modelling" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Uptake Modelling</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-uptake-modelling">    
+        <li>
+    <a class="dropdown-item" href="./uptake_case_study.html">
+ <span class="dropdown-text">Decision Brief (Ox–Ux)</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="./uptake_appendix.html">
+ <span class="dropdown-text">Technical Appendix</span></a>
+  </li>  
+    </ul>
+  </li>
   <li class="nav-item">
     <a class="nav-link" href="./data_dictionary.html"> 
 <span class="menu-text">Data Dictionary</span></a>
@@ -130,6 +172,7 @@ ul.task-list li input[type="checkbox"] {
           </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
 </div>
+            <div id="quarto-search" class="" title="Search"></div>
       </div> <!-- /container-fluid -->
     </nav>
 </header>
@@ -138,7 +181,7 @@ ul.task-list li input[type="checkbox"] {
 <!-- sidebar -->
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc" class="toc-active">
+        <nav id="TOC" role="doc-toc" aria-labelledby="toc-title" class="toc-active">
     <h2 id="toc-title">On this page</h2>
    
   <ul>
@@ -146,10 +189,10 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#system-architecture" id="toc-system-architecture" class="nav-link" data-scroll-target="#system-architecture"><span class="header-section-number">2</span> System Architecture</a></li>
   <li><a href="#documentation-guide" id="toc-documentation-guide" class="nav-link" data-scroll-target="#documentation-guide"><span class="header-section-number">3</span> Documentation Guide</a></li>
   </ul>
-</nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/railactive/railactive/edit/main/docs/index.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/railactive/railactive/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
     </div>
 <!-- main -->
-<main class="content" id="quarto-document-content">
+<main class="content" id="quarto-document-content" tabindex="-1">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
@@ -178,7 +221,7 @@ ul.task-list li input[type="checkbox"] {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">October 1, 2026</p>
+      <p class="date">24 November 2026</p>
     </div>
   </div>
   
@@ -193,57 +236,57 @@ ul.task-list li input[type="checkbox"] {
 <section id="project-overview" class="level2" data-number="1">
 <h2 data-number="1" class="anchored" data-anchor-id="project-overview"><span class="header-section-number">1</span> Project Overview</h2>
 <p><strong>RailActive</strong> investigates the potential to repurpose High Speed Two (HS2) construction assets—including haul roads, access tracks, and maintenance strips—into a high-quality, segregated, multi-user active travel spine.</p>
-<p>The corridor stretches from London Euston / Old Oak Common through the Colne Valley, Chilterns, and rural Midlands into Birmingham Curzon Street, with wider strategic feeder links extending toward the North West.</p>
+<p>The corridor stretches from London Euston / Old Oak Common through the Colne Valley, Chilterns, and rural Midlands into Birmingham Curzon Street, with wider strategic feeder links extending toward the North West (805.6 km total network in v0.5.2).</p>
 <p>Key project aims include:</p>
 <ul>
-<li><p><strong>Infrastructure Repurposing</strong>: Identifying where temporary construction access roads and haul tracks can be permanently retained for cycling, walking, and wheeling.</p></li>
-<li><p><strong>Severance Reduction</strong>: Overcoming historical and modern transport barriers (motorways, rail corridors, rivers) to reconnect fragmented rural communities.</p></li>
-<li><p><strong>Empirical Demand Modeling</strong>: Integrating commute, school, and leisure trip generators to estimate uptake.</p></li>
-<li><p><strong>Economic Benefits Appraisal</strong>: Applying the Department for Transport’s (DfT) Active Mode Appraisal Toolkit (AMAT) to quantify decongestion, health mortality, workplace absenteeism, and journey ambience benefits.</p></li>
+<li><strong>Infrastructure Repurposing</strong>: Identifying where temporary construction access roads and haul tracks can be permanently retained for cycling, walking, and wheeling.</li>
+<li><strong>Severance Reduction</strong>: Overcoming historical and modern transport barriers (motorways, rail corridors, rivers) to reconnect fragmented rural communities.</li>
+<li><strong>Empirical Demand Modeling</strong>: Integrating commute, school, and leisure trip generators to estimate uptake.</li>
+<li><strong>Economic Benefits Appraisal</strong>: Applying the Department for Transport’s (DfT) Active Mode Appraisal Toolkit (AMAT) and ATE’s <em>Active Mode Benefits: Theoretical Framework</em> <span class="citation" data-cites="nellthorp2026">(<a href="#ref-nellthorp2026" role="doc-biblioref">Nellthorp et al. 2026</a>)</span> to quantify decongestion, health mortality, workplace absenteeism, and journey ambience benefits.</li>
 </ul>
 <hr>
 </section>
 <section id="system-architecture" class="level2" data-number="2">
 <h2 data-number="2" class="anchored" data-anchor-id="system-architecture"><span class="header-section-number">2</span> System Architecture</h2>
-<p>The RailActive analytical and web mapping platform uses a modern, cloud-native architecture combining R spatial pipelines with a serverless web frontend:</p>
-<pre class="text"><code>┌────────────────────────────────────────────────────────┐
-│             Data Ingestion &amp; Spatial Backend           │
-│   R targets Pipeline (sf, dodgr, osmextract) + Python  │
-│   Ingests: OSM, NCN, OS OpenRoads, HS2 Haul Routes,    │
-│            DfT STATS19 Collisions, Census &amp; NTS Data   │
-└──────────────────────────┬─────────────────────────────┘
-                           │
-                           ▼
-┌────────────────────────────────────────────────────────┐
-│                   Analytical Artifacts                 │
-│         • GeoJSON / GeoParquet (spatial features)      │
-│         • DuckDB Database (high-speed SQL queries)     │
-│         • PMTiles (serverless vector map tiles)        │
-└──────────────────────────┬─────────────────────────────┘
-                           │
-                           ▼
-┌────────────────────────────────────────────────────────┐
-│                   Frontend Web Application             │
-│    Svelte 5 (Runes) + MapLibre GL + DuckDB-WASM        │
-│    Fast, client-side SQL querying and interactive map  │
-│    rendering without requiring a live backend server   │
-└────────────────────────────────────────────────────────┘</code></pre>
+<p>The RailActive analytical and web mapping platform combines R spatial pipelines with a serverless web frontend:</p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+
+<pre class="mermaid mermaid-js">flowchart TD
+    Ingest["Data Ingestion &amp; Spatial Backend&lt;br/&gt;R targets (sf, dodgr, osmextract) + Python&lt;br/&gt;OSM, NCN, OS OpenRoads, HS2 Haul Routes, STATS19, Census &amp; NTS"]
+    Artifacts["Analytical Artifacts&lt;br/&gt;GeoJSON / GeoParquet • DuckDB • PMTiles vector tiles"]
+    Frontend["Frontend Web Application&lt;br/&gt;Svelte 5 (Runes) + MapLibre GL + DuckDB-WASM&lt;br/&gt;Client-side SQL &amp; interactive map without a backend server"]
+    Ingest --&gt; Artifacts --&gt; Frontend
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
 <hr>
 </section>
 <section id="documentation-guide" class="level2" data-number="3">
 <h2 data-number="3" class="anchored" data-anchor-id="documentation-guide"><span class="header-section-number">3</span> Documentation Guide</h2>
-<p>Explore the core technical documentation sections:</p>
 <ul>
-<li><p><a href="./methods.html"><strong>Methodology</strong></a>: Detailed modeling approaches covering empirical trip purpose weighting (NTS &amp; Active Lives Survey), network connectivity, and AMAT economic valuation.</p></li>
-<li><p><a href="./uptake_case_study.html"><strong>Uptake Modelling Case Study (Oxfordshire to Uxbridge)</strong></a>: First-principles uptake framework, 2011 Census OD commuting case study, worked desire-line walkthrough (including leisure extension and temporal ramp-up lag), and economic evaluation output schemas aligned with Nellthorp et al.&nbsp;(2026) and DfT AMAT.</p></li>
-<li><p><a href="./data_dictionary.html"><strong>Data Dictionary</strong></a>: Formal schema and variable definitions for all active datasets (corridor geometries, client GPX tracks, OS OpenRoads, STATS19 safety, OSM, and Sustrans NCN).</p></li>
-<li><p><a href="./data_inventory.html"><strong>Data Inventory</strong></a>: Catalog of primary project assets, engineering feasibility studies by John Grimshaw CBE, SAR retention proposals, and spatial archives.</p></li>
+<li><a href="./methods.html"><strong>Methodology</strong></a>: Empirical trip purpose weighting (NTS &amp; Active Lives Survey), network connectivity, and AMAT economic valuation.</li>
+<li><a href="./uptake_case_study.html"><strong>Uptake Modelling Decision Brief (Ox–Ux)</strong></a>: Concise first-principles uptake method, Oxfordshire–Uxbridge case study, worked example, and eight choices for economic appraisal.</li>
+<li><a href="./uptake_appendix.html"><strong>Uptake Modelling Technical Appendix</strong></a>: Prototype audit, full PCT/Bass equations, supplementary diagnostics, and standardised 4-table demand-to-AMAT schema.</li>
+<li><a href="./data_dictionary.html"><strong>Data Dictionary</strong></a>: Formal schema and variable definitions for active datasets (corridor geometries, client GPX tracks, OS OpenRoads, STATS19 safety, OSM, and Sustrans NCN).</li>
+<li><a href="./data_inventory.html"><strong>Data Inventory</strong></a>: Catalog of primary project assets, John Grimshaw CBE feasibility studies, SAR retention proposals, and spatial archives.</li>
 </ul>
+
 
 
 </section>
 
-</main> <!-- /main -->
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-nellthorp2026" class="csl-entry" role="listitem">
+Nellthorp, John, Thijs Dekker, and Richard Batley. 2026. <em>Active Mode Benefits: Theoretical Framework</em>. Report to Active Travel England. Institute for Transport Studies, University of Leeds. <a href="https://www.gov.uk/government/publications/benefits-of-walking-wheeling-and-cycling-theoretical-framework">https://www.gov.uk/government/publications/benefits-of-walking-wheeling-and-cycling-theoretical-framework</a>.
+</div>
+</div></section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     const icon = "";
@@ -322,7 +365,8 @@ ul.task-list li input[type="checkbox"] {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
       // Inspect non-navigation links and adorn them if external
-     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      window.quartoDecorateExternalLinks = function (root) {
+     var links = (root || window.document).querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
       for (var i=0; i<links.length; i++) {
         const link = links[i];
         if (!isInternal(link.href)) {
@@ -331,8 +375,69 @@ ul.task-list li input[type="checkbox"] {
           if (link.dataset.originalHref !== undefined) {
             link.href = link.dataset.originalHref;
           }
+          if (!link.classList.contains('no-external-icon')) {
+          }
         }
       }
+      };
+      window.quartoDecorateExternalLinks(window.document);
+    // Esc closes the popup (WCAG 1.4.13) and focus leaving both trigger and
+    // popup closes it (WCAG 2.4.11); tippy handles neither for interactive popups.
+    const hideOnEscAndFocusOut = {
+      name: 'hideOnEscAndFocusOut',
+      defaultValue: true,
+      fn(instance) {
+        const dismiss = () => {
+          // A show scheduled by the trigger delay would otherwise reopen it
+          instance.clearDelayTimeouts();
+          instance.hide();
+        };
+        const onKeyDown = (event) => {
+          if (event.key !== 'Escape') {
+            return;
+          }
+          // Keep Esc from also reaching page handlers (e.g. reveal.js overview),
+          // except an open reveal.js slide menu, which Esc should close too.
+          // The menu handles keys only when its keyboard option is on.
+          const menuHandlesEsc = window.Reveal?.getPlugin?.('menu')?.isOpen() &&
+            window.Reveal.getConfig().menu?.keyboard !== false;
+          if (!menuHandlesEsc) {
+            event.stopPropagation();
+          }
+          if (instance.popper.contains(window.document.activeElement)) {
+            // Disabled while refocusing so the focus trigger does not reopen it
+            instance.disable();
+            instance.reference.focus();
+            instance.enable();
+          }
+          dismiss();
+        };
+        const onFocusOut = (event) => {
+          const target = event.relatedTarget;
+          if (target && !instance.reference.contains(target) &&
+              !instance.popper.contains(target)) {
+            dismiss();
+          }
+        };
+        // On the trigger too: a click trigger (code-annotations: select) has no
+        // blur handling. Attached for the instance's lifetime so leaving the
+        // trigger also cancels a show still pending on the trigger delay.
+        instance.reference.addEventListener('focusout', onFocusOut);
+        return {
+          onShow() {
+            window.document.addEventListener('keydown', onKeyDown, true);
+            instance.popper.addEventListener('focusout', onFocusOut);
+          },
+          onHide() {
+            window.document.removeEventListener('keydown', onKeyDown, true);
+            instance.popper.removeEventListener('focusout', onFocusOut);
+          },
+          onDestroy() {
+            instance.reference.removeEventListener('focusout', onFocusOut);
+          },
+        };
+      },
+    };
     function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
       const config = {
         allowHTML: true,
@@ -346,6 +451,7 @@ ul.task-list li input[type="checkbox"] {
         interactiveBorder: 10,
         theme: 'quarto',
         placement: 'bottom-start',
+        plugins: [hideOnEscAndFocusOut],
       };
       if (contentFn) {
         config.content = contentFn;
@@ -508,44 +614,54 @@ ul.task-list li input[type="checkbox"] {
           const lineIds = lines.map((line) => {
             return targetCell + "-" + line;
           })
-          let top = null;
-          let height = null;
-          let parent = null;
+          // Each band is positioned against its own containing block, which is
+          // not the offsetParent of the lines, so place it from client rects.
+          const placeBand = (band, firstEl, lastEl, codeBlock) => {
+            const container = band.offsetParent;
+            if (container === null) {
+              return;
+            }
+            const containerRect = container.getBoundingClientRect();
+            // Reveal.js scales slides with a transform, so convert client
+            // pixels back to the CSS pixels of the container.
+            const scale = containerRect.height / container.offsetHeight || 1;
+            const firstRect = firstEl.getBoundingClientRect();
+            const lastRect = lastEl.getBoundingClientRect();
+            const top = (firstRect.top - containerRect.top) / scale - container.clientTop + container.scrollTop;
+            const height = (lastRect.bottom - firstRect.top) / scale;
+            band.style.top = top - 2 + "px";
+            band.style.height = height + 4 + "px";
+            if (codeBlock) {
+              // Without the copy button wrapper, the containing block is wider
+              // than the code block, so span the code block explicitly.
+              const blockRect = codeBlock.getBoundingClientRect();
+              band.style.left = (blockRect.left - containerRect.left) / scale - container.clientLeft + container.scrollLeft + "px";
+              band.style.width = blockRect.width / scale + "px";
+            }
+          };
           if (lineIds.length > 0) {
-              //compute the position of the single el (top and bottom and make a div)
-              const el = window.document.getElementById(lineIds[0]);
-              top = el.offsetTop;
-              height = el.offsetHeight;
-              parent = el.parentElement.parentElement;
-            if (lineIds.length > 1) {
-              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
-              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
-              height = bottom - top;
+            const el = window.document.getElementById(lineIds[0]);
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const parent = el.parentElement.parentElement;
+            // cook up a div (if necessary) and position it
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
             }
-            if (top !== null && height !== null && parent !== null) {
-              // cook up a div (if necessary) and position it 
-              let div = window.document.getElementById("code-annotation-line-highlight");
-              if (div === null) {
-                div = window.document.createElement("div");
-                div.setAttribute("id", "code-annotation-line-highlight");
-                div.style.position = 'absolute';
-                parent.appendChild(div);
-              }
-              div.style.top = top - 2 + "px";
-              div.style.height = height + 4 + "px";
-              div.style.left = 0;
-              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
-              if (gutterDiv === null) {
-                gutterDiv = window.document.createElement("div");
-                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
-                gutterDiv.style.position = 'absolute';
-                const codeCell = window.document.getElementById(targetCell);
-                const gutter = codeCell.querySelector('.code-annotation-gutter');
-                gutter.appendChild(gutterDiv);
-              }
-              gutterDiv.style.top = top - 2 + "px";
-              gutterDiv.style.height = height + 4 + "px";
+            placeBand(div, el, lastEl, parent.closest("div.sourceCode") || parent);
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
             }
+            placeBand(gutterDiv, el, lastEl);
             selectedAnnoteEl = annoteEl;
           }
         };
@@ -644,10 +760,13 @@ ul.task-list li input[type="checkbox"] {
     }
   });
   </script>
+  <script type="application/javascript">
+  window.quartoScrollableRegionsLabels = {"code":"Scrollable code","output":"Scrollable output"};
+  </script>
 </div> <!-- /content -->
 
 
 
 
-<script src="site_libs/quarto-html/zenscroll-min.js"></script>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/railactive/railactive/edit/main/docs/index.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/railactive/railactive/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer><script src="site_libs/quarto-html/zenscroll-min.js"></script>
 </body></html>

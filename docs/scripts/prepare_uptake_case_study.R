@@ -2,19 +2,33 @@
 # Reproducible data preparation for the Oxfordshire-to-Uxbridge Uptake Modelling Case Study.
 # Extracts compact, self-contained datasets into docs/data/ so `quarto render docs`
 # runs cleanly on dev, CI, and production without requiring the full /data lake.
+#
+# Optional environment variables:
+#   RAILACTIVE_CORRIDOR_PATH  - path to north_south_corridor_v2.json
+#   RAILACTIVE_DATA_DIR       - root analytical data lake directory (default: /data)
+#   RAILACTIVE_DOCS_DATA_DIR  - output directory for docs datasets (default: docs/data)
 
 library(sf)
 library(dplyr)
 library(readr)
 library(tidyr)
 
-# Input paths (local analytical environment)
-corridor_path <- "/home/rbn/.gemini/antigravity-cli/brain/a8aebda4-ca12-44c0-be3d-0c770ed09347/scratch/north_south_corridor_v2.json"
-pwc_path      <- "/data/bronze/ons/lsoa-2011-pwc/lsoa11_pwc.csv"
-bua_path      <- "/data/bronze/ons_bua/bua_2022_gb.geojson"
-lad_path      <- "/data/bronze/ons/ref/lad_gb.geojson"
-pct_dir       <- "/data/bronze/ngo/pct/lsoa-od-2011"
-out_dir       <- "/home/rbn/github/railactive/railactive/docs/data"
+data_dir <- Sys.getenv("RAILACTIVE_DATA_DIR", unset = "/data")
+corridor_path <- Sys.getenv(
+  "RAILACTIVE_CORRIDOR_PATH",
+  unset = file.path(data_dir, "silver/railactive/north_south_corridor_v2.json")
+)
+if (!file.exists(corridor_path)) {
+  stop("Corridor file not found: ", corridor_path,
+       "\nSet RAILACTIVE_CORRIDOR_PATH to north_south_corridor_v2.json.")
+}
+
+pwc_path <- file.path(data_dir, "bronze/ons/lsoa-2011-pwc/lsoa11_pwc.csv")
+bua_path <- file.path(data_dir, "bronze/ons_bua/bua_2022_gb.geojson")
+lad_path <- file.path(data_dir, "bronze/ons/ref/lad_gb.geojson")
+pct_dir  <- file.path(data_dir, "bronze/ngo/pct/lsoa-od-2011")
+
+out_dir <- Sys.getenv("RAILACTIVE_DOCS_DATA_DIR", unset = if (dir.exists("docs/data")) "docs/data" else "data")
 dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
 
 # 1. Corridor geometry: Oxfordshire (Banbury, Sec 13) to Uxbridge (Hillingdon, Sec 11)
@@ -100,11 +114,9 @@ pwc$x <- pwc_xy[, 1]
 pwc$y <- pwc_xy[, 2]
 pwc$dist_to_corr_m <- as.numeric(st_distance(pwc_sf, corr_union))
 
-# Nearest BUA name for interpretable LSOA settlement labels
 near_bua_idx <- st_nearest_feature(pwc_sf, bua)
 pwc$nearest_bua <- bua$BUA22NM[near_bua_idx]
 
-# Nearest corridor section for each LSOA
 near_sec_idx <- st_nearest_feature(pwc_sf, corr_27700)
 pwc$nearest_section <- as.character(corr$section[near_sec_idx])
 
@@ -139,7 +151,6 @@ od_corr <- od |>
   ) |>
   filter(o_dist_m <= 3000, d_dist_m <= 3000, rf_dist_km <= 20, geo_code1 != geo_code2)
 
-# Measure fraction of straight-line desire line falling within 1.5 km of the greenway spine
 corr_buf1500 <- st_buffer(corr_union, 1500)
 od_lines <- st_sfc(lapply(seq_len(nrow(od_corr)), function(i) {
   st_linestring(matrix(c(od_corr$ox[i], od_corr$dx[i], od_corr$oy[i], od_corr$dy[i]), ncol = 2))
@@ -152,14 +163,9 @@ inter_len[inter$idx] <- as.numeric(st_length(inter))
 od_corr <- od_corr |>
   mutate(
     prop_within_1500m = round(ifelse(line_len > 0, inter_len / line_len, 0), 3),
-    # Corridor scheme exposure weight omega_ij in [0, 1]:
-    # decays with access/egress distance (scale 1.5 km) and scales by corridor alignment
     access_decay = exp(-(o_dist_m + d_dist_m) / 3000),
     omega_corr = round(pmin(1, prop_within_1500m * access_decay), 4),
     is_core_aligned = (o_dist_m <= 1500 & d_dist_m <= 1500 & prop_within_1500m >= 0.70 & rf_dist_km >= 1.5),
-    # Corridor-attributed Central uptake scenario:
-    # Linear interpolation between baseline and Go Dutch weighted by corridor exposure (0.50 realization of Go Dutch gap * omega_corr)
-    # Plus a High (Greenway + E-bikes) sensitivity (0.60 realization of E-bikes gap * omega_corr)
     corr_central_slc = round(pmin(all, bicycle + pmax(0, dutch_slc - bicycle) * 0.50 * omega_corr), 3),
     corr_high_slc    = round(pmin(all, bicycle + pmax(0, ebike_slc - bicycle) * 0.60 * omega_corr), 3),
     o_dist_m = round(o_dist_m, 0),

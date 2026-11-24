@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.11.9">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="RailActive Demand &amp; Appraisal Team (ITS, University of Leeds)">
+<meta name="dcterms.date" content="2026-11-24">
+
+<title>Active Travel Uptake Modelling: Technical Appendix – RailActive Documentation</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/scrollable-regions/scrollable-regions.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-63b5708e65d6cd79cd7618c58d0c21e7.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-4b369b1e5e7ffcf7d65df592f5b0952c.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+<script async="" src="https://hypothes.is/embed.js"></script>
+<script>
+  window.document.addEventListener("DOMContentLoaded", function (_event) {
+    document.body.classList.add('hypothesis-enabled');
+  });
+</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="nav-fixed quarto-light"><a id="quarto-skip-link" class="visually-hidden-focusable" href="#quarto-document-content">Skip to main content</a>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark" aria-label="Site">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">RailActive Documentation</span>
+    </a>
+  </div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./../"> 
+<span class="menu-text">← Back to Map App</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./index.html"> 
+<span class="menu-text">Overview</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./methods.html"> 
+<span class="menu-text">Methodology</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-uptake-modelling" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Uptake Modelling</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-uptake-modelling">    
+        <li>
+    <a class="dropdown-item" href="./uptake_case_study.html">
+ <span class="dropdown-text">Decision Brief (Ox–Ux)</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./uptake_appendix.html">
+ <span class="dropdown-text">Technical Appendix</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="./data_dictionary.html"> 
+<span class="menu-text">Data Dictionary</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./data_inventory.html"> 
+<span class="menu-text">Data Inventory</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/railactive/railactive"> <i class="bi bi-github" role="img" aria-label="GitHub">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+            <div id="quarto-search" class="" title="Search"></div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" aria-labelledby="toc-title" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#sec-audit" id="toc-sec-audit" class="nav-link active" data-scroll-target="#sec-audit"><span class="header-section-number">1</span> Audit of Existing RailActive Prototype Work</a></li>
+  <li><a href="#sec-pct-details" id="toc-sec-pct-details" class="nav-link" data-scroll-target="#sec-pct-details"><span class="header-section-number">2</span> PCT Logistic Propensity Specification</a></li>
+  <li><a href="#sec-more-examples" id="toc-sec-more-examples" class="nav-link" data-scroll-target="#sec-more-examples"><span class="header-section-number">3</span> Supplementary Corridor &amp; Worked-Example Diagnostics</a></li>
+  <li><a href="#sec-temporal-equations" id="toc-sec-temporal-equations" class="nav-link" data-scroll-target="#sec-temporal-equations"><span class="header-section-number">4</span> Temporal Adoption &amp; Health-Lag Equations</a></li>
+  <li><a href="#sec-outputs" id="toc-sec-outputs" class="nav-link" data-scroll-target="#sec-outputs"><span class="header-section-number">5</span> Standardised Demand-to-AMAT Output Contract</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references"><span class="header-section-number">6</span> References</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/railactive/railactive/edit/main/docs/uptake_appendix.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/railactive/railactive/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div><div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="uptake_appendix.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li><li><a href="uptake_appendix.docx"><i class="bi bi-file-word"></i>MS Word</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content" tabindex="-1">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Active Travel Uptake Modelling: Technical Appendix</h1>
+<p class="subtitle lead">Prototype Audit, Model Equations, Diagnostics &amp; Data Contract</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>RailActive Demand &amp; Appraisal Team (ITS, University of Leeds) </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">24 November 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>This technical appendix accompanies the <a href="./uptake_case_study.html">Oxfordshire–Uxbridge Decision Brief</a>. It documents the audit of existing <code>railactive</code> prototype scripts, the full PCT logistic and temporal ramp-up equations, supplementary corridor diagnostics, and the standardised 4-table hand-off schema for economic appraisal.</p>
+<section id="sec-audit" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="sec-audit"><span class="header-section-number">1</span> Audit of Existing RailActive Prototype Work</h2>
+<p>Before specifying the appraisal-ready pipeline, we audited analytical outputs across <code>railactive/pipeline</code>, <code>railactive/hs2cycle</code>, and <code>railactive/amat</code>:</p>
+<ul>
+<li><strong>Harmonised corridor alignment (<code>north_south_corridor_v2.json</code>, v0.5.2):</strong> 805.6 km preferred North–South Greenway spine (385.7 km core HS2 alignment plus Avenue Verte and Stoke–Birkenhead branches) with a 3-tier status taxonomy (<code>preferred</code>, <code>alternative</code>, <code>superseded</code>) and civil-asset classes (<code>Repurposed HS2 TCR</code>, <code>HS2 delivered greenway</code>, <code>Dual Use MATs</code>).</li>
+<li><strong>Multi-purpose network assignment (<code>pipeline</code> Phases 1–4):</strong> Splicing the preferred greenway into a 1.72M-link corridor network in Rust/CSIS <code>netassign</code> (with DEM gradients capped at <span class="math inline">\(\pm 2\%\)</span> on engineered alignments) and validating against <strong>7,219 cycling</strong> and <strong>1,439 walking</strong> counters lifted baseline cycling fit from <span class="math inline">\(R^2_{\log 10} = 0.352\)</span> (commute-only) to <strong><span class="math inline">\(0.676\)</span></strong> (<code>56.2%</code> within <span class="math inline">\(2\times\)</span>), and walking fit from <span class="math inline">\(-0.177\)</span> to <strong><span class="math inline">\(0.488\)</span></strong>. Phase 2 separated route diversion (<code>+3,175</code> bike pkm/day) from induced/shifted commute demand (<code>+4,953</code> bike pkm/day); Phase 4 lifted spine cycling from <code>86.7</code> to <code>132.3</code> riders/day (<code>+52.6%</code>).</li>
+<li><strong>Verified AMAT engine (<code>railactive/amat</code>):</strong> Pure base-R DfT AMAT implementation (May 2026 TAG / 2023 prices) matching the official Clifton Road worked example to <strong>£0.00</strong> across every stream (BCR = 2.840169).</li>
+</ul>
+<p>Five structural prototype gaps must be resolved before full-corridor business-case modelling (<a href="#tbl-audit-gaps" class="quarto-xref">Table&nbsp;1</a>):</p>
+<div class="cell" data-tbl-colwidths="[5,33,30,32]">
+<div id="tbl-audit-gaps" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[5,33,30,32]">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-audit-gaps-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;1: Methodological audit of existing railactive prototype uptake scripts and required upgrades.
+</figcaption>
+<div aria-describedby="tbl-audit-gaps-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="cell caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 5%">
+<col style="width: 33%">
+<col style="width: 30%">
+<col style="width: 32%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: right;">#</th>
+<th style="text-align: left;">Current Prototype Implementation</th>
+<th style="text-align: left;">Economic / Appraisal Risk</th>
+<th style="text-align: left;">Required Upgrade</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">Ad-hoc commute uplift (Phase 2): heuristic proximity multipliers (+35% cyclists; up to 7.5% car shift)</td>
+<td style="text-align: left;">Violates joint modelling-valuation alignment: demand does not respond to the same GC attributes valued in appraisal.</td>
+<td style="text-align: left;">Anchor uptake in a transparent GC / logistic propensity specification with corridor-exposure attenuation (omega_ij).</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">Unseparated leisure uplift (Phase 4): hardcoded trail (5.0x vs 2.5x) and campsite weights without separating diversion vs generation</td>
+<td style="text-align: left;">Risks over-crediting leisure generation and mixes Exercise &amp; Pleasure (VTT = 0) with Other Non-Work Utility.</td>
+<td style="text-align: left;">Segment outputs into TAG’s four active-mode trip purposes and separate route reassignment from net generation.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td style="text-align: left;">Static steady-state flows: single daily flow; AMAT applies 100% demand in Year 1 plus 5-yr physiological health lag</td>
+<td style="text-align: left;">Overstates PVB by 10-25% if real-world uptake builds over 3-8 years.</td>
+<td style="text-align: left;">Convolve an explicit Bass behavioural adoption S-curve with AMAT’s 5-year physiological health lag over 40 years.</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4</td>
+<td style="text-align: left;">Census 2021 lockdown distortion: Phase 2 used March 2021 OD matrices (~31% WFH)</td>
+<td style="text-align: left;">Distorts inter-town commuting patterns along rural corridors.</td>
+<td style="text-align: left;">Benchmark against 2011 Census OD (pre-COVID, PCT-compatible), then apply a post-COVID hybrid-working scalar.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">5</td>
+<td style="text-align: left;">Unbridged demand-to-AMAT schema: link flows omit OD trip lengths, prop_on_scheme, diversion shares, and e-bike splits</td>
+<td style="text-align: left;">Economists cannot populate AMAT or TATE3030 without ad-hoc post-processing.</td>
+<td style="text-align: left;">Export a formal 4-table hand-off schema with built-in double-counting checks.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+</section>
+<section id="sec-pct-details" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="sec-pct-details"><span class="header-section-number">2</span> PCT Logistic Propensity Specification</h2>
+<p>Under Random Utility Maximisation (RUM), commute cycling share <span class="math inline">\(p_{ij}\)</span> on <span class="math inline">\((i, j)\)</span> follows a logistic function of utility difference <span class="math inline">\(\Delta V_{ij} = -\lambda\,(GC^{\text{cycle}}_{ij} - GC^{\text{alt}}_{ij})\)</span>:</p>
+<p><span id="eq-logit"><span class="math display">\[
+\text{logit}\bigl(p_{ij}\bigr) = \ln\!\left(\frac{p_{ij}}{1 - p_{ij}}\right) = \alpha(q_{ij}) + f(d_{ij},\, g_{ij})
+\tag{1}\]</span></span></p>
+<p>In the UK Propensity to Cycle Tool <span class="citation" data-cites="lovelace2017">(<a href="#ref-lovelace2017" role="doc-biblioref">Lovelace et al. 2017</a>)</span>, calibrated on 2011 Census OD flows across England and Wales, the baseline distance–hilliness decay function for fastest-route distance <span class="math inline">\(d_{ij}\)</span> (km) and average gradient <span class="math inline">\(g_{ij}\)</span> (%) is:</p>
+<p><span id="eq-pct-base"><span class="math display">\[
+\begin{aligned}
+\text{logit}\bigl(p^{\text{base}}_{ij}\bigr) &amp;= -3.818 - 0.652\,d_{ij} + 2.084\sqrt{d_{ij}} + 0.00878\,d_{ij}^2 \\
+&amp;\quad - 0.256\,g_{ij} + 0.0199\,d_{ij}g_{ij} - 0.123\sqrt{d_{ij}}\,g_{ij}
+\end{aligned}
+\tag{2}\]</span></span></p>
+<p>Area-wide transformation to <em>Go Dutch</em> shifts the infrastructure-quality intercept (<span class="math inline">\(\Delta \alpha_{\text{Dutch}} = +2.552\)</span>, with slope term <span class="math inline">\(-0.079\,d_{ij}\)</span>), while <em>E-bikes</em> additionally attenuates distance and gradient exertion penalties <span class="math inline">\(e(t)\)</span> <span class="citation" data-cites="nellthorp2026">(<a href="#ref-nellthorp2026" role="doc-biblioref">Nellthorp et al. 2026, sec. 4.2.3</a>)</span>.</p>
+</section>
+<section id="sec-more-examples" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="sec-more-examples"><span class="header-section-number">3</span> Supplementary Corridor &amp; Worked-Example Diagnostics</h2>
+<div class="cell">
+<div id="tbl-infra" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-infra-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;2: Preferred Oxfordshire–Uxbridge corridor breakdown by infrastructure classification (v0.5.2, Sections 13 to 11).
+</figcaption>
+<div aria-describedby="tbl-infra-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="cell caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Corridor Classification</th>
+<th style="text-align: right;">Links</th>
+<th style="text-align: right;">Length (km)</th>
+<th style="text-align: right;">Share (%)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Repurposed HS2 TCR</td>
+<td style="text-align: right;">87</td>
+<td style="text-align: right;">21.72</td>
+<td style="text-align: right;">19.3%</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Upgrade PROW</td>
+<td style="text-align: right;">25</td>
+<td style="text-align: right;">19.51</td>
+<td style="text-align: right;">17.3%</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">New Greenway</td>
+<td style="text-align: right;">25</td>
+<td style="text-align: right;">19.31</td>
+<td style="text-align: right;">17.2%</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Local Road Quietway</td>
+<td style="text-align: right;">34</td>
+<td style="text-align: right;">18.64</td>
+<td style="text-align: right;">16.6%</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Existing routes</td>
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">13.43</td>
+<td style="text-align: right;">11.9%</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Quiet Lane</td>
+<td style="text-align: right;">19</td>
+<td style="text-align: right;">8.36</td>
+<td style="text-align: right;">7.4%</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Canal Towpath Upgrade</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">7.17</td>
+<td style="text-align: right;">6.4%</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Main Road-Cycle tracks</td>
+<td style="text-align: right;">17</td>
+<td style="text-align: right;">3.98</td>
+<td style="text-align: right;">3.5%</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">HS2 delivered greenway</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.34</td>
+<td style="text-align: right;">0.3%</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-worked-example" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-worked-example-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="uptake_appendix_files/figure-html/fig-worked-example-1.png" class="img-fluid figure-img" width="2850">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-worked-example-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Zoomed alignment and uptake ladder for King’s Sutton (E01027288) to Banbury Town Centre (E01028435). Both centroids sit within 400 m of the preferred spine with 100% corridor alignment.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div id="tbl-four-examples" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-four-examples-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;3: Worked-example comparison across four corridor-aligned 2011 OD desire lines spanning Oxfordshire, Buckinghamshire, and Uxbridge.
+</figcaption>
+<div aria-describedby="tbl-four-examples-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="cell caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 31%">
+<col style="width: 10%">
+<col style="width: 10%">
+<col style="width: 3%">
+<col style="width: 4%">
+<col style="width: 9%">
+<col style="width: 5%">
+<col style="width: 8%">
+<col style="width: 5%">
+<col style="width: 9%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Desire Line</th>
+<th style="text-align: right;">Dist (km)</th>
+<th style="text-align: right;">Slope (%)</th>
+<th style="text-align: right;">N</th>
+<th style="text-align: right;">Car</th>
+<th style="text-align: right;">Exposure</th>
+<th style="text-align: right;">Base</th>
+<th style="text-align: right;">Central</th>
+<th style="text-align: right;">High</th>
+<th style="text-align: right;">Go Dutch</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">King’s Sutton -&gt; Banbury</td>
+<td style="text-align: right;">7.84</td>
+<td style="text-align: right;">1.50</td>
+<td style="text-align: right;">55</td>
+<td style="text-align: right;">62%</td>
+<td style="text-align: right;">0.81</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">4.7</td>
+<td style="text-align: right;">8.5</td>
+<td style="text-align: right;">11.7</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Weston Turville -&gt; Aylesbury</td>
+<td style="text-align: right;">5.67</td>
+<td style="text-align: right;">0.79</td>
+<td style="text-align: right;">32</td>
+<td style="text-align: right;">72%</td>
+<td style="text-align: right;">0.82</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">4.9</td>
+<td style="text-align: right;">7.0</td>
+<td style="text-align: right;">11.9</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Wendover -&gt; Aylesbury</td>
+<td style="text-align: right;">9.16</td>
+<td style="text-align: right;">1.17</td>
+<td style="text-align: right;">25</td>
+<td style="text-align: right;">72%</td>
+<td style="text-align: right;">0.69</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.6</td>
+<td style="text-align: right;">3.0</td>
+<td style="text-align: right;">4.7</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Denham -&gt; Uxbridge</td>
+<td style="text-align: right;">4.29</td>
+<td style="text-align: right;">0.96</td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">54%</td>
+<td style="text-align: right;">0.65</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2.5</td>
+<td style="text-align: right;">3.1</td>
+<td style="text-align: right;">5.5</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+</section>
+<section id="sec-temporal-equations" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="sec-temporal-equations"><span class="header-section-number">4</span> Temporal Adoption &amp; Health-Lag Equations</h2>
+<p>Cumulative behavioural adoption <span class="math inline">\(r(t) \in [0, 1]\)</span> at <span class="math inline">\(t\)</span> years post-opening follows a <strong>Bass diffusion S-curve</strong> <span class="citation" data-cites="bass1969">(<a href="#ref-bass1969" role="doc-biblioref">Bass 1969</a>)</span> with innovation parameter <span class="math inline">\(p\)</span> and imitation parameter <span class="math inline">\(q\)</span>:</p>
+<p><span id="eq-bass"><span class="math display">\[
+r(t) = \frac{1 - e^{-(p + q)t}}{1 + \frac{q}{p}\,e^{-(p + q)t}}
+\tag{3}\]</span></span></p>
+<p>In appraisal year <span class="math inline">\(y \ge oy\)</span> (mid-year <span class="math inline">\(t_y = y - oy + 0.5\)</span>), daily trips equal:</p>
+<p><span id="eq-annual-trips"><span class="math display">\[
+\Delta T_y = \Delta T^{*} \cdot r(t_y) \cdot (1 + g_{\text{bg}})^{\min(y - oy,\, 20)}
+\tag{4}\]</span></span></p>
+<p>where <span class="math inline">\(\Delta T^{*}\)</span> is steady-state uptake and <span class="math inline">\(g_{\text{bg}} = 0.0075\)</span> is AMAT’s annual background growth rate. Convolving annual conversion cohorts <span class="math inline">\(\Delta r_j = r(t_j) - r(t_{j-1})\)</span> with AMAT’s 5-year linear physiological mortality lag gives the effective health-benefit share <span class="math inline">\(H^{\text{eff}}_k\)</span> in operational year <span class="math inline">\(k\)</span>:</p>
+<p><span id="eq-conv"><span class="math display">\[
+H^{\text{eff}}_k = \sum_{j=1}^{k} \Delta r_j \cdot \min\!\bigl(1,\; 0.2\,(k - j + 1)\bigr)
+\tag{5}\]</span></span></p>
+<p>Sensitivity profiles evaluated in the main brief use <span class="math inline">\((p=0.22, q=0.70)\)</span> for Fast (3-yr), <span class="math inline">\((p=0.10, q=0.55)\)</span> for Central (5-yr), and <span class="math inline">\((p=0.05, q=0.35)\)</span> for Slow (8-yr) maturity.</p>
+</section>
+<section id="sec-outputs" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="sec-outputs"><span class="header-section-number">5</span> Standardised Demand-to-AMAT Output Contract</h2>
+<p>To bridge spatial demand outputs cleanly into <a href="https://github.com/railactive/amat"><code>railactive/amat</code></a>, TAG worksheets, and ATE’s forthcoming <strong>TATE3030</strong> tool without manual spreadsheet post-processing, the pipeline exports four standardised tables:</p>
+<div class="cell" data-tbl-colwidths="[20,20,35,25]">
+<div id="tbl-outputs" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-tbl-colwidths="[20,20,35,25]">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-outputs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;4: Standardised four-table output contract between the RailActive demand pipeline and economic evaluation tools.
+</figcaption>
+<div aria-describedby="tbl-outputs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="cell caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 35%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Output Dataset</th>
+<th style="text-align: left;">Granularity</th>
+<th style="text-align: left;">Key Fields &amp; Units</th>
+<th style="text-align: left;">Economic Appraisal Consumer</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">1. OD Uptake (od_uptake.parquet)</td>
+<td style="text-align: left;">OD pair x Purpose x Mode x Scenario</td>
+<td style="text-align: left;">o_id, d_id, section_id, rf_dist_km, slope_pct, omega_corr, prop_on_scheme, trips_base, trips_with, trips_new, divert_car, divert_pt, divert_walk, induced_share, delta_met_wk</td>
+<td style="text-align: left;">TAG Unit A5.4 MECs (car-km displaced), TATE3030 MET-hours, Rule-of-a-Half dCS</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2. Link Flows (link_flows.parquet)</td>
+<td style="text-align: left;">Network link x Section x Scenario</td>
+<td style="text-align: left;">link_id, gw_id, section, class, length_km, infra_base, infra_prop, flow_base, flow_diverted, flow_induced, pkm_base, pkm_with, grade_pct, lts_base, lts_prop</td>
+<td style="text-align: left;">Link Journey Ambience (dRate x Time on Scheme), external casualty costs, phasing</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">3. Annual Profile (annual_demand.csv)</td>
+<td style="text-align: left;">Section x Year (2030-2069) x Purpose x Mode</td>
+<td style="text-align: left;">section, year, ramp_share, health_eff, trips_exist_yr, trips_new_yr, vkm_saved_yr, met_hrs_yr</td>
+<td style="text-align: left;">40-yr discounted PVB stream (3.5% transport / 1.5% health) with ramp-up &amp; growth</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">4. AMAT Inputs (amat_inputs.csv)</td>
+<td style="text-align: left;">Section (or Route Case) x Scenario</td>
+<td style="text-align: left;">amat_run() args: cycle_trips_without, cycle_trips_with, cycle_trip_km, cycle_prop_on_scheme, cycle_current_infra, cycle_proposed_infra, annual_days, car_divert, prop_employed, ramp_pv_t, ramp_pv_h</td>
+<td style="text-align: left;">Automated batch appraisal via railactive/amat (zero manual spreadsheet entry)</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+</section>
+<section id="references" class="level2" data-number="6">
+
+
+
+
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">6 References</h2><div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-bass1969" class="csl-entry" role="listitem">
+Bass, Frank M. 1969. <span>“A New Product Growth for Model Consumer Durables.”</span> <em>Management Science</em> 15 (5): 215–27. <a href="https://doi.org/10.1287/mnsc.15.5.215">https://doi.org/10.1287/mnsc.15.5.215</a>.
+</div>
+<div id="ref-lovelace2017" class="csl-entry" role="listitem">
+Lovelace, Robin, Anna Goodman, Rachel Aldred, Nikolai Berkoff, Ali Abbas, and James Woodcock. 2017. <span>“The <span class="nocase">Propensity to Cycle Tool</span>: An Open Source Online System for Sustainable Transport Planning.”</span> <em>Journal of Transport and Land Use</em> 10 (1): 505–28. <a href="https://doi.org/10.5198/jtlu.2016.862">https://doi.org/10.5198/jtlu.2016.862</a>.
+</div>
+<div id="ref-nellthorp2026" class="csl-entry" role="listitem">
+Nellthorp, John, Thijs Dekker, and Richard Batley. 2026. <em>Active Mode Benefits: Theoretical Framework</em>. Report to Active Travel England. Institute for Transport Studies, University of Leeds. <a href="https://www.gov.uk/government/publications/benefits-of-walking-wheeling-and-cycling-theoretical-framework">https://www.gov.uk/government/publications/benefits-of-walking-wheeling-and-cycling-theoretical-framework</a>.
+</div>
+</div></section></div></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+      window.quartoDecorateExternalLinks = function (root) {
+     var links = (root || window.document).querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+          if (!link.classList.contains('no-external-icon')) {
+          }
+        }
+      }
+      };
+      window.quartoDecorateExternalLinks(window.document);
+    // Esc closes the popup (WCAG 1.4.13) and focus leaving both trigger and
+    // popup closes it (WCAG 2.4.11); tippy handles neither for interactive popups.
+    const hideOnEscAndFocusOut = {
+      name: 'hideOnEscAndFocusOut',
+      defaultValue: true,
+      fn(instance) {
+        const dismiss = () => {
+          // A show scheduled by the trigger delay would otherwise reopen it
+          instance.clearDelayTimeouts();
+          instance.hide();
+        };
+        const onKeyDown = (event) => {
+          if (event.key !== 'Escape') {
+            return;
+          }
+          // Keep Esc from also reaching page handlers (e.g. reveal.js overview),
+          // except an open reveal.js slide menu, which Esc should close too.
+          // The menu handles keys only when its keyboard option is on.
+          const menuHandlesEsc = window.Reveal?.getPlugin?.('menu')?.isOpen() &&
+            window.Reveal.getConfig().menu?.keyboard !== false;
+          if (!menuHandlesEsc) {
+            event.stopPropagation();
+          }
+          if (instance.popper.contains(window.document.activeElement)) {
+            // Disabled while refocusing so the focus trigger does not reopen it
+            instance.disable();
+            instance.reference.focus();
+            instance.enable();
+          }
+          dismiss();
+        };
+        const onFocusOut = (event) => {
+          const target = event.relatedTarget;
+          if (target && !instance.reference.contains(target) &&
+              !instance.popper.contains(target)) {
+            dismiss();
+          }
+        };
+        // On the trigger too: a click trigger (code-annotations: select) has no
+        // blur handling. Attached for the instance's lifetime so leaving the
+        // trigger also cancels a show still pending on the trigger delay.
+        instance.reference.addEventListener('focusout', onFocusOut);
+        return {
+          onShow() {
+            window.document.addEventListener('keydown', onKeyDown, true);
+            instance.popper.addEventListener('focusout', onFocusOut);
+          },
+          onHide() {
+            window.document.removeEventListener('keydown', onKeyDown, true);
+            instance.popper.removeEventListener('focusout', onFocusOut);
+          },
+          onDestroy() {
+            instance.reference.removeEventListener('focusout', onFocusOut);
+          },
+        };
+      },
+    };
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+        plugins: [hideOnEscAndFocusOut],
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          // Each band is positioned against its own containing block, which is
+          // not the offsetParent of the lines, so place it from client rects.
+          const placeBand = (band, firstEl, lastEl, codeBlock) => {
+            const container = band.offsetParent;
+            if (container === null) {
+              return;
+            }
+            const containerRect = container.getBoundingClientRect();
+            // Reveal.js scales slides with a transform, so convert client
+            // pixels back to the CSS pixels of the container.
+            const scale = containerRect.height / container.offsetHeight || 1;
+            const firstRect = firstEl.getBoundingClientRect();
+            const lastRect = lastEl.getBoundingClientRect();
+            const top = (firstRect.top - containerRect.top) / scale - container.clientTop + container.scrollTop;
+            const height = (lastRect.bottom - firstRect.top) / scale;
+            band.style.top = top - 2 + "px";
+            band.style.height = height + 4 + "px";
+            if (codeBlock) {
+              // Without the copy button wrapper, the containing block is wider
+              // than the code block, so span the code block explicitly.
+              const blockRect = codeBlock.getBoundingClientRect();
+              band.style.left = (blockRect.left - containerRect.left) / scale - container.clientLeft + container.scrollLeft + "px";
+              band.style.width = blockRect.width / scale + "px";
+            }
+          };
+          if (lineIds.length > 0) {
+            const el = window.document.getElementById(lineIds[0]);
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const parent = el.parentElement.parentElement;
+            // cook up a div (if necessary) and position it
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            placeBand(div, el, lastEl, parent.closest("div.sourceCode") || parent);
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            placeBand(gutterDiv, el, lastEl);
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+  <script type="application/javascript">
+  window.quartoScrollableRegionsLabels = {"code":"Scrollable code","output":"Scrollable output"};
+  </script>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/railactive/railactive/edit/main/docs/uptake_appendix.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/railactive/railactive/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer><script src="site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

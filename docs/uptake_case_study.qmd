@@ -1,818 +1,176 @@
 ---
-title: "Active Travel Uptake Modelling: First-Principles Method & Oxfordshire–Uxbridge Case Study"
-subtitle: "Technical Note for Economic Appraisal (TAG, AMAT & ATE Theoretical Framework Alignment)"
+title: "Active Travel Uptake Modelling: Oxfordshire–Uxbridge Decision Brief"
+subtitle: "First-Principles Method, Case Study & Choices for Economic Appraisal"
 author: "RailActive Demand & Appraisal Team (ITS, University of Leeds)"
-date: "2026-11-23"
+date: last-modified
 date-format: "D MMMM YYYY"
-bibliography: references.bib
 format:
-  html:
-    toc: true
-    toc-depth: 3
-    number-sections: true
-    code-fold: true
+  html: default
   pdf:
     documentclass: scrartcl
     papersize: a4
-    geometry:
-      - top=20mm
-      - bottom=20mm
-      - left=20mm
-      - right=20mm
+    geometry: [top=20mm, bottom=20mm, left=20mm, right=20mm]
     fontsize: 10pt
     toc: true
-    toc-depth: 3
+    toc-depth: 2
     number-sections: true
     colorlinks: true
     linkcolor: NavyBlue
     urlcolor: NavyBlue
     citecolor: NavyBlue
     fig-pos: 'H'
-    include-in-header:
-      text: |
-        \usepackage{booktabs}
-        \usepackage{longtable}
-        \usepackage{float}
-        \usepackage{amsmath}
-format-links: [pdf]
-execute:
-  echo: false
-  warning: false
-  message: false
+    include-in-header: pdf-header.tex
+  docx: default
+format-links: [pdf, docx]
 ---
 
 ```{r setup}
 #| include: false
-library(sf)
-library(dplyr)
-library(readr)
-library(tidyr)
-library(ggplot2)
-library(scales)
-library(knitr)
-library(patchwork)
-
-# Load self-contained case-study datasets prepared by docs/scripts/prepare_uptake_case_study.R
-corr <- st_read("data/ox_ux_corridor.geojson", quiet = TRUE)
-od   <- read_csv("data/ox_ux_od_2011.csv", show_col_types = FALSE)
-sec_sum   <- read_csv("data/ox_ux_section_summary.csv", show_col_types = FALSE)
-class_sum <- read_csv("data/ox_ux_classification_summary.csv", show_col_types = FALSE)
-towns     <- read_csv("data/ox_ux_settlements.csv", show_col_types = FALSE)
-
-# Core aligned subset (O & D <= 1.5 km from spine, >=70% within 1.5 km, 1.5-20 km)
-core <- od |> filter(is_core_aligned)
-
-# Flagship worked-example desire line: King's Sutton -> Banbury (E01027288 -> E01028435)
-ex_main <- od |> filter(geo_code1 == "E01027288", geo_code2 == "E01028435")
-
-# Four illustrative corridor desire lines spanning Oxfordshire -> Bucks -> Uxbridge
-ex_four <- od |>
-  filter(
-    (geo_code1 == "E01027288" & geo_code2 == "E01028435") |
-    (geo_code1 == "E01017630" & geo_code2 == "E01032955") |
-    (geo_code1 == "E01017728" & geo_code2 == "E01032955") |
-    (geo_code1 == "E01017813" & geo_code2 == "E01033725")
-  ) |>
-  mutate(
-    corridor_pair = case_when(
-      geo_code1 == "E01027288" ~ "King's Sutton -> Banbury (Oxon)",
-      geo_code1 == "E01017630" ~ "Weston Turville -> Aylesbury (Bucks)",
-      geo_code1 == "E01017728" ~ "Wendover -> Aylesbury (Bucks)",
-      geo_code1 == "E01017813" ~ "Denham -> Uxbridge (Colne Valley)"
-    )
-  ) |>
-  arrange(desc(olat))
-
-# Headline catchment totals
-tot_len_km   <- round(sum(corr$length_km, na.rm = TRUE), 1)
-n_pairs_3km  <- nrow(od)
-tot_comm_3km <- sum(od$all)
-base_cyc_3km <- sum(od$bicycle)
-gt_cyc_3km   <- sum(od$govtarget_slc)
-cc_cyc_3km   <- sum(od$corr_central_slc)
-ch_cyc_3km   <- sum(od$corr_high_slc)
-du_cyc_3km   <- sum(od$dutch_slc)
-eb_cyc_3km   <- sum(od$ebike_slc)
-
-n_pairs_core  <- nrow(core)
-tot_comm_core <- sum(core$all)
-base_cyc_core <- sum(core$bicycle)
-cc_cyc_core   <- sum(core$corr_central_slc)
-ch_cyc_core   <- sum(core$corr_high_slc)
-du_cyc_core   <- sum(core$dutch_slc)
-eb_cyc_core   <- sum(core$ebike_slc)
-mean_dist_core_new <- sum((core$corr_central_slc - core$bicycle) * core$rf_dist_km) /
-  sum(core$corr_central_slc - core$bicycle)
-
-# Consistent publication theme for both HTML and PDF
-theme_rail <- function(base_size = 10) {
-  theme_minimal(base_size = base_size) +
-    theme(
-      plot.title = element_text(face = "bold", colour = "#0f172a", size = base_size + 1.5),
-      plot.subtitle = element_text(colour = "#475569", size = base_size - 0.5),
-      panel.grid.minor = element_blank(),
-      legend.title = element_text(face = "bold", size = base_size - 1),
-      legend.text = element_text(size = base_size - 1.5),
-      strip.text = element_text(face = "bold", colour = "#0f172a")
-    )
-}
+source("R/uptake_helpers.R")
+dat <- load_uptake_data("data")
+s   <- dat$stats
 ```
 
 ::: {.callout-note appearance="simple"}
-**Purpose and audience.** This technical note is written for the project's consultancy economists and Dr John Nellthorp (ITS, University of Leeds). It audits the active travel demand modelling completed to date across `railactive`, sets out a transparent, first-principles uptake methodology explicitly aligned with Active Travel England's *Active Mode Benefits: Theoretical Framework* [@nellthorp2026], illustrates the method on the **`r tot_len_km` km Oxfordshire-to-Uxbridge** corridor using 2011 Census OD commuting data, specifies the exact output datasets for DfT AMAT / TAG / TATE3030 economic appraisal, and lists the strategic modelling choices to agree before scaling to the full North–South Greenway.
+**Purpose and companion files.** This brief is prepared for the consultancy economics team and Dr John Nellthorp (ITS, University of Leeds). It sets out a concise, first-principles active travel uptake method aligned with *Active Mode Benefits: Theoretical Framework* [@nellthorp2026], illustrates it on the **`r s$tot_len_km` km Oxfordshire-to-Uxbridge** section, and highlights eight modelling decisions to agree before scaling to the full {{< var corridor_total_km >}} km North–South Greenway. Prototype audits, full PCT/Bass equations, supplementary diagnostics, and the 4-table data contract sit in the [Technical Appendix](uptake_appendix.qmd).
 :::
 
----
+## Executive Summary & Decisions to Agree {#sec-decisions}
 
-## Assessment of Existing RailActive Uptake Work {#sec-assessment}
+- **Corridor exposure matters:** Attenuating *Go Dutch* by alignment and access distance ($\omega_{ij}$) with $\kappa = 0.50$ reduces 3 km catchment uptake from +`r comma(round(s$du_new_3km))` (unattenuated ceiling) to **+`r comma(round(s$cc_new_3km))` new commute cyclists** (`r sprintf("%.1f%%", s$cc_share_3km)` mode share), of whom **+`r comma(round(s$cc_new_core))` (`r sprintf("%.0f%%", s$core_share_of_new)`)** sit on tightly aligned core OD pairs.
+- **E-bikes unlock rural inter-town links:** Conventional cycling peaks at `2–6 km`, whereas e-bikes unlock `6–15 km` market-town corridors (`King's Sutton–Banbury`, `Wendover–Aylesbury`, `Chalfont St Peter–Uxbridge`).
+- **Leisure & ramp-up shift the BCR materially:** Commuting is only {{< var nts_cycle_commute_pct >}} of cycling trips nationally; omitting leisure understates rural greenway demand 3–5×, while a realistic 5-year behavioural ramp-up reduces 40-year commute PVB by **`r sprintf("%.1f%%", s$amat_lag_drop_pct)`** (from £`r sprintf("%.1f", s$amat_tot_inst)`m to **£`r sprintf("%.1f", s$amat_tot_lag)`m** on the core commute subset).
+- **Clear separation for appraisal:** Route diversion, car/PT mode shift, and newly generated *Exercise & Pleasure* trips ($VTT = 0$) are kept strictly separate to comply with @nellthorp2026 double-counting rules.
 
-Before designing the full-corridor economic appraisal pipeline, we audited the analytical work completed across the three `railactive` repositories (`railactive/pipeline`, `railactive/hs2cycle`, `railactive/amat`) and the interactive `/netassign` viewer.
+```{r tbl-decisions}
+#| tbl-colwidths: [5, 22, 40, 33]
+tbl_from_csv(
+  "data/uptake_decisions.csv",
+  caption = "Eight methodological choices to confirm before scaling to the 805.6 km North–South Greenway.",
+  align = c("r", "l", "l", "l"),
+  col_names = c("#", "Decision Area", "Options to Consider", "Recommended Default & Rationale")
+)
+```
 
-### What Has Been Delivered and Verified
+## First-Principles Uptake Method {#sec-method}
 
-1. **Harmonised corridor alignment (`north_south_corridor_v2.json`, v0.5.2):** An 805.6 km preferred North–South Greenway spine (385.7 km core HS2 alignment plus southern Avenue Verte and northern Stoke–Birkenhead branches) classified into a 3-tier status taxonomy (`preferred`, `alternative`, `superseded`) and explicit HS2 civil-asset designations (`Repurposed HS2 TCR`, `HS2 delivered greenway`, `Dual Use MATs`).
-2. **Multi-purpose network assignment and counter validation (`pipeline` Phases 1–4):** Using the Rust/CSIS `netassign` engine, the preferred greenway was topologically spliced into a 1.72-million-link corridor network (`Scenario A` baseline vs `Scenario B` High-LoS Greenway, with DEM gradients capped at $\pm 2\%$ on engineered alignments) and validated against **7,219 cycling** and **1,439 walking** count stations. Adding non-commute utility, school, leisure, and OSM campsite/tourism layers improved baseline cycling fit from $R^2_{\log 10} = 0.352$ (commute-only) to **$0.676$** (`56.2%` within $2\times$), and walking fit from $-0.177$ to **$0.488$** (`66.8%` within $2\times$). Across the full 805.6 km spine, Phase 2 separated **route diversion** (`+3,175` bike pkm/day, `+15.4%`) from **induced/shifted commute demand** (`+4,953` bike pkm/day), while Phase 4 all-purpose modelling lifted spine cycling from `86.7` to `132.3` riders/day (`+52.6%`).
-3. **Verified AMAT appraisal engine (`railactive/amat`):** A pure base-R implementation of DfT AMAT (May 2026 TAG Data Book / 2023 prices) that reproduces the official Clifton Road worked example to **£0.00** across every benefit and cost stream ($\text{BCR} = 2.840169$).
-
-### Five Methodological Gaps to Resolve Before Scaling Up
-
-Our audit also identified five structural weaknesses in the prototype demand pipeline that must be tightened before feeding numbers into a formal Green Book / TAG business case:
-
-| # | Current Prototype Implementation | Economic / Appraisal Risk | Required Upgrade |
-| :--- | :--- | :--- | :--- |
-| 1 | **Ad-hoc commute uplift (Phase 2 routing script):** Scenario B2 applies heuristic proximity multipliers (`+35%` on existing cyclists; up to `7.5%` car-to-bike shift) rather than a utility-based choice model. | Violates **joint modelling–valuation alignment** [@nellthorp2026, §3.1.1]: demand does not respond to the same Generalised Cost (GC) attributes valued in appraisal. | Anchor uptake in a transparent GC / logistic propensity specification with explicit corridor-exposure attenuation ($\omega_{ij}$). |
-| 2 | **Unseparated leisure uplift (Phase 4 all-purpose script):** Scenario B applies hardcoded trail weights (`5.0x` vs `2.5x`) and campsite weights (`0.18` vs `0.12`) without separating route diversion from new generation. | Risks over-crediting leisure generation and obscures which trips are **Exercise & Pleasure** (marginal $VTT = 0$) vs **Other Non-Work Utility** [@nellthorp2026, §1.4.1]. | Explicitly segment outputs into TAG's four active-mode trip purposes and separate route reassignment from net trip generation. |
-| 3 | **Static steady-state flows (no behavioural ramp-up lag):** `pipeline` outputs a single equilibrium daily flow; AMAT applies 100% demand in Year 1 plus a 5-year linear physiological health lag. | Overstates Present Value Benefits (PVB) by 10–25% if real-world uptake builds over 3–8 years [@goodman2014]. | Introduce an explicit behavioural adoption S-curve convolved with AMAT's physiological health lag over the 40-year ATE appraisal period. |
-| 4 | **Census 2021 lockdown distortion:** Phase 2 relied on March 2021 Census OD matrices collected during COVID-19 restrictions (~31% working from home). | Distorts inter-town commuting patterns along rural corridors. | Benchmark baseline desire lines against **2011 Census OD** (pre-COVID, PCT-compatible), then apply an explicit post-COVID hybrid-working scalar. |
-| 5 | **Unbridged demand-to-AMAT schema:** Link flows (`flows.parquet`) do not export OD trip lengths, `prop_on_scheme`, origin-mode diversion shares, or unpowered vs e-bike splits. | Economists cannot directly populate AMAT or ATE's forthcoming TATE3030 health tool without ad-hoc post-processing. | Define a formal 4-table hand-off schema (@sec-outputs) with built-in double-counting checks [@nellthorp2026, Table 13]. |
-
-: Methodological audit of existing `railactive` prototype uptake scripts and required upgrades. {tbl-colwidths="[5,35,30,30]"}
-
----
-
-## First-Principles Uptake Framework {#sec-framework}
-
-### Joint Modelling–Valuation Alignment with Nellthorp et al. (2026)
-
-A central principle of @nellthorp2026 (§3.1.1, p. 21) is that **demand modelling and economic valuation must be specified jointly** so that travellers' behavioural responses are driven by the exact same trip-utility attributes that enter welfare appraisal. Following Equations (6)–(10) of @nellthorp2026, the trip utility $U_r$ (and corresponding monetary Generalised Cost $GC_r = -U_r / \beta$, where $\beta$ is the marginal utility of income; @wardman2020) of an active travel route $r$ connecting origin $i$ to destination $j$ is:
+Following @nellthorp2026 (§3.1.1), demand modelling and welfare valuation must be specified jointly using the same Generalised Cost ($GC_r = -U_r / \beta$; @wardman2020) attributes on route $r$ connecting $(i, j)$:
 
 $$
-GC_{ij,r} = \sum_{n \in r} \Bigl( m\,v_t\,t_n + v_s\,s_n + v_e\,e_n + v_c\,c_n \Bigr) + \frac{U_{\text{pre}} + U_{\text{post}}}{\beta}
-\approx \int_{0}^{T_r} \Bigl[ \beta + q(t) + e(t) \Bigr]\,\mathrm{d}t + \frac{U_{\text{pre}} + U_{\text{post}}}{\beta}
+\begin{aligned}
+GC_{ij,r} &= \sum_{n \in r} \Bigl( m\,v_t\,t_n + v_s\,s_n + v_e\,e_n + v_c\,c_n \Bigr) + \frac{U_{\text{pre}} + U_{\text{post}}}{\beta} \\
+          &\approx \int_{0}^{T_r} \Bigl[ \beta + q(t) + e(t) \Bigr]\,\mathrm{d}t + \frac{U_{\text{pre}} + U_{\text{post}}}{\beta}
+\end{aligned}
 $$ {#eq-gc}
 
-where, on each link or junction $n$:
+where $t_n$ is travel time (access multiplier $m = 2.0$), $s_n$ is **perceived safety threat** (the dominant cycling deterrent; @dft2024ntas), $e_n$ is **net physical exertion** (MET-hours, lower for e-bikes), $c_n$ is **ambience and comfort** (upgrading to an off-road segregated track is valued at **{{< var ambience_offroad_rate >}}** in 2023 prices; @dft2025amat), and $q(t)$ captures continuous traffic/surface conditions [@kouwenhoven2023].
 
-- $t_n$ is travel time (with multi-modal access/egress multiplier $m = 2.0$ where relevant);
-- $s_n$ is **perceived safety threat** (fear, stress, concentration effort from motor traffic speed, volume, and HGV share — experienced in the present, and shown by @nellthorp2026 [§3.3.1] to dominate cycling deterrence, with 61% of non-cyclists citing safer roads as the key enabler in NTAS Wave 9; @dft2024ntas);
-- $e_n$ is **net physical exertion** (in MET-hours, driven by distance, hilliness, and stopping/starting — which @nellthorp2026 [Eq. 14] decompose into short-term effort disutility, short-term positive exercise wellbeing, and a small perceived share $\theta \approx 0$ of discounted long-term health outcomes);
-- $c_n$ is **street ambience and comfort** (surface quality, width, greenery, noise); and
-- $q(t)$ bundles practical infrastructure/traffic conditions along the continuous route integral [@nellthorp2026, §3.1.6; @kouwenhoven2023].
+That cost reduction $\Delta GC_{ij} < 0$ drives three margins that appraisal must keep separate:
 
-Building a continuous, traffic-free LTN 1/20 greenway [@dft2020ltn120] along repurposed HS2 haul roads reduces perceived safety disutility $s_n$ sharply (in TAG Data Book Table A4.1.6, upgrading from "No provision" to an "Off-road segregated cycle track" is valued at **16.28 p/min** in 2023 prices; @dft2025amat), smooths gradients ($e_n$), and eliminates rural severance. That reduction $\Delta GC_{ij} < 0$ drives three distinct behavioural margins that economists must keep strictly separate:
+1. **Route choice (diversion):** Existing cyclists switch from parallel A/B roads onto the greenway ($\text{new trips} = 0$; Journey Ambience & external safety benefits only).
+2. **Mode choice (mode shift):** Existing travellers switch from car, PT, or walking onto cycling (Rule-of-a-Half $\Delta CS$, full TATE3030/AMAT health & absenteeism benefits, plus TAG Unit A5.4 car-diversion MECs).
+3. **Trip generation (induced demand):** New utility or *Exercise & Pleasure* trips (Rule-of-a-Half $\Delta CS$ with $VTT = 0$ for Exercise & Pleasure, full health benefits, zero car decongestion MECs).
 
-1. **Route choice (diversion):** Existing cyclists switch from parallel hostile A/B roads onto the greenway. Net new active trips $= 0$; benefits accrue purely via **Journey Ambience** (and external safety changes) to existing users.
-2. **Mode choice (mode shift):** Existing commuters switch from car driver, car passenger, bus, rail, or walking onto cycling. Generates Rule-of-a-Half user benefits ($\Delta CS$), full physical-activity health benefits (TATE3030 / AMAT), absenteeism savings, and — specifically for the **car/taxi-diverted share** — TAG Unit A5.4 Marginal External Cost (MEC) savings (decongestion, accidents, GHGs, air quality, noise, infrastructure, indirect tax).
-3. **Trip generation & destination/activity choice (induced demand):** Newly generated utility or **Exercise & Pleasure** trips (crucial on a rural greenway). Generates Rule-of-a-Half user benefits (using $VTT = 0$ for Exercise & Pleasure; @nellthorp2026, §1.4.1) and full marginal health benefits, but **zero** motor-vehicle decongestion MECs.
-
-### From Random Utility to Operational OD Propensity (PCT Logistic Curve)
-
-Under standard Random Utility Maximisation (RUM), the probability $p_{ij}$ that a commuter on origin–destination pair $(i, j)$ chooses cycling follows a binary (or nested) logistic function of the utility difference $\Delta V_{ij} = -\lambda\,(GC^{\text{cycle}}_{ij} - GC^{\text{alt}}_{ij})$:
-
-$$
-\text{logit}\bigl(p_{ij}\bigr) = \ln\!\left(\frac{p_{ij}}{1 - p_{ij}}\right) = \alpha(q_{ij}) + f(d_{ij},\, g_{ij})
-$$ {#eq-logit}
-
-In the UK Propensity to Cycle Tool [PCT; @lovelace2017], calibrated on 2011 Census OD flows across England and Wales, the baseline distance–hilliness decay function $f(d, g)$ for fastest-route distance $d_{ij}$ (km) and average gradient $g_{ij}$ (%) is:
-
-$$
-\text{logit}\bigl(p^{\text{base}}_{ij}\bigr) = -3.818 - 0.652\,d_{ij} + 2.084\sqrt{d_{ij}} + 0.00878\,d_{ij}^2 - 0.256\,g_{ij} + 0.0199\,d_{ij}g_{ij} - 0.123\sqrt{d_{ij}}\,g_{ij}
-$$ {#eq-pct-base}
-
-Because $d_{ij}$ and $g_{ij}$ are observed directly for every 2011 LSOA pair, an area-wide transformation to Dutch-standard infrastructure (*Go Dutch*) acts primarily as a parallel shift in the infrastructure-quality intercept ($\Delta \alpha_{\text{Dutch}} = +2.552$, with a slight distance slope adjustment $-0.079\,d_{ij}$), while *E-bikes* additionally attenuates the distance and gradient penalties $e(t)$ — directly reflecting the reduced MET-hour effort disutility of electrically assisted cycles [@nellthorp2026, §4.2.3].
-
-### Scheme-Exposure Attenuation ($\omega_{ij}$): Avoiding Single-Corridor Over-Attribution
-
-A common error in active travel appraisals is crediting 100% of an **area-wide** *Go Dutch* network scenario to a **single linear corridor**. An OD desire line crossing perpendicular to the greenway — or starting 2.5 km away from an access point — receives only a fraction of the $\Delta GC$ experienced by a trip whose origin, destination, and route lie directly on the spine.
-
-From first principles, we therefore define a transparent, dimensionless **corridor exposure weight** $\omega_{ij} \in [0, 1]$ for each OD pair:
+To avoid crediting 100% of an area-wide *Go Dutch* network scenario [@lovelace2017] to a single linear greenway, we attenuate each 2011 Census OD pair by a dimensionless **corridor exposure weight** $\omega_{ij} \in [0, 1]$:
 
 $$
 \omega_{ij} = \phi_{ij} \cdot \exp\!\left(-\frac{a_i + a_j}{L_a}\right)
 $$ {#eq-omega}
 
-where $\phi_{ij} \in [0, 1]$ is the fraction of the straight-line desire line falling within a 1.5 km lateral corridor buffer, $a_i$ and $a_j$ are the Euclidean access/egress distances (m) from the origin and destination population-weighted centroids to the greenway spine, and $L_a = 3{,}000\text{ m}$ is the combined access-decay scale (meaning an OD pair with $a_i = a_j = 500\text{ m}$ and $\phi_{ij} = 1$ retains $\omega_{ij} = e^{-1/3} = 0.72$, whereas a pair 2.5 km from the spine at both ends retains only $e^{-5/3} = 0.19$).
-
-For any corridor investment scenario achieving a fraction $\kappa \in (0, 1]$ of the Dutch-quality infrastructure gap along the scheme itself, predicted steady-state commute cyclists $C^{1}_{ij}$ are:
+where $\phi_{ij} \in [0, 1]$ is the desire-line share within a 1.5 km corridor buffer, $a_i, a_j$ are endpoint centroid distances (m) to the spine, and $L_a = 3{,}000\text{ m}$. Steady-state commute cyclists $C^{1}_{ij}$ are then bounded between observed baseline $C^{0}_{ij}$ and the PCT upper-envelope reference $C^{\text{ref}}_{ij}$ (*Go Dutch* Central $\kappa = 0.50$; *E-bikes* High $\kappa = 0.60$):
 
 $$
 C^{1}_{ij} = \min\!\Bigl(N_{ij},\; C^{0}_{ij} + \kappa\,\omega_{ij}\,\max\bigl(0,\; C^{\text{ref}}_{ij} - C^{0}_{ij}\bigr)\Bigr)
 $$ {#eq-corridor-uptake}
 
-where $N_{ij}$ is total commuters, $C^{0}_{ij}$ is observed baseline cyclists, and $C^{\text{ref}}_{ij}$ is the PCT *Go Dutch* (Central, $\kappa = 0.50$) or *E-bikes* (High, $\kappa = 0.60$) upper-envelope benchmark. This keeps the model **strictly bounded**, **monotone in access proximity and alignment**, and **immediately auditable** by economists.
+Full PCT logistic equations and an audit of the existing `railactive` prototype scripts are given in [Appendix §1–2](uptake_appendix.qmd#sec-audit).
 
----
+## Oxfordshire–Uxbridge Case Study (`r s$tot_len_km` km) {#sec-casestudy}
 
-## Case Study: Oxfordshire to Uxbridge (`r tot_len_km` km) {#sec-casestudy}
-
-### Corridor Geography and Infrastructure Profile
-
-To demonstrate the framework on a tractable, diverse, and policy-relevant stretch before full-corridor roll-out, we select the **`r tot_len_km` km Oxfordshire-to-Uxbridge section** of the preferred North–South Greenway (v0.5.2, Sections `13, 10, 8, 7, 6, 5, 4, 3, 2, 1, 12, 11`, comprising `r nrow(corr)` preferred links). Running south-east from **Banbury** (Cherwell District, Oxfordshire) via **Brackley**, **Finmere/Mixbury** (northern Oxfordshire), **Calvert/Quainton**, **Aylesbury**, **Wendover**, **Great Missenden**, **Amersham**, and the **Colne Valley** into **Uxbridge** (London Borough of Hillingdon), this section spans rural market towns, HS2 civil engineering haul roads, Chiltern valleys, and outer-London commuter catchments.
-
-```{r tbl-infra}
-class_disp <- class_sum |>
-  mutate(
-    `Corridor Classification` = classification,
-    `Links` = n_links,
-    `Length (km)` = sprintf("%.2f", length_km),
-    `Share (%)` = sprintf("%.1f%%", share_pct)
-  ) |>
-  select(`Corridor Classification`, `Links`, `Length (km)`, `Share (%)`)
-
-kable(
-  class_disp,
-  align = c("l", "r", "r", "r"),
-  caption = "Preferred Oxfordshire–Uxbridge corridor breakdown by infrastructure classification (v0.5.2, Sections 13 to 11)."
-)
-```
-
-Over **64% (`72.0 km`)** of the corridor comprises off-road or segregated active travel assets — led by **Repurposed HS2 Temporary Construction Roads (`21.7 km`, `19.3%`)**, **Upgraded PRoW (`19.5 km`)**, **New Greenway (`19.3 km`)**, **Canal Towpath Upgrades (`7.2 km`)**, and **Main Road Cycle Tracks (`4.0 km`)** — linked by quietways (`18.6 km`), existing routes (`13.4 km`), and quiet lanes (`8.4 km`).
+We test the framework on the **`r s$tot_len_km` km Oxfordshire-to-Uxbridge** spine ({{< var corridor_version >}}, Sections `13` to `11`, `r s$n_links` links from Banbury via Brackley, Calvert, Aylesbury, Wendover, and Amersham to Uxbridge). Over **`r sprintf("%.0f%%", s$offroad_pct)` (`r s$offroad_km` km)** consists of off-road or segregated assets (detailed breakdown in [Appendix Table 2](uptake_appendix.qmd#sec-more-examples)).
 
 ```{r fig-corridor-map}
-#| fig-cap: "Oxfordshire-to-Uxbridge corridor case study (112.5 km, Sections 13 to 11). (A) Preferred alignment by infrastructure classification and 3 km catchment buffer. (B) 2011 Census LSOA commute uptake desire lines (Corridor Central scenario, >= 2.5 new cyclists shown; flagship King's Sutton to Banbury worked example highlighted in crimson)."
+#| fig-cap: "Oxfordshire–Uxbridge corridor case study: (A) Preferred alignment by infrastructure class and 3 km buffer; (B) 2011 Census LSOA commute uptake desire lines (Corridor Central >= 2.5 new cyclists; King's Sutton to Banbury highlighted)."
 #| fig-width: 10.5
-#| fig-height: 5.4
+#| fig-height: 5.2
 #| dpi: 300
-
-corr_27700 <- st_transform(corr, 27700)
-buf_3km <- st_transform(st_union(st_buffer(corr_27700, 3000)), 4326)
-
-# Simplify classification into 5 clean map categories
-corr_plot <- corr |>
-  mutate(
-    cls_grp = case_when(
-      classification %in% c("Repurposed HS2 TCR", "HS2 delivered greenway") ~ "Repurposed HS2 TCR / Greenway",
-      classification %in% c("New Greenway", "Main Road-Cycle tracks") ~ "New Greenway / Cycle Track",
-      classification %in% c("Upgrade PROW", "Canal Towpath Upgrade") ~ "Upgraded PRoW / Canal Towpath",
-      classification %in% c("Local Road Quietway", "Quiet Lane") ~ "Quietway / Quiet Lane",
-      TRUE ~ "Existing Routes"
-    ),
-    cls_grp = factor(cls_grp, levels = c(
-      "Repurposed HS2 TCR / Greenway",
-      "New Greenway / Cycle Track",
-      "Upgraded PRoW / Canal Towpath",
-      "Quietway / Quiet Lane",
-      "Existing Routes"
-    ))
-  )
-
-cls_pal <- c(
-  "Repurposed HS2 TCR / Greenway" = "#d97706",
-  "New Greenway / Cycle Track"    = "#059669",
-  "Upgraded PRoW / Canal Towpath" = "#0284c7",
-  "Quietway / Quiet Lane"         = "#7c3aed",
-  "Existing Routes"               = "#64748b"
-)
-
-# Nudged town labels for clean non-overlapping cartography
-towns_lbl <- towns |>
-  mutate(
-    nudge_x = case_when(
-      label == "Banbury" ~ -0.02,
-      label == "Brackley" ~ 0.055,
-      label == "Buckingham" ~ 0.075,
-      label == "Aylesbury" ~ -0.065,
-      label == "Wendover" ~ 0.065,
-      label == "Great Missenden" ~ -0.10,
-      label == "Amersham" ~ 0.065,
-      label == "Chalfont St Peter" ~ -0.11,
-      label == "Denham" ~ -0.065,
-      label == "Uxbridge" ~ 0.025,
-      TRUE ~ 0
-    ),
-    nudge_y = case_when(
-      label == "Banbury" ~ 0.026,
-      label == "Brackley" ~ 0.022,
-      label == "Buckingham" ~ 0.015,
-      label == "Aylesbury" ~ -0.025,
-      label == "Wendover" ~ 0.015,
-      label == "Great Missenden" ~ -0.018,
-      label == "Amersham" ~ 0.018,
-      label == "Chalfont St Peter" ~ -0.018,
-      label == "Denham" ~ -0.022,
-      label == "Uxbridge" ~ -0.024,
-      TRUE ~ 0
-    )
-  )
-
-p_a <- ggplot() +
-  geom_sf(data = buf_3km, fill = "#e2e8f0", colour = "#cbd5e1", linewidth = 0.3, alpha = 0.65) +
-  geom_sf(data = corr_plot, aes(colour = cls_grp), linewidth = 1.25) +
-  geom_point(data = towns_lbl, aes(x = lon, y = lat), size = 1.8, colour = "#0f172a") +
-  geom_text(
-    data = towns_lbl,
-    aes(x = lon + nudge_x, y = lat + nudge_y, label = label),
-    size = 2.6, fontface = "bold", colour = "#1e293b"
-  ) +
-  scale_colour_manual(values = cls_pal, name = "Infrastructure Type") +
-  coord_sf(xlim = c(-1.48, -0.32), ylim = c(51.49, 52.13), expand = FALSE) +
-  labs(title = "A. Corridor Alignment & 3 km Catchment", x = NULL, y = NULL) +
-  theme_rail(9) +
-  theme(
-    legend.position = "bottom",
-    legend.box = "vertical",
-    axis.text = element_text(size = 7.5, colour = "#64748b")
-  ) +
-  guides(colour = guide_legend(ncol = 2, override.aes = list(linewidth = 2)))
-
-# Panel B: 2011 OD desire lines (Corridor Central new cyclists >= 2.5)
-od_plot <- od |>
-  mutate(new_cyc = corr_central_slc - bicycle) |>
-  filter(new_cyc >= 2.5) |>
-  arrange(new_cyc)
-
-p_b <- ggplot() +
-  geom_sf(data = buf_3km, fill = "#f1f5f9", colour = "#cbd5e1", linewidth = 0.3) +
-  geom_sf(data = corr_plot, colour = "#94a3b8", linewidth = 0.85, alpha = 0.85) +
-  geom_segment(
-    data = od_plot,
-    aes(x = olon, y = olat, xend = dlon, yend = dlat, colour = new_cyc, linewidth = new_cyc),
-    alpha = 0.72, lineend = "round"
-  ) +
-  geom_segment(
-    data = ex_main,
-    aes(x = olon, y = olat, xend = dlon, yend = dlat),
-    colour = "#dc2626", linewidth = 1.8, lineend = "round"
-  ) +
-  geom_point(
-    data = ex_main, aes(x = olon, y = olat),
-    colour = "#dc2626", fill = "white", shape = 21, size = 2.6, stroke = 1.1
-  ) +
-  geom_point(
-    data = ex_main, aes(x = dlon, y = dlat),
-    colour = "#dc2626", fill = "#dc2626", shape = 21, size = 2.6
-  ) +
-  annotate(
-    "label", x = -1.16, y = 52.085,
-    label = "Worked example:\nKing's Sutton -> Banbury\n(7.8 km, 0 -> 4.7 Central)",
-    size = 2.4, colour = "#991b1b", fill = "#fef2f2", label.size = 0.3, hjust = 0
-  ) +
-  scale_colour_viridis_c(option = "plasma", direction = -1, name = "New Commute Cyclists (Central)") +
-  scale_linewidth_continuous(range = c(0.35, 1.8), guide = "none") +
-  coord_sf(xlim = c(-1.48, -0.32), ylim = c(51.49, 52.13), expand = FALSE) +
-  labs(title = "B. 2011 OD Commute Uptake Desire Lines", x = NULL, y = NULL) +
-  theme_rail(9) +
-  theme(
-    legend.position = "bottom",
-    axis.text = element_text(size = 7.5, colour = "#64748b")
-  ) +
-  guides(colour = guide_colorbar(barwidth = 10, barheight = 0.55))
-
-p_a + p_b
+plot_corridor_map(dat)
 ```
 
-### 2011 OD Commute Uptake Potential Across the Corridor
-
-Extracting all inter-LSOA 2011 Census commute desire lines ($\le 20\text{ km}$ fastest-route distance) whose origin and destination centroids lie within 3 km of the Oxfordshire–Uxbridge spine yields **`r comma(n_pairs_3km)` OD pairs** representing **`r comma(tot_comm_3km)` daily commuters** (`59.1%` car drivers, `25.0%` walking, and only **`3.92%` (`r comma(base_cyc_3km)`)** cycling). Restricting to the **core corridor-aligned subset** (both endpoints $\le 1.5\text{ km}$ from the spine, $\ge 70\%$ of the desire line within 1.5 km, distance $1.5\text{–}20\text{ km}$) isolates **`r comma(n_pairs_core)` OD pairs** and **`r comma(tot_comm_core)` commuters** (`4.29%` baseline cycling) whose journeys directly align with the proposed greenway.
+Across all inter-LSOA 2011 Census commute pairs ($\le 20\text{ km}$) within 3 km of the spine (**`r comma(s$n_pairs_3km)` OD pairs**, **`r comma(s$tot_comm_3km)` commuters**; `r sprintf("%.1f%%", s$car_pct_3km)` car driver, `r sprintf("%.1f%%", s$walk_pct_3km)` walking, **`r sprintf("%.2f%%", s$base_cyc_pct_3km)` cycling**), the **core corridor-aligned subset** (endpoints $\le 1.5\text{ km}$, $\phi_{ij} \ge 0.70$, distance $1.5\text{–}20\text{ km}$) isolates **`r comma(s$n_pairs_core)` pairs** and **`r comma(s$tot_comm_core)` commuters** (`r sprintf("%.2f%%", s$base_cyc_pct_core)` baseline cycling).
 
 ```{r tbl-scenarios}
-scen_tbl <- tibble(
-  Scenario = c(
-    "Baseline (2011 Census Observed)",
-    "PCT Government Target (National Benchmark)",
-    "Corridor Central (50% Go Dutch, attenuated)",
-    "Corridor High (60% E-bikes, attenuated)",
-    "PCT Go Dutch (Unattenuated Area Ceiling)",
-    "PCT E-bikes (Unattenuated Area Ceiling)"
-  ),
-  `3 km Cyclists` = round(c(base_cyc_3km, gt_cyc_3km, cc_cyc_3km, ch_cyc_3km, du_cyc_3km, eb_cyc_3km)),
-  `3 km New` = round(c(0, gt_cyc_3km - base_cyc_3km, cc_cyc_3km - base_cyc_3km,
-                       ch_cyc_3km - base_cyc_3km, du_cyc_3km - base_cyc_3km, eb_cyc_3km - base_cyc_3km)),
-  `3 km Share` = percent(c(base_cyc_3km, gt_cyc_3km, cc_cyc_3km, ch_cyc_3km, du_cyc_3km, eb_cyc_3km) / tot_comm_3km, accuracy = 0.1),
-  `Core Aligned Cyclists` = round(c(
-    base_cyc_core,
-    sum(core$govtarget_slc),
-    cc_cyc_core,
-    ch_cyc_core,
-    du_cyc_core,
-    eb_cyc_core
-  )),
-  `Core New` = round(c(
-    0,
-    sum(core$govtarget_slc) - base_cyc_core,
-    cc_cyc_core - base_cyc_core,
-    ch_cyc_core - base_cyc_core,
-    du_cyc_core - base_cyc_core,
-    eb_cyc_core - base_cyc_core
-  )),
-  `Core Share` = percent(c(
-    base_cyc_core, sum(core$govtarget_slc), cc_cyc_core, ch_cyc_core, du_cyc_core, eb_cyc_core
-  ) / tot_comm_core, accuracy = 0.1)
-) |>
-  mutate(across(c(`3 km Cyclists`, `3 km New`, `Core Aligned Cyclists`, `Core New`), comma))
-
-kable(
-  scen_tbl,
-  align = c("l", "r", "r", "r", "r", "r", "r"),
-  caption = "Estimated steady-state commute cycling uptake along the Oxfordshire–Uxbridge corridor (2011 Census OD baseline, inter-LSOA pairs <= 20 km)."
-)
+tbl_scenarios(dat)
 ```
 
-Three findings stand out immediately for economic appraisal:
+Three appraisal lessons emerge directly from @tbl-scenarios and @fig-dist-lad:
 
-1. **Corridor-exposure attenuation matters enormously:** Unattenuated *Go Dutch* yields `+16,336` commute cyclists across the 3 km catchment, but once we attenuate by scheme alignment and access distance ($\omega_{ij}$) with $\kappa = 0.50$, the **Corridor Central** estimate is **`+4,096` new commute cyclists** (`11.6%` mode share), of whom **`+2,454` (`60%`)** sit in the tightly aligned core subset (`14.9%` mode share).
-2. **Spatial concentration around key nodal hubs:** Demand clusters strongly around **Aylesbury**, **Banbury**, **Uxbridge/Denham**, and **Amersham/Chalfonts** (@fig-dist-lad). Rural inter-village links (Sections 4–7 around Calvert, Steeple Claydon, and Finmere) carry much lower commute volume and will rely far more heavily on **leisure/tourism** and **e-bike** demand.
-3. **Distance profile and the e-bike unlock:** Conventional cycling uptake peaks sharply at `2–6 km`, whereas **e-bikes** disproportionately unlock the **`6–15 km` inter-settlement band** (such as Wendover–Aylesbury, King's Sutton–Banbury, and Chalfont St Peter–Uxbridge) where rural greenway segments sit.
+1. **Exposure attenuation prevents over-claiming:** Unattenuated *Go Dutch* (+`r comma(round(s$du_new_3km))`) overstates single-corridor impact; attenuating by $\omega_{ij}$ yields **+`r comma(round(s$cc_new_3km))`** Central new cyclists (`r sprintf("%.1f%%", s$cc_share_3km)` share), with **`r sprintf("%.0f%%", s$core_share_of_new)`** (+`r comma(round(s$cc_new_core))`) on tightly aligned core links (`r sprintf("%.1f%%", s$cc_share_core)` share).
+2. **Nodal clustering vs rural gaps:** Commute demand clusters around **Aylesbury**, **Banbury**, **Uxbridge/Denham**, and **Amersham**; rural mid-corridor sections (Calvert–Finmere) depend heavily on **leisure/tourism** and **e-bikes**.
+3. **E-bikes shift the distance curve:** Unpowered cycling peaks at `2–6 km`, whereas **e-bikes** unlock the **`6–15 km` inter-settlement band**.
 
 ```{r fig-dist-lad}
-#| fig-cap: "2011 commute cycling uptake along the Oxfordshire–Uxbridge 3 km catchment: (A) new commute cyclists by fastest-route distance band under Corridor Central vs Corridor High (E-bikes); (B) baseline vs Corridor Central cyclists by origin Local Authority District (2011 LADs)."
+#| fig-cap: "2011 commute cycling uptake in the 3 km catchment: (A) new cyclists by distance band (Corridor Central vs additional e-bike uplift); (B) baseline vs Corridor Central cyclists by origin Local Authority District."
 #| fig-width: 10.2
-#| fig-height: 4.1
+#| fig-height: 4.0
 #| dpi: 300
-
-dist_df <- od |>
-  mutate(
-    dist_band = cut(
-      rf_dist_km,
-      breaks = c(0, 2, 4, 6, 8, 10, 15, 20),
-      labels = c("0-2", "2-4", "4-6", "6-8", "8-10", "10-15", "15-20"),
-      include.lowest = TRUE
-    )
-  ) |>
-  group_by(dist_band) |>
-  summarise(
-    `Corridor Central (Unpowered)` = sum(corr_central_slc - bicycle),
-    `Additional E-bike Uplift` = sum(corr_high_slc - corr_central_slc),
-    .groups = "drop"
-  ) |>
-  pivot_longer(-dist_band, names_to = "Component", values_to = "New_Cyclists") |>
-  mutate(Component = factor(Component, levels = c("Additional E-bike Uplift", "Corridor Central (Unpowered)")))
-
-p_dist <- ggplot(dist_df, aes(x = dist_band, y = New_Cyclists, fill = Component)) +
-  geom_col(width = 0.72) +
-  scale_fill_manual(values = c("Corridor Central (Unpowered)" = "#1e3a8a", "Additional E-bike Uplift" = "#0ea5e9"), name = NULL) +
-  scale_y_continuous(labels = comma) +
-  labs(title = "A. New Commute Cyclists by Trip Distance", x = "Fastest-route distance band (km)", y = "Additional commute cyclists") +
-  theme_rail(9.5) +
-  theme(legend.position = "bottom")
-
-lad_df <- od |>
-  group_by(lad_name1) |>
-  summarise(
-    Baseline = sum(bicycle),
-    `New (Corridor Central)` = sum(corr_central_slc - bicycle),
-    .groups = "drop"
-  ) |>
-  filter(Baseline + `New (Corridor Central)` >= 50) |>
-  mutate(tot = Baseline + `New (Corridor Central)`) |>
-  pivot_longer(c(Baseline, `New (Corridor Central)`), names_to = "Stage", values_to = "Cyclists") |>
-  mutate(
-    lad_name1 = reorder(lad_name1, tot),
-    Stage = factor(Stage, levels = c("New (Corridor Central)", "Baseline"))
-  )
-
-p_lad <- ggplot(lad_df, aes(x = lad_name1, y = Cyclists, fill = Stage)) +
-  geom_col(width = 0.68) +
-  coord_flip() +
-  scale_fill_manual(values = c("Baseline" = "#64748b", "New (Corridor Central)" = "#059669"), name = NULL) +
-  scale_y_continuous(labels = comma) +
-  labs(title = "B. Commute Cyclists by Origin District (2011 LAD)", x = NULL, y = "Commute cyclists (3 km catchment)") +
-  theme_rail(9.5) +
-  theme(legend.position = "bottom")
-
-p_dist + p_lad
+plot_dist_lad(dat)
 ```
 
----
+## Worked Example, Leisure Extension & Temporal Lag {#sec-worked-example}
 
-## Worked Example Desire Line: Commuting, Leisure Extension & Temporal Lag {#sec-worked-example}
+### King's Sutton to Banbury (`E01027288 -> E01028435`)
 
-### Step-by-Step Commute Calculation: King's Sutton to Banbury
+- **Observed 2011 baseline:** $N_{ij} = `r s$ex_n`$ commuters (`r s$ex_cyc` cyclists, `r s$ex_walk` walker, **`r s$ex_car_drv` car drivers** [`r sprintf("%.1f%%", 100 * s$ex_car_drv / s$ex_n)`%], `r s$ex_car_pax` car passengers, `r s$ex_bus` bus, `r s$ex_rail` rail); $d_{ij} = `r sprintf("%.2f", s$ex_dist)`\text{ km}$, slope $g_{ij} = `r sprintf("%.2f", s$ex_slope)`\%$. Centroids sit `r round(s$ex_o_dist)` m and `r round(s$ex_d_dist)` m from the spine with $\phi_{ij} = `r sprintf("%.2f", s$ex_phi)`$, giving $\omega_{ij} = `r sprintf("%.4f", s$ex_omega)`$.
+- **PCT propensities & corridor uptake:** Evaluating @eq-corridor-uptake between observed baseline (`0`), *Go Dutch* ($p^{\text{Dutch}} = `r sprintf("%.2f", s$ex_p_dutch)`\%$, `r sprintf("%.2f", s$ex_dutch)` cyclists), and *E-bikes* ($p^{\text{ebike}} = `r sprintf("%.2f", s$ex_p_ebike)`\%$, `r sprintf("%.2f", s$ex_ebike)` cyclists) yields **`r sprintf("%.2f", s$ex_cc)` steady-state commute cyclists** (`r sprintf("%.1f%%", s$ex_cc_share)` share) under **Corridor Central** (`r sprintf("%.2f", s$ex_trips_day)` one-way trips/day at AMAT's `1.9` return factor, **`r comma(round(s$ex_km_yr))` cycle-km/yr** over `220` days) and **`r sprintf("%.2f", s$ex_ch)` cyclists** (`r sprintf("%.2f", s$ex_ch_trips_day)` trips/day) under **Corridor High (E-bikes)**.
+- **Car diversion sensitivity:** Proportional non-cycle diversion implies **`r sprintf("%.1f%%", s$ex_car_div_pct)`** (`r sprintf("%.2f", s$ex_car_div_cyc)` cyclists) divert from car driver — more than double AMAT's `24%` national urban default (`+6%` taxi; @dft2025amat).
 
-To make the mechanics completely transparent for economists, we trace a single real 2011 Census OD desire line at the Oxfordshire end of the corridor: **`E01027288 -> E01028435` (King's Sutton, South Northamptonshire border $\rightarrow$ Banbury Town Centre, Cherwell / Oxfordshire)**.
+Further diagnostic plots for this pair and three Buckinghamshire/Uxbridge comparisons appear in [Appendix §3](uptake_appendix.qmd#sec-more-examples).
 
-- **Observed 2011 attributes:** $N_{ij} = 55$ daily commuters: **`0` cyclists**, `1` walker, **`34` car drivers (`61.8%`)**, `8` car passengers, `7` bus, and `5` rail. Fastest road distance $d_{ij} = 7.84\text{ km}$, average slope $g_{ij} = 1.50\%$.
-- **Corridor alignment:** Origin centroid is `246 m` from the preferred greenway spine (Section 10/13); destination centroid in central Banbury is `400 m` from the spine; **100%** of the straight-line desire line lies within 1 km of the greenway ($\phi_{ij} = 1.00$).
+### Extending to Leisure & Exercise/Pleasure Trips
 
-**Step 1 — Baseline & upper-envelope logistic propensities (@eq-pct-base):**
-Evaluating the PCT logistic curve at $d = 7.84\text{ km}$ and $g = 1.50\%$ gives a UK baseline propensity of $p^{\text{base}} = 3.82\%$ (`2.10` cyclists under *Government Target*), a *Go Dutch* propensity of $p^{\text{Dutch}} = 21.29\%$ (`11.71` cyclists), and an *E-bikes* propensity of $p^{\text{ebike}} = 31.82\%$ (`17.50` cyclists). Observed baseline cycling is `0`, reflecting severe traffic-stress deterrence ($s_0$) on existing rural roads into Banbury.
+As documented in [Methodology](methods.qmd), commuting accounts for only **{{< var nts_cycle_commute_pct >}}** of cycling trips (NTS) and **{{< var als_cycle_travel_time_pct >}}** of cycling time (ALS), whereas leisure represents **{{< var nts_cycle_leisure_pct >}}** of trips and **{{< var als_cycle_leisure_time_pct >}}** of minutes. Following @nellthorp2026 (§1.4.1, Table 2), appraisal must separate **Exercise & Pleasure** (marginal $VTT = 0$, full Journey Ambience & health benefits, lower car-diversion MECs) from **Other Non-Work Utility** (shopping, education, station access). We propose a two-tier extension:
 
-**Step 2 — Corridor exposure weight (@eq-omega) and steady-state commute uptake (@eq-corridor-uptake):**
-$$
-\omega_{ij} = 1.00 \times \exp\!\left(-\frac{246 + 400}{3{,}000}\right) = 0.8064
-$$
-Under **Corridor Central** ($\kappa = 0.50$ of the *Go Dutch* gap), steady-state commute cyclists rise from **`0` to `4.72` commuters** (`+4.72` new cyclists; `8.6%` mode share). Applying the standard AMAT return-trip factor ($1 + 0.90 = 1.90$) and `220` commuting days/year yields **`8.97` one-way cycle trips/day** (`1,973` trips/year, **`15,471` cycle-km/year** on this single LSOA pair). Under **Corridor High (E-bikes, $\kappa = 0.60$)**, uptake rises to **`8.47` commute cyclists** (`16.09` daily one-way trips).
+- **Tier 1 (Screening):** Apply calibrated purpose multipliers (`1.5×` local leisure + `0.5×` other utility on `King's Sutton–Banbury` adds `+13.5` leisure and `+4.5` other-utility trips/day to `8.97` commute trips).
+- **Tier 2 (Full corridor):** Run a spatial gravity model linking LSOAs, rail stations, and OSM campsites to greenway attractors with longer leisure decay ($L \approx 6\text{–}9\text{ km}$) calibrated to rural trail counters.
 
-**Step 3 — Mode diversion decomposition (for TAG Unit A5.4 MECs):**
-Under proportional diversion from non-cycling modes (PCT default), `34 / 55 = 61.8%` of new cyclists (`2.92` commuters) divert from **car driver**, `14.5%` from car passenger, `21.8%` from public transport, and `1.8%` from walking. However, AMAT's national default car-driver diversion rate is only `24%` (plus `6%` taxi; @dft2025amat). On a car-dominated rural corridor like King's Sutton–Banbury (`62%` car driver), using the national urban default understates displaced vehicle-km by more than half — illustrating why **OD-specific diversion shares** (Option 3 in @sec-questions) should be passed into economic appraisal.
+### Behavioural Ramp-Up Convolved with AMAT Health Lags
 
-```{r fig-worked-example}
-#| fig-cap: "Zoomed view of the flagship worked-example desire line: King's Sutton (E01027288) to Banbury Town Centre (E01028435, Oxfordshire). Both LSOA centroids sit within 400 m of the preferred greenway spine (Sections 10 & 13), with 100% of the desire line aligned along the corridor."
-#| fig-width: 9.5
-#| fig-height: 4.3
-#| dpi: 300
-
-# Zoom map around Banbury - King's Sutton - Brackley
-corr_zoom <- corr_plot |> filter(section %in% c("13", "10", "8"))
-od_zoom <- od |>
-  filter(olon >= -1.42, olon <= -1.16, olat >= 52.00, olat <= 52.09,
-         dlon >= -1.42, dlon <= -1.16, dlat >= 52.00, dlat <= 52.09) |>
-  mutate(new_cyc = corr_central_slc - bicycle) |>
-  filter(new_cyc >= 1.5)
-
-p_zoom <- ggplot() +
-  geom_sf(data = corr_zoom, aes(colour = cls_grp), linewidth = 1.8) +
-  geom_segment(
-    data = od_zoom,
-    aes(x = olon, y = olat, xend = dlon, yend = dlat),
-    colour = "#64748b", alpha = 0.35, linewidth = 0.5
-  ) +
-  geom_segment(
-    data = ex_main,
-    aes(x = olon, y = olat, xend = dlon, yend = dlat),
-    colour = "#dc2626", linewidth = 2.0,
-    arrow = arrow(length = unit(0.22, "cm"), type = "closed")
-  ) +
-  geom_point(data = ex_main, aes(x = olon, y = olat), size = 3.5, shape = 21, fill = "white", colour = "#dc2626", stroke = 1.4) +
-  geom_point(data = ex_main, aes(x = dlon, y = dlat), size = 3.5, shape = 21, fill = "#dc2626", colour = "#dc2626") +
-  annotate("label", x = ex_main$olon + 0.008, y = ex_main$olat - 0.009,
-           label = "Origin: King's Sutton\n(E01027288, 246 m to spine)", size = 2.7, hjust = 0, fill = "white") +
-  annotate("label", x = ex_main$dlon + 0.007, y = ex_main$dlat + 0.011,
-           label = "Destination: Banbury Centre\n(E01028435, 400 m to spine)", size = 2.7, hjust = 0, fill = "white") +
-  scale_colour_manual(values = cls_pal, name = "Greenway Class") +
-  coord_sf(xlim = c(-1.38, -1.19), ylim = c(52.005, 52.085), expand = FALSE) +
-  labs(title = "A. Spatial Alignment: King's Sutton -> Banbury", x = NULL, y = NULL) +
-  theme_rail(9) +
-  theme(legend.position = "bottom", axis.text = element_text(size = 7.5)) +
-  guides(colour = guide_legend(ncol = 2))
-
-# Panel B: Scenario comparison bar chart for the worked example
-ex_bars <- tibble(
-  Scenario = factor(
-    c("Baseline\n(2011)", "PCT Gov\nTarget", "Corridor\nCentral", "Corridor High\n(E-bikes)", "Go Dutch\nCeiling", "E-bikes\nCeiling"),
-    levels = c("Baseline\n(2011)", "PCT Gov\nTarget", "Corridor\nCentral", "Corridor High\n(E-bikes)", "Go Dutch\nCeiling", "E-bikes\nCeiling")
-  ),
-  Cyclists = c(ex_main$bicycle, ex_main$govtarget_slc, ex_main$corr_central_slc,
-               ex_main$corr_high_slc, ex_main$dutch_slc, ex_main$ebike_slc),
-  Highlight = c("Base", "Bench", "Adopted", "Adopted", "Bench", "Bench")
-)
-
-p_bar <- ggplot(ex_bars, aes(x = Scenario, y = Cyclists, fill = Highlight)) +
-  geom_col(width = 0.65) +
-  geom_text(aes(label = sprintf("%.1f", Cyclists)), vjust = -0.4, size = 3.0, fontface = "bold", colour = "#0f172a") +
-  scale_fill_manual(values = c("Base" = "#94a3b8", "Bench" = "#cbd5e1", "Adopted" = "#1e3a8a"), guide = "none") +
-  scale_y_continuous(limits = c(0, 20.5)) +
-  labs(title = "B. Uptake Ladder (N = 55 commuters, 7.8 km)", x = NULL, y = "Daily commute cyclists") +
-  theme_rail(9) +
-  theme(axis.text.x = element_text(size = 8))
-
-p_zoom + p_bar + plot_layout(widths = c(1.25, 1))
-```
-
-To confirm consistency across the full 112.5 km corridor — from Oxfordshire through mid-Buckinghamshire to West London — @tbl-four-examples compares four representative corridor-aligned desire lines.
-
-```{r tbl-four-examples}
-four_disp <- ex_four |>
-  transmute(
-    `Desire Line` = gsub(" \\(.*\\)", "", corridor_pair),
-    `Dist (km)` = sprintf("%.2f", rf_dist_km),
-    `Slope (%)` = sprintf("%.2f", rf_avslope_perc),
-    `N` = all,
-    `Car` = sprintf("%.0f%%", 100 * car_driver / all),
-    `Exposure` = sprintf("%.2f", omega_corr),
-    `Base` = bicycle,
-    `Central` = sprintf("%.1f", corr_central_slc),
-    `High` = sprintf("%.1f", corr_high_slc),
-    `Go Dutch` = sprintf("%.1f", dutch_slc)
-  )
-
-kable(
-  four_disp,
-  align = c("l", "r", "r", "r", "r", "r", "r", "r", "r", "r"),
-  caption = "Worked-example comparison across four corridor-aligned 2011 OD desire lines spanning Oxfordshire, Buckinghamshire, and Uxbridge."
-)
-```
-
-### Extending the Model to Leisure and Exercise/Pleasure Trips
-
-Commuting accounts for only **29.9%** of cycling trips in the National Travel Survey (2022–2024) and **29.5%** of cycling minutes in the Active Lives Survey (Year 9), whereas **leisure cycling accounts for 39.7% of trips and 70.5% of total cycling time** (with longer mean trip distances of `6.76 km` vs `5.52 km` for commuting; see [Methodology](methods.qmd)). On rural greenway sections like Banbury–Brackley–Calvert, omitting leisure understates total demand by a factor of **3 to 5**.
-
-Crucially, @nellthorp2026 (§1.4.1, Table 2, p. 4) demonstrate that active mode appraisal requires **four trip purposes**, splitting out **Exercise & Pleasure** (where utility resides in the journey itself: leisure rides, dog walking, running) from **Other Non-Work Utility** (shopping, education, visiting friends, station access):
-
-- For **Exercise & Pleasure** trips (estimated at ~30% of all main-mode active trips nationally, and substantially higher on traffic-free rural greenways), **marginal Value of Travel Time ($VTT$) equals zero**: shortening a recreational ride leads users to ride further rather than bank time savings [@nellthorp2026, p. x, fn 79].
-- However, Exercise & Pleasure trips **still generate full Journey Ambience / perceived safety user benefits** (via Rule of a Half) and **full physical-activity health benefits** (mortality and morbidity via AMAT / TATE3030), though with **lower car-diversion MECs** because many are newly generated or displaced from alternative leisure activities rather than car commutes.
-
-In operational modelling, the commute desire-line framework extends to leisure in two transparent tiers:
-
-1. **Tier 1 — Empirical purpose expansion (rapid screening / sensitivity):** Scale commute uptake on each corridor segment using purpose ratios calibrated to NTS/ALS and rural greenway counter evidence (in Phase 4 of `railactive/pipeline`, HS2 Alignment links average `21.9` daily commute cyclists vs `16.4` local leisure + `27.2` tourism/day-trip + `15.1` education/utility = `80.6` total daily cyclists, a **3.7× all-purpose multiplier** on commuting). Applied to the King's Sutton–Banbury desire line (`8.97` daily commute trips under Corridor Central), a conservative `1.5×` local leisure + `0.5×` other-utility ratio adds **`+13.5` leisure/exercise trips/day** and **`+4.5` other-utility trips/day** (`27.0` total daily trips), tagged explicitly with `purpose = exercise_pleasure` ($VTT = 0$, lower car diversion) vs `purpose = other_utility`.
-2. **Tier 2 — Dedicated spatial leisure/tourism gravity model (full-scale corridor):** Generate explicit OD flows from residential zones (LSOAs/OAs), rail stations, and OSM campsites/stays to greenway trail points, country parks, and heritage attractors (as prototyped in `pipeline` Phase 4), using a **longer distance-decay parameter** ($L \approx 6\text{–}9\text{ km}$ vs $3\text{–}5\text{ km}$ for utility) and an explicit loop-ride / out-and-back factor, calibrated directly against weekend vs weekday counter ratios at rural trail counters.
-
-### Modelling Change Over Time Including Behavioural and Physiological Lags
-
-@nellthorp2026 (§2.3, fn 28 & 30) note that ATE uses a **40-year appraisal period** for active travel infrastructure (compared with 60 years in TAG Unit A1.1), discounting transport benefits at **3.5%** and health benefits at **1.5% (1.29% long-term)** from a 2023 base year [@hmt2026greenbook]. While AMAT incorporates a 5-year linear **physiological health lag** ($h_k = \min(1, 0.2k)$ for years $k = 1\dots 5$ after an individual becomes active), **neither AMAT nor @nellthorp2026 currently specifies a behavioural demand ramp-up lag**. Longitudinal evaluations of new UK traffic-free routes (e.g. the iConnect study; @goodman2014) show that behaviour adjusts gradually over 2–5+ years as awareness spreads, habits shift, and bikes/e-bikes are acquired.
-
-To capture both mechanisms transparently, let $r(t) \in [0, 1]$ denote the cumulative **behavioural adoption share** at time $t$ years post-opening, modelled via a **Bass diffusion S-curve** [@bass1969] with innovation parameter $p$ (early adopters responding immediately on opening) and imitation/network-effect parameter $q$:
-
-$$
-r(t) = \frac{1 - e^{-(p + q)t}}{1 + \frac{q}{p}\,e^{-(p + q)t}}
-$$ {#eq-bass}
-
-In appraisal year $y \ge oy$ (with $t_y = y - oy + 0.5$ at mid-year), new daily trips equal:
-
-$$
-\Delta T_y = \Delta T^{*} \cdot r(t_y) \cdot (1 + g_{\text{bg}})^{\min(y - oy,\, 20)}
-$$ {#eq-annual-trips}
-
-where $\Delta T^{*}$ is steady-state equilibrium uptake and $g_{\text{bg}} = 0.0075$ is AMAT's annual background user growth rate. Because each annual cohort of newly converted riders $\Delta r_j = r(t_j) - r(t_{j-1})$ enters at year $j$ and then builds physiological mortality protection over 5 years, the **effective health-benefit share** $H^{\text{eff}}_k$ in operational year $k$ is the exact discrete convolution:
-
-$$
-H^{\text{eff}}_k = \sum_{j=1}^{k} \Delta r_j \cdot \min\!\bigl(1,\; 0.2\,(k - j + 1)\bigr)
-$$ {#eq-conv}
+Over ATE's **40-year appraisal period** (3.5% transport / 1.5% health discounting; @nellthorp2026 §2.3; @hmt2026greenbook), AMAT applies 100% demand in Year 1 plus a 5-year linear physiological health lag. Because real-world route uptake builds over 3–8 years [@goodman2014], we convolve a **Bass diffusion S-curve** [@bass1969] with AMAT's 5-year health lag (equations in [Appendix §4](uptake_appendix.qmd#sec-temporal-equations)).
 
 ```{r fig-lag}
-#| fig-cap: "Temporal trajectory over ATE's 40-year appraisal period (2030–2069) on the King's Sutton–Banbury worked example (Corridor Central): (A) annual commute cycling trips under instant jump vs Fast (3-yr), Central (5-yr), and Slow (8-yr) Bass ramp-up; (B) effective health-benefit share after convolving behavioural adoption with AMAT's 5-year physiological lag."
+#| fig-cap: "40-year trajectory (2030–2069) on King's Sutton–Banbury (Corridor Central): (A) annual commute trips under instant jump vs 3-, 5-, and 8-yr Bass ramp-up; (B) effective health-benefit share after convolving behavioural adoption with AMAT's 5-yr health lag."
 #| fig-width: 10.2
-#| fig-height: 4.1
+#| fig-height: 4.0
 #| dpi: 300
-
-yrs <- 0:39
-cal_yr <- 2030 + yrs
-t_mid <- yrs + 0.5
-grow <- (1.0075) ^ pmin(yrs, 20)
-disc_t <- 1 / (1.035 ^ yrs)
-disc_h <- 1 / (1.015 ^ yrs)
-h_lag_std <- pmin(1.0, (yrs + 1) * 0.2)
-
-bass <- function(t, p, q) (1 - exp(-(p + q) * t)) / (1 + (q / p) * exp(-(p + q) * t))
-
-# Calibrated profiles: Fast (~80% by yr 3), Central (~78% by yr 5), Slow (~79% by yr 8)
-profiles <- list(
-  "Instant (AMAT Default)" = rep(1.0, 40),
-  "Fast Ramp-Up (3-yr)"    = bass(t_mid, p = 0.22, q = 0.70),
-  "Central Ramp-Up (5-yr)" = bass(t_mid, p = 0.10, q = 0.55),
-  "Slow Ramp-Up (8-yr)"    = bass(t_mid, p = 0.05, q = 0.35)
-)
-
-convolve_health <- function(r) {
-  dr <- c(r[1], diff(r))
-  he <- numeric(length(r))
-  for (k in seq_along(r)) {
-    for (j in seq_len(k)) {
-      he[k] <- he[k] + dr[j] * min(1.0, (k - j + 1) * 0.2)
-    }
-  }
-  he
-}
-
-ex_eq_annual_trips <- ex_main$corr_central_slc * 1.9 * 220 # ~1,973 trips/yr
-
-lag_df <- bind_rows(lapply(names(profiles), function(nm) {
-  r <- profiles[[nm]]
-  he <- convolve_health(r)
-  tibble(
-    Year = cal_yr,
-    Profile = nm,
-    Annual_Trips = ex_eq_annual_trips * r * grow,
-    Health_Eff = he
-  )
-})) |>
-  mutate(Profile = factor(Profile, levels = names(profiles)))
-
-lag_pal <- c(
-  "Instant (AMAT Default)" = "#64748b",
-  "Fast Ramp-Up (3-yr)"    = "#0284c7",
-  "Central Ramp-Up (5-yr)" = "#1e3a8a",
-  "Slow Ramp-Up (8-yr)"    = "#d97706"
-)
-
-p_lag1 <- ggplot(lag_df |> filter(Year <= 2050), aes(x = Year, y = Annual_Trips, colour = Profile, linetype = Profile)) +
-  geom_line(linewidth = 1.05) +
-  scale_colour_manual(values = lag_pal, name = NULL) +
-  scale_linetype_manual(values = c("dashed", "solid", "solid", "solid"), name = NULL) +
-  scale_y_continuous(labels = comma) +
-  labs(title = "A. Annual Commute Trips (King's Sutton -> Banbury)", x = "Appraisal year (first 20 yrs shown)", y = "One-way commute cycle trips / yr") +
-  theme_rail(9.5) +
-  theme(legend.position = "bottom") +
-  guides(colour = guide_legend(ncol = 2))
-
-p_lag2 <- ggplot(lag_df |> filter(Year <= 2045), aes(x = Year, y = Health_Eff, colour = Profile, linetype = Profile)) +
-  geom_line(linewidth = 1.05) +
-  scale_colour_manual(values = lag_pal, name = NULL) +
-  scale_linetype_manual(values = c("dashed", "solid", "solid", "solid"), name = NULL) +
-  scale_y_continuous(labels = percent) +
-  labs(title = "B. Effective Health Share (Behavioural + 5-Yr Health Lag)", x = "Appraisal year (first 15 yrs shown)", y = "Share of steady-state health effect") +
-  theme_rail(9.5) +
-  theme(legend.position = "bottom") +
-  guides(colour = guide_legend(ncol = 2))
-
-p_lag1 + p_lag2
+plot_lag_profiles(dat)
 ```
 
 ```{r tbl-lag-pv}
-lag_pv_raw <- bind_rows(lapply(names(profiles), function(nm) {
-  r <- profiles[[nm]]
-  he <- convolve_health(r)
-  pv_t <- sum(r * grow * disc_t) / sum(profiles[[1]] * grow * disc_t)
-  pv_h <- sum(he * grow * disc_h) / sum(h_lag_std * grow * disc_h)
-  tibble(
-    Profile = nm,
-    Yr1 = r[1], Yr3 = r[3], Yr5 = r[5],
-    pv_t = pv_t, pv_h = pv_h
-  )
-}))
-
-pv_t_central <- lag_pv_raw$pv_t[lag_pv_raw$Profile == "Central Ramp-Up (5-yr)"]
-pv_h_central <- lag_pv_raw$pv_h[lag_pv_raw$Profile == "Central Ramp-Up (5-yr)"]
-
-# Verified railactive/amat instant-jump PVB components (£m, 2023 prices, 40-yr 2030-2069) for Core Aligned Commute
-amat_health_inst <- 48.497
-amat_amb_inst    <- 39.673
-amat_abs_inst    <- 8.648
-amat_mec_inst    <- 5.429 + 0.564 + 0.320 + 0.145 + 0.036 + 0.025
-amat_tot_inst    <- amat_health_inst + amat_amb_inst + amat_abs_inst + amat_mec_inst
-
-amat_health_lag  <- amat_health_inst * pv_h_central
-amat_amb_lag     <- amat_amb_inst * pv_t_central
-amat_abs_lag     <- amat_abs_inst * pv_t_central
-amat_mec_lag     <- amat_mec_inst * pv_t_central
-amat_tot_lag     <- amat_health_lag + amat_amb_lag + amat_abs_lag + amat_mec_lag
-
-lag_pv_tbl <- lag_pv_raw |>
-  transmute(
-    `Adoption Profile` = Profile,
-    `Yr 1 Share` = percent(Yr1, accuracy = 1),
-    `Yr 3 Share` = percent(Yr3, accuracy = 1),
-    `Yr 5 Share` = percent(Yr5, accuracy = 1),
-    `40-Yr Transport PV Factor (3.5%)` = sprintf("%.3f (%+.1f%%)", pv_t, 100 * (pv_t - 1)),
-    `40-Yr Health PV Factor (1.5%)` = sprintf("%.3f (%+.1f%%)", pv_h, 100 * (pv_h - 1))
-  )
-
-kable(
-  lag_pv_tbl,
-  align = c("l", "r", "r", "r", "r", "r"),
-  caption = "Impact of behavioural adoption ramp-up on 40-year Present Value benefits (2030–2069) relative to AMAT's instant-jump default."
-)
+tbl_lag_pv(dat)
 ```
 
-Notice the key economic insight in @tbl-lag-pv: under a realistic **5-year Central ramp-up**, 40-year **transport/ambience PV falls by `r sprintf("%.1f%%", 100 * (1 - pv_t_central))`**, whereas **health PV falls by `r sprintf("%.1f%%", 100 * (1 - pv_h_central))`** — a smaller percentage drop despite the compounded physiological lag, because Green Book health discounting (`1.5%`) weights later years much more heavily than transport discounting (`3.5%`).
+Under the **5-year Central ramp-up**, 40-year transport PV falls by **`r sprintf("%.1f%%", 100 * (1 - s$pv_t_central))`**, whereas health PV falls by **`r sprintf("%.1f%%", 100 * (1 - s$pv_h_central))`** because `1.5%` health discounting weights later decades more heavily than `3.5%` transport discounting.
 
----
+## Illustrative Economic Scale & Double-Counting Guardrails {#sec-appraisal}
 
-## Output Datasets for the Economic Evaluation Side {#sec-outputs}
+Passing just the **core aligned commute subset** (`r comma(s$n_pairs_core)` pairs, +`r comma(round(s$cc_new_core))` cyclists = +`r comma(round(s$core_new_trips_day))` daily trips, mean distance **`r sprintf("%.2f", s$mean_dist_core_new)` km**, `prop_on_scheme = 0.72`, `220` days/yr, `2030–2069`, `24%` AMAT default car diversion) through [`railactive/amat`](https://github.com/railactive/amat) yields **£`r sprintf("%.1f", s$amat_tot_inst)`m** PVB instant jump, or **£`r sprintf("%.1f", s$amat_tot_lag)`m** (`r sprintf("%.1f%%", -s$amat_lag_drop_pct)`) with the 5-year ramp-up — before adding TATE3030 morbidity, walking, education, or leisure/tourism.
 
-To create a clean, auditable contract between the spatial demand team and the consultancy's economic appraisal models (`railactive/amat`, TAG worksheets, and ATE's forthcoming **TATE3030** morbidity/mortality tool), the uptake pipeline will output **four standardised tables**:
+```{r tbl-amat-scale}
+#| tbl-colwidths: [26, 13, 13, 12, 36]
+tbl_amat_scale(dat)
+```
 
-| Output Dataset | Granularity | Key Fields & Units | Economic Appraisal Consumer |
-| :--- | :--- | :--- | :--- |
-| **1. OD Uptake** (`od_uptake.parquet`) | OD pair $\times$ Purpose (`commute`, `business`, `other_utility`, `exercise_pleasure`) $\times$ Mode (`walk`, `cycle`, `ebike`) $\times$ Scenario | `o_id`, `d_id`, `section_id`, `rf_dist_km`, `slope_pct`, `omega_corr`, `prop_on_scheme`, `trips_base`, `trips_with`, `trips_new`, `divert_car`, `divert_pt`, `divert_walk`, `induced_share`, `delta_met_wk` | TAG Unit A5.4 MECs (car-km displaced), TATE3030 health MET-hours, Rule-of-a-Half $\Delta CS$ |
-| **2. Link Flows** (`link_flows.parquet`) | Network link $\times$ Section $\times$ Scenario | `link_id`, `gw_id`, `section`, `class`, `length_km`, `infra_base`, `infra_prop`, `flow_base`, `flow_diverted`, `flow_induced`, `pkm_base`, `pkm_with`, `grade_pct`, `lts_base`, `lts_prop` | Link-level Journey Ambience ($\Delta\text{Rate} \times \text{Time on Scheme}$), Safety exposure & external casualty costs, scheme prioritisation |
-| **3. Annual Profile** (`annual_demand.csv`) | Section $\times$ Year ($2030\dots 2069$) $\times$ Purpose $\times$ Mode | `section`, `year`, `ramp_share`, `health_eff`, `trips_exist_yr`, `trips_new_yr`, `vkm_saved_yr`, `met_hrs_yr` | 40-year discounted PVB stream (3.5% transport / 1.5% health) with explicit ramp-up & background growth |
-| **4. AMAT Inputs** (`amat_inputs.csv`) | Corridor Section (or Route Case) $\times$ Scenario | Direct arguments for `amat::amat_run()`: `cycle_trips_without`, `cycle_trips_with`, `cycle_trip_km`, `cycle_prop_on_scheme`, `cycle_current_infra`, `cycle_proposed_infra`, `annual_days`, `car_divert`, `prop_employed`, plus `ramp_pv_t` & `ramp_pv_h` | Automated batch appraisal via `railactive/amat` (zero manual spreadsheet entry) |
-
-: Standardised output contract between the RailActive demand pipeline and economic evaluation tools. {tbl-colwidths="[22,22,32,24]"}
-
-### Illustrative Economic Scale (Core Aligned Commute Subset Only)
-
-Passing just the **core corridor-aligned commuting subset** (`r comma(n_pairs_core)` OD pairs, `+2,454` new commute cyclists = `+4,663` daily one-way trips, mean new trip distance **`r sprintf("%.2f", mean_dist_core_new)` km**, `prop_on_scheme = 0.72`, `220` commuting days/year, `2030–2069` 40-year appraisal period, AMAT default `24%` car diversion) through `railactive/amat` yields an **instant-jump PVB of £`r sprintf("%.1f", amat_tot_inst)`m** (2023 prices, discounted to 2023) — or **£`r sprintf("%.1f", amat_tot_lag)`m** (`r sprintf("%.1f%%", 100 * (amat_tot_lag / amat_tot_inst - 1))`) after applying our **Central 5-year behavioural ramp-up**:
-
-- **Health (Premature Death):** £`r sprintf("%.1f", amat_health_inst)`m instant $\rightarrow$ **£`r sprintf("%.1f", amat_health_lag)`m** with 5-year ramp-up (`r sprintf("%.1f%%", 100 * amat_health_lag / amat_tot_lag)` of PVB)
-- **Journey Ambience:** £`r sprintf("%.1f", amat_amb_inst)`m instant $\rightarrow$ **£`r sprintf("%.1f", amat_amb_lag)`m** with 5-year ramp-up (`r sprintf("%.1f%%", 100 * amat_amb_lag / amat_tot_lag)` of PVB)
-- **Workplace Absenteeism:** £`r sprintf("%.1f", amat_abs_inst)`m instant $\rightarrow$ **£`r sprintf("%.1f", amat_abs_lag)`m** with 5-year ramp-up (`r sprintf("%.1f%%", 100 * amat_abs_lag / amat_tot_lag)` of PVB)
-- **Decongestion & Environmental MECs** (Congestion £5.4m, Accidents £0.56m, GHGs £0.32m, Indirect Tax £0.15m, Noise/AQ £0.06m): £`r sprintf("%.1f", amat_mec_inst)`m instant $\rightarrow$ **£`r sprintf("%.1f", amat_mec_lag)`m** with 5-year ramp-up (`r sprintf("%.1f%%", 100 * amat_mec_lag / amat_tot_lag)` of PVB)
-
-Crucially, **`r sprintf("%.0f%%", 100 * (amat_health_lag + amat_amb_lag) / amat_tot_lag)` of total commuting PVB sits in Health and Journey Ambience** — before adding **morbidity** (TATE3030), **walking**, **education/utility**, or **leisure/tourism** demand. That concentration makes adherence to @nellthorp2026's double-counting rules essential:
+Because **`r sprintf("%.0f%%", s$health_amb_pct)`** of core commute PVB sits in Health and Journey Ambience, all outputs will enforce @nellthorp2026 (Table 13) double-counting rules via the 4-table hand-off schema in [Appendix §5](uptake_appendix.qmd#sec-outputs):
 
 ::: {.callout-important}
-### Double-Counting Compliance Checklist
+### Double-Counting Compliance Summary (Nellthorp et al. 2026, Table 13)
 
-Following Table 13 (Recommendations 1–10) of @nellthorp2026:
-
-1. **User benefits vs long-term health (Recs 1–2):** Retain $\theta \approx 0$ as the working assumption — Journey Ambience user benefits and AMAT/TATE3030 long-term health benefits are **additive** (do not deduct perceived health from TATE3030 unless future DCE evidence establishes $\theta > 0$, in which case deduct $\theta \times$ *internal* health benefits only).
-2. **Rule of a Half boundary (§2.4, fn 58):** Apply RoH *only* to Consumer Surplus / Journey Ambience ($\Delta CS$); do **not** halve physical-activity health benefits or mode-shift MECs.
-3. **User benefits vs safety (Recs 3–6):** Because AMAT Journey Ambience (`16.28 p/min` for off-road segregated track) already embeds users' own perceived safety WTP — which is 2–4× objective own casualty-reduction WTP — **never add TAG own-casualty WTP on top**. Add only *external* safety outcome costs (NHS, net output, police, insurance admin, injuries to others) plus mode-shift safety MECs.
-4. **Place quality / urban realm (Recs 7–10):** Only value destination/origin place quality ($p_i, p_j$) for dwell time or short movements strictly **outside** the trips already captured by the transport model.
-5. **Exercise & Pleasure VTT (§1.4.1):** Set marginal $VTT = 0$ for Exercise & Pleasure trips, while retaining their Journey Ambience and TATE3030 health benefits.
+1. **User benefits vs health (Recs 1–2):** Retain $\theta \approx 0$ so Journey Ambience and AMAT/TATE3030 health benefits remain additive.
+2. **Rule of a Half (§2.4):** Apply RoH *only* to $\Delta CS$ / Journey Ambience — never halve physical-activity health benefits or MECs.
+3. **User benefits vs safety (Recs 3–6):** Journey Ambience ({{< var ambience_offroad_rate >}}) embeds users' perceived safety WTP; add only *external* casualty outcomes and mode-shift safety MECs.
+4. **Place quality (Recs 7–10):** Value origin/destination place quality only for dwell/movements strictly outside modelled trips.
+5. **Exercise & Pleasure VTT (§1.4.1):** Set marginal $VTT = 0$ for Exercise & Pleasure trips while retaining Journey Ambience and health benefits.
 :::
-
----
-
-## Options and Questions Before Scaling to the Full Corridor {#sec-questions}
-
-Before scaling this workflow from Oxfordshire–Uxbridge (`112.5 km`) to the entire **805.6 km North–South Greenway**, we recommend agreeing the following eight methodological decisions with the consultancy economics team and John Nellthorp:
-
-| # | Decision Area | Options to Consider | Recommended Default & Rationale |
-| :--- | :--- | :--- | :--- |
-| 1 | **Commute baseline year & WFH adjustment** | (a) 2011 Census OD unadjusted; (b) 2021 Census OD; (c) **2011 Census OD spatial pattern scaled to 2026 employment & post-COVID commuting days/wk** (e.g., NTS 2023–24 `~3.8` office days/wk vs `4.6` in 2011). | **Option (c):** Avoids March 2021 lockdown distortion while transparently reflecting hybrid working via `annual_days` (e.g., 190–200 days/yr vs 220). |
-| 2 | **Uptake model engine at scale** | (a) Attenuated PCT OD framework ($\kappa, \omega_{ij}$, fast & auditable); (b) Full GC-elasticity discrete-choice model coupled to `netassign` shortest-path $\Delta GC_{ij}$; (c) **Hybrid:** `netassign` computes link-level $\Delta GC_{ij}$ and `prop_on_scheme`, driving a unified logit uptake equation. | **Option (c)** for full business case (achieves full joint alignment with @nellthorp2026 §3.1.1); **Option (a)** as transparent sensitivity benchmark. |
-| 3 | **Car-diversion share (MECs)** | (a) National AMAT default (`24%` car + `6%` taxi); (b) **OD-specific proportional diversion** from 2011/2021 non-cycling mode shares; (c) Nested logit separating `{Walk, Cycle}` from `{Car, PT}`. | **Report (a) as TAG Core and (b)/(c) as Sensitivity:** On rural corridors (`59–62%` car share), AMAT's urban default materially understates displaced car-km. |
-| 4 | **Leisure & tourism demand methodology** | (a) Empirical NTS/ALS purpose multipliers; (b) **Dedicated spatial gravity model** (residents + stations + OSM campsites $\rightarrow$ greenway/heritage attractors) calibrated to rural trail counters; (c) ORVal recreation demand integration. | **Option (b)** with explicit split between *Other Non-Work Utility* and *Exercise & Pleasure* ($VTT = 0$, lower car diversion), cross-checked against (a). |
-| 5 | **Behavioural ramp-up lag** | (a) AMAT default (instant 100% Year 1); (b) Linear 3–5 yr build-up; (c) **Bass S-curve (Central 5-yr maturity)** convolved with AMAT's 5-yr physiological health lag, with 3-yr/8-yr sensitivities. | **Option (c):** Realistic, empirically grounded [@goodman2014], and guards against BCR optimism bias in Green Book assurance. |
-| 6 | **E-bike segmentation** | (a) Pool all cycling as unpowered; (b) **Explicit unpowered vs e-bike split** (different distance/slope elasticity, lower MET intensity ~`4.5–5.0` vs `6.8` METs, higher average speed ~`18–20 km/h`). | **Option (b):** Explicitly recommended by @nellthorp2026 (§4.2.3) and decisive for `6–15 km` rural inter-town links. |
-| 7 | **Appraisal period & TATE3030 transition** | (a) Standard AMAT 20-year period; (b) **ATE 40-year infrastructure period** (matching @nellthorp2026 fn 28); (c) TAG A1.1 60-year period. Also confirm timing for incorporating ATE's TATE3030 morbidity tool alongside AMAT mortality. | **Option (b) (40 years)** as core with 20-year AMAT sensitivity; structure outputs (`delta_met_wk` by demographic segment) to be TATE3030-ready. |
-| 8 | **Spatial aggregation & boundary double-counting** | (a) Whole-corridor unified appraisal; (b) **Modular Route Cases / Section appraisals** (e.g., Oxfordshire–Uxbridge, Calvert–Quainton, Warwickshire) with cross-boundary trips allocated proportionally by `prop_on_scheme`. | **Option (b) summing cleanly to (a):** Allows phasing/funding prioritisation across local authorities without double-counting cross-section trips. |
-
-: Key methodological options and decision register before full-corridor roll-out. {tbl-colwidths="[5,22,41,32]"}
-
----
 
 ## References

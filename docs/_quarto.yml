@@ -2,8 +2,19 @@ project:
   type: website
   output-dir: ../public/docs
 
+bibliography: references.bib
+
+execute:
+  echo: false
+  warning: false
+  message: false
+  freeze: auto
+
 website:
   title: "RailActive Documentation"
+  repo-url: "https://github.com/railactive/railactive"
+  repo-subdir: docs
+  repo-actions: [edit, issue]
   navbar:
     left:
       - text: "← Back to Map App"
@@ -12,8 +23,12 @@ website:
         href: index.qmd
       - text: "Methodology"
         href: methods.qmd
-      - text: "Uptake Case Study"
-        href: uptake_case_study.qmd
+      - text: "Uptake Modelling"
+        menu:
+          - text: "Decision Brief (Ox–Ux)"
+            href: uptake_case_study.qmd
+          - text: "Technical Appendix"
+            href: uptake_appendix.qmd
       - text: "Data Dictionary"
         href: data_dictionary.qmd
       - text: "Data Inventory"
@@ -32,3 +47,5 @@ format:
     number-sections: true
     smooth-scroll: true
     code-fold: true
+    comments:
+      hypothesis: true
